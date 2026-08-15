@@ -1,0 +1,9 @@
+## Interface: 120100
+## Title: lafee_decurse
+## Notes: Decurse addon for World of Warcraft.
+## Author: Lafeeleonie
+## Version: 0.1.0-alpha
+## DefaultState: enabled
+## SavedVariables: LafeeDecurseDB
+
+# Addon files will be listed here when implementation begins.

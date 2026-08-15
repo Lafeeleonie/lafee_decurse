@@ -1,0 +1,7 @@
+# World of Warcraft local data
+*.lua.bak
+*.tmp
+
+# Editor settings
+.vscode/
+.idea/
