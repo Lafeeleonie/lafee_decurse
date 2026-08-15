@@ -1,9 +1,16 @@
 ## Interface: 120100
-## Title: lafee_decurse
-## Notes: Decurse addon for World of Warcraft.
+## Title: Lafee Decurse
+## Notes: Minimal secure dispel frames using Blizzard-managed aura displays.
+## Notes-frFR: Cadres de dissipation minimalistes et sécurisés utilisant l’affichage d’auras géré par Blizzard.
 ## Author: Lafeeleonie
-## Version: 0.1.0-alpha
+## Version: 0.2.1-alpha
 ## DefaultState: enabled
 ## SavedVariables: LafeeDecurseDB
 
-# Addon files will be listed here when implementation begins.
+Localization.lua
+DispelSpells.lua
+SecureFrames.lua
+AuraDisplay.lua
+Config.lua
+Minimap.lua
+Core.lua

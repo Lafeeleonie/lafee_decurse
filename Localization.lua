@@ -1,0 +1,196 @@
+local addonName, addon = ...
+
+local locales = {}
+
+locales.enUS = {
+    CLICK_LEFT = "Left click",
+    CLICK_RIGHT = "Right click",
+    CLICK_MIDDLE = "Middle click",
+    CONFIG_SUBTITLE = "Secure dispel mini-partyframe configuration",
+    SECTION_INTERFACE = "Interface",
+    LOCK_FRAME = "Lock frame",
+    SHOW_MINIMAP = "Show minimap icon",
+    RESET_POSITION = "Reset position",
+    CLICK_ASSIGNMENTS = "Automatic click assignments",
+    UNASSIGNED = "Unassigned",
+    THIRD_CLICK_NOTE = "Middle click is used only when a third distinct spell is available. Changes received in combat are applied after combat.",
+    MINIMAP_TOGGLE = "Left click: show/hide",
+    MINIMAP_CONFIG = "Right click: configuration",
+    MINIMAP_DRAG = "Drag: move",
+    LOCK_COMBAT = "Locking cannot be changed in combat.",
+    FRAME_LOCKED = "Frame locked.",
+    FRAME_UNLOCKED = "Frame unlocked.",
+    POSITION_COMBAT = "The position cannot be changed in combat.",
+    POSITION_RESET = "Position reset.",
+    VISIBILITY_COMBAT = "The frame cannot be shown or hidden in combat.",
+    NO_DISPEL = "No supported friendly dispel spell is known.",
+    AURA_CONTAINER_FAILED = "Unable to load Blizzard_AuraContainer: %s",
+    AURA_DISPLAY_FAILED = "The buttons are available, but the aura display could not be created.",
+    INIT_DEFERRED = "Initialization deferred until combat ends.",
+    TEST_ENABLED = "Visual test enabled.",
+    TEST_DISABLED = "Visual test disabled.",
+    TEST_COMBAT = "The visual test cannot be changed in combat.",
+    HELP_LOCK = "/ldec lock — lock or unlock the frame",
+    HELP_TEST = "/ldec test — enable or disable the visual test",
+    HELP_CONFIG = "/ldec config — open the configuration panel",
+    HELP_MINIMAP = "/ldec minimap — show or hide the minimap icon",
+}
+
+locales.frFR = {
+    CLICK_LEFT = "Clic gauche", CLICK_RIGHT = "Clic droit", CLICK_MIDDLE = "Clic molette",
+    CONFIG_SUBTITLE = "Configuration du mini-partyframe de dissipation sécurisé",
+    SECTION_INTERFACE = "Interface", LOCK_FRAME = "Verrouiller le cadre",
+    SHOW_MINIMAP = "Afficher l’icône de minimap", RESET_POSITION = "Réinitialiser la position",
+    CLICK_ASSIGNMENTS = "Attribution automatique des clics", UNASSIGNED = "Non attribué",
+    THIRD_CLICK_NOTE = "La molette n’est utilisée que lorsqu’un troisième sort distinct est disponible. Les changements reçus en combat sont appliqués à la sortie du combat.",
+    MINIMAP_TOGGLE = "Clic gauche : afficher/masquer", MINIMAP_CONFIG = "Clic droit : configuration", MINIMAP_DRAG = "Glisser : déplacer",
+    LOCK_COMBAT = "Le verrouillage ne peut pas être modifié en combat.", FRAME_LOCKED = "Cadre verrouillé.", FRAME_UNLOCKED = "Cadre déverrouillé.",
+    POSITION_COMBAT = "La position ne peut pas être modifiée en combat.", POSITION_RESET = "Position réinitialisée.",
+    VISIBILITY_COMBAT = "Le cadre ne peut pas être affiché ou masqué en combat.", NO_DISPEL = "Aucun sort de dissipation allié pris en charge n’est connu.",
+    AURA_CONTAINER_FAILED = "Impossible de charger Blizzard_AuraContainer : %s", AURA_DISPLAY_FAILED = "Les boutons sont disponibles, mais l’affichage d’auras n’a pas pu être créé.",
+    INIT_DEFERRED = "Initialisation différée jusqu’à la fin du combat.", TEST_ENABLED = "Test visuel activé.", TEST_DISABLED = "Test visuel désactivé.",
+    TEST_COMBAT = "Le test visuel ne peut pas être modifié en combat.", HELP_LOCK = "/ldec lock — verrouille ou déverrouille le cadre",
+    HELP_TEST = "/ldec test — active ou désactive le test visuel", HELP_CONFIG = "/ldec config — ouvre le panneau de configuration",
+    HELP_MINIMAP = "/ldec minimap — affiche ou masque l’icône de minimap",
+}
+
+locales.deDE = {
+    CLICK_LEFT = "Linksklick", CLICK_RIGHT = "Rechtsklick", CLICK_MIDDLE = "Mittelklick",
+    CONFIG_SUBTITLE = "Konfiguration des sicheren Bannungs-Gruppenfensters", SECTION_INTERFACE = "Oberfläche",
+    LOCK_FRAME = "Fenster sperren", SHOW_MINIMAP = "Minikartensymbol anzeigen", RESET_POSITION = "Position zurücksetzen",
+    CLICK_ASSIGNMENTS = "Automatische Klickbelegung", UNASSIGNED = "Nicht belegt",
+    THIRD_CLICK_NOTE = "Der Mittelklick wird nur verwendet, wenn ein dritter eigenständiger Zauber verfügbar ist. Änderungen im Kampf werden nach dem Kampf angewendet.",
+    MINIMAP_TOGGLE = "Linksklick: ein-/ausblenden", MINIMAP_CONFIG = "Rechtsklick: Konfiguration", MINIMAP_DRAG = "Ziehen: verschieben",
+    LOCK_COMBAT = "Die Sperre kann im Kampf nicht geändert werden.", FRAME_LOCKED = "Fenster gesperrt.", FRAME_UNLOCKED = "Fenster entsperrt.",
+    POSITION_COMBAT = "Die Position kann im Kampf nicht geändert werden.", POSITION_RESET = "Position zurückgesetzt.",
+    VISIBILITY_COMBAT = "Das Fenster kann im Kampf nicht ein- oder ausgeblendet werden.", NO_DISPEL = "Kein unterstützter freundlicher Bannzauber ist bekannt.",
+    AURA_CONTAINER_FAILED = "Blizzard_AuraContainer konnte nicht geladen werden: %s", AURA_DISPLAY_FAILED = "Die Schaltflächen sind verfügbar, aber die Auraanzeige konnte nicht erstellt werden.",
+    INIT_DEFERRED = "Initialisierung bis zum Ende des Kampfes verschoben.", TEST_ENABLED = "Visueller Test aktiviert.", TEST_DISABLED = "Visueller Test deaktiviert.",
+    TEST_COMBAT = "Der visuelle Test kann im Kampf nicht geändert werden.", HELP_LOCK = "/ldec lock — Fenster sperren oder entsperren",
+    HELP_TEST = "/ldec test — visuellen Test ein- oder ausschalten", HELP_CONFIG = "/ldec config — Konfiguration öffnen",
+    HELP_MINIMAP = "/ldec minimap — Minikartensymbol ein- oder ausblenden",
+}
+
+locales.esES = {
+    CLICK_LEFT = "Clic izquierdo", CLICK_RIGHT = "Clic derecho", CLICK_MIDDLE = "Clic central",
+    CONFIG_SUBTITLE = "Configuración del marco de grupo seguro para disipar", SECTION_INTERFACE = "Interfaz",
+    LOCK_FRAME = "Bloquear marco", SHOW_MINIMAP = "Mostrar icono del minimapa", RESET_POSITION = "Restablecer posición",
+    CLICK_ASSIGNMENTS = "Asignación automática de clics", UNASSIGNED = "Sin asignar",
+    THIRD_CLICK_NOTE = "El clic central solo se usa cuando hay un tercer hechizo distinto disponible. Los cambios recibidos en combate se aplican al terminar.",
+    MINIMAP_TOGGLE = "Clic izquierdo: mostrar/ocultar", MINIMAP_CONFIG = "Clic derecho: configuración", MINIMAP_DRAG = "Arrastrar: mover",
+    LOCK_COMBAT = "El bloqueo no se puede cambiar en combate.", FRAME_LOCKED = "Marco bloqueado.", FRAME_UNLOCKED = "Marco desbloqueado.",
+    POSITION_COMBAT = "La posición no se puede cambiar en combate.", POSITION_RESET = "Posición restablecida.",
+    VISIBILITY_COMBAT = "El marco no se puede mostrar ni ocultar en combate.", NO_DISPEL = "No se conoce ningún hechizo de disipación amistoso compatible.",
+    AURA_CONTAINER_FAILED = "No se pudo cargar Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Los botones están disponibles, pero no se pudo crear la visualización de auras.",
+    INIT_DEFERRED = "Inicialización aplazada hasta el final del combate.", TEST_ENABLED = "Prueba visual activada.", TEST_DISABLED = "Prueba visual desactivada.",
+    TEST_COMBAT = "La prueba visual no se puede cambiar en combate.", HELP_LOCK = "/ldec lock — bloquea o desbloquea el marco",
+    HELP_TEST = "/ldec test — activa o desactiva la prueba visual", HELP_CONFIG = "/ldec config — abre la configuración",
+    HELP_MINIMAP = "/ldec minimap — muestra u oculta el icono del minimapa",
+}
+locales.esMX = locales.esES
+locales.enGB = locales.enUS
+
+locales.itIT = {
+    CLICK_LEFT = "Clic sinistro", CLICK_RIGHT = "Clic destro", CLICK_MIDDLE = "Clic centrale",
+    CONFIG_SUBTITLE = "Configurazione del riquadro gruppo sicuro per le dissoluzioni", SECTION_INTERFACE = "Interfaccia",
+    LOCK_FRAME = "Blocca riquadro", SHOW_MINIMAP = "Mostra icona minimappa", RESET_POSITION = "Reimposta posizione",
+    CLICK_ASSIGNMENTS = "Assegnazione automatica dei clic", UNASSIGNED = "Non assegnato",
+    THIRD_CLICK_NOTE = "Il clic centrale viene usato solo quando è disponibile un terzo incantesimo distinto. Le modifiche ricevute in combattimento vengono applicate al termine.",
+    MINIMAP_TOGGLE = "Clic sinistro: mostra/nascondi", MINIMAP_CONFIG = "Clic destro: configurazione", MINIMAP_DRAG = "Trascina: sposta",
+    LOCK_COMBAT = "Il blocco non può essere modificato in combattimento.", FRAME_LOCKED = "Riquadro bloccato.", FRAME_UNLOCKED = "Riquadro sbloccato.",
+    POSITION_COMBAT = "La posizione non può essere modificata in combattimento.", POSITION_RESET = "Posizione reimpostata.",
+    VISIBILITY_COMBAT = "Il riquadro non può essere mostrato o nascosto in combattimento.", NO_DISPEL = "Nessun incantesimo di dissoluzione alleato supportato è conosciuto.",
+    AURA_CONTAINER_FAILED = "Impossibile caricare Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "I pulsanti sono disponibili, ma non è stato possibile creare la visualizzazione delle aure.",
+    INIT_DEFERRED = "Inizializzazione rimandata alla fine del combattimento.", TEST_ENABLED = "Test visivo attivato.", TEST_DISABLED = "Test visivo disattivato.",
+    TEST_COMBAT = "Il test visivo non può essere modificato in combattimento.", HELP_LOCK = "/ldec lock — blocca o sblocca il riquadro",
+    HELP_TEST = "/ldec test — attiva o disattiva il test visivo", HELP_CONFIG = "/ldec config — apre la configurazione",
+    HELP_MINIMAP = "/ldec minimap — mostra o nasconde l’icona della minimappa",
+}
+
+locales.ptBR = {
+    CLICK_LEFT = "Clique esquerdo", CLICK_RIGHT = "Clique direito", CLICK_MIDDLE = "Clique do meio",
+    CONFIG_SUBTITLE = "Configuração do quadro seguro de grupo para dissipação", SECTION_INTERFACE = "Interface",
+    LOCK_FRAME = "Bloquear quadro", SHOW_MINIMAP = "Mostrar ícone do minimapa", RESET_POSITION = "Redefinir posição",
+    CLICK_ASSIGNMENTS = "Atribuição automática de cliques", UNASSIGNED = "Não atribuído",
+    THIRD_CLICK_NOTE = "O clique do meio só é usado quando um terceiro feitiço distinto está disponível. Alterações recebidas em combate são aplicadas após o combate.",
+    MINIMAP_TOGGLE = "Clique esquerdo: mostrar/ocultar", MINIMAP_CONFIG = "Clique direito: configurações", MINIMAP_DRAG = "Arrastar: mover",
+    LOCK_COMBAT = "O bloqueio não pode ser alterado em combate.", FRAME_LOCKED = "Quadro bloqueado.", FRAME_UNLOCKED = "Quadro desbloqueado.",
+    POSITION_COMBAT = "A posição não pode ser alterada em combate.", POSITION_RESET = "Posição redefinida.",
+    VISIBILITY_COMBAT = "O quadro não pode ser mostrado ou ocultado em combate.", NO_DISPEL = "Nenhum feitiço aliado de dissipação compatível é conhecido.",
+    AURA_CONTAINER_FAILED = "Não foi possível carregar Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Os botões estão disponíveis, mas a exibição de auras não pôde ser criada.",
+    INIT_DEFERRED = "Inicialização adiada até o fim do combate.", TEST_ENABLED = "Teste visual ativado.", TEST_DISABLED = "Teste visual desativado.",
+    TEST_COMBAT = "O teste visual não pode ser alterado em combate.", HELP_LOCK = "/ldec lock — bloqueia ou desbloqueia o quadro",
+    HELP_TEST = "/ldec test — ativa ou desativa o teste visual", HELP_CONFIG = "/ldec config — abre as configurações",
+    HELP_MINIMAP = "/ldec minimap — mostra ou oculta o ícone do minimapa",
+}
+
+locales.ruRU = {
+    CLICK_LEFT = "Левая кнопка", CLICK_RIGHT = "Правая кнопка", CLICK_MIDDLE = "Средняя кнопка",
+    CONFIG_SUBTITLE = "Настройка защищённых групповых рамок рассеивания", SECTION_INTERFACE = "Интерфейс",
+    LOCK_FRAME = "Закрепить рамку", SHOW_MINIMAP = "Показывать значок у миникарты", RESET_POSITION = "Сбросить позицию",
+    CLICK_ASSIGNMENTS = "Автоматическое назначение кнопок", UNASSIGNED = "Не назначено",
+    THIRD_CLICK_NOTE = "Средняя кнопка используется только при наличии третьего отдельного заклинания. Изменения в бою применяются после его окончания.",
+    MINIMAP_TOGGLE = "Левая кнопка: показать/скрыть", MINIMAP_CONFIG = "Правая кнопка: настройки", MINIMAP_DRAG = "Перетащить: переместить",
+    LOCK_COMBAT = "Закрепление нельзя изменить в бою.", FRAME_LOCKED = "Рамка закреплена.", FRAME_UNLOCKED = "Рамка откреплена.",
+    POSITION_COMBAT = "Позицию нельзя изменить в бою.", POSITION_RESET = "Позиция сброшена.",
+    VISIBILITY_COMBAT = "Рамку нельзя показать или скрыть в бою.", NO_DISPEL = "Поддерживаемое союзное заклинание рассеивания не найдено.",
+    AURA_CONTAINER_FAILED = "Не удалось загрузить Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Кнопки доступны, но отображение аур создать не удалось.",
+    INIT_DEFERRED = "Инициализация отложена до окончания боя.", TEST_ENABLED = "Визуальный тест включён.", TEST_DISABLED = "Визуальный тест выключен.",
+    TEST_COMBAT = "Визуальный тест нельзя изменить в бою.", HELP_LOCK = "/ldec lock — закрепить или открепить рамку",
+    HELP_TEST = "/ldec test — включить или выключить визуальный тест", HELP_CONFIG = "/ldec config — открыть настройки",
+    HELP_MINIMAP = "/ldec minimap — показать или скрыть значок миникарты",
+}
+
+locales.koKR = {
+    CLICK_LEFT = "왼쪽 클릭", CLICK_RIGHT = "오른쪽 클릭", CLICK_MIDDLE = "가운데 클릭",
+    CONFIG_SUBTITLE = "보안 해제 파티 프레임 설정", SECTION_INTERFACE = "인터페이스",
+    LOCK_FRAME = "프레임 잠금", SHOW_MINIMAP = "미니맵 아이콘 표시", RESET_POSITION = "위치 초기화",
+    CLICK_ASSIGNMENTS = "자동 클릭 지정", UNASSIGNED = "지정되지 않음",
+    THIRD_CLICK_NOTE = "서로 다른 세 번째 주문이 있을 때만 가운데 클릭을 사용합니다. 전투 중 변경 사항은 전투 종료 후 적용됩니다.",
+    MINIMAP_TOGGLE = "왼쪽 클릭: 표시/숨기기", MINIMAP_CONFIG = "오른쪽 클릭: 설정", MINIMAP_DRAG = "드래그: 이동",
+    LOCK_COMBAT = "전투 중에는 잠금을 변경할 수 없습니다.", FRAME_LOCKED = "프레임이 잠겼습니다.", FRAME_UNLOCKED = "프레임 잠금이 해제되었습니다.",
+    POSITION_COMBAT = "전투 중에는 위치를 변경할 수 없습니다.", POSITION_RESET = "위치가 초기화되었습니다.",
+    VISIBILITY_COMBAT = "전투 중에는 프레임을 표시하거나 숨길 수 없습니다.", NO_DISPEL = "사용 가능한 아군 해제 주문을 찾지 못했습니다.",
+    AURA_CONTAINER_FAILED = "Blizzard_AuraContainer를 불러올 수 없습니다: %s", AURA_DISPLAY_FAILED = "버튼은 사용할 수 있지만 오라 표시를 만들 수 없습니다.",
+    INIT_DEFERRED = "전투 종료 후 초기화됩니다.", TEST_ENABLED = "시각 테스트가 활성화되었습니다.", TEST_DISABLED = "시각 테스트가 비활성화되었습니다.",
+    TEST_COMBAT = "전투 중에는 시각 테스트를 변경할 수 없습니다.", HELP_LOCK = "/ldec lock — 프레임 잠금 전환",
+    HELP_TEST = "/ldec test — 시각 테스트 전환", HELP_CONFIG = "/ldec config — 설정 열기",
+    HELP_MINIMAP = "/ldec minimap — 미니맵 아이콘 표시 전환",
+}
+
+locales.zhCN = {
+    CLICK_LEFT = "左键点击", CLICK_RIGHT = "右键点击", CLICK_MIDDLE = "中键点击",
+    CONFIG_SUBTITLE = "安全驱散小队框架设置", SECTION_INTERFACE = "界面",
+    LOCK_FRAME = "锁定框架", SHOW_MINIMAP = "显示小地图图标", RESET_POSITION = "重置位置",
+    CLICK_ASSIGNMENTS = "自动点击分配", UNASSIGNED = "未分配",
+    THIRD_CLICK_NOTE = "仅在有第三个不同的法术时使用中键。战斗中收到的更改将在战斗结束后应用。",
+    MINIMAP_TOGGLE = "左键：显示/隐藏", MINIMAP_CONFIG = "右键：设置", MINIMAP_DRAG = "拖动：移动",
+    LOCK_COMBAT = "战斗中无法更改锁定状态。", FRAME_LOCKED = "框架已锁定。", FRAME_UNLOCKED = "框架已解锁。",
+    POSITION_COMBAT = "战斗中无法更改位置。", POSITION_RESET = "位置已重置。",
+    VISIBILITY_COMBAT = "战斗中无法显示或隐藏框架。", NO_DISPEL = "未发现支持的友方驱散法术。",
+    AURA_CONTAINER_FAILED = "无法加载 Blizzard_AuraContainer：%s", AURA_DISPLAY_FAILED = "按钮可用，但无法创建光环显示。",
+    INIT_DEFERRED = "初始化推迟到战斗结束。", TEST_ENABLED = "视觉测试已启用。", TEST_DISABLED = "视觉测试已禁用。",
+    TEST_COMBAT = "战斗中无法更改视觉测试。", HELP_LOCK = "/ldec lock — 锁定或解锁框架",
+    HELP_TEST = "/ldec test — 开关视觉测试", HELP_CONFIG = "/ldec config — 打开设置",
+    HELP_MINIMAP = "/ldec minimap — 显示或隐藏小地图图标",
+}
+
+locales.zhTW = {
+    CLICK_LEFT = "左鍵點擊", CLICK_RIGHT = "右鍵點擊", CLICK_MIDDLE = "中鍵點擊",
+    CONFIG_SUBTITLE = "安全驅散隊伍框架設定", SECTION_INTERFACE = "介面",
+    LOCK_FRAME = "鎖定框架", SHOW_MINIMAP = "顯示小地圖圖示", RESET_POSITION = "重設位置",
+    CLICK_ASSIGNMENTS = "自動點擊指派", UNASSIGNED = "未指派",
+    THIRD_CLICK_NOTE = "只有在第三個不同法術可用時才使用中鍵。戰鬥中收到的變更會在戰鬥結束後套用。",
+    MINIMAP_TOGGLE = "左鍵：顯示/隱藏", MINIMAP_CONFIG = "右鍵：設定", MINIMAP_DRAG = "拖曳：移動",
+    LOCK_COMBAT = "戰鬥中無法變更鎖定狀態。", FRAME_LOCKED = "框架已鎖定。", FRAME_UNLOCKED = "框架已解鎖。",
+    POSITION_COMBAT = "戰鬥中無法變更位置。", POSITION_RESET = "位置已重設。",
+    VISIBILITY_COMBAT = "戰鬥中無法顯示或隱藏框架。", NO_DISPEL = "找不到支援的友方驅散法術。",
+    AURA_CONTAINER_FAILED = "無法載入 Blizzard_AuraContainer：%s", AURA_DISPLAY_FAILED = "按鈕可用，但無法建立光環顯示。",
+    INIT_DEFERRED = "初始化延後至戰鬥結束。", TEST_ENABLED = "視覺測試已啟用。", TEST_DISABLED = "視覺測試已停用。",
+    TEST_COMBAT = "戰鬥中無法變更視覺測試。", HELP_LOCK = "/ldec lock — 鎖定或解鎖框架",
+    HELP_TEST = "/ldec test — 開關視覺測試", HELP_CONFIG = "/ldec config — 開啟設定",
+    HELP_MINIMAP = "/ldec minimap — 顯示或隱藏小地圖圖示",
+}
+
+local selected = locales[GetLocale()] or locales.enUS
+addon.L = setmetatable(selected, { __index = locales.enUS })
