@@ -1,51 +1,56 @@
 # Lafee Decurse
 
-Prototype minimaliste de cadres de dissipation pour World of Warcraft Retail 12.1+.
+[GitHub — github.com/lafeeleonie](https://github.com/lafeeleonie) · [Twitch — twitch.tv/lafeeleonie](https://www.twitch.tv/lafeeleonie) · [Buy Me a Coffee / Donation](https://buymeacoffee.com/lafeeleonie)
 
-## Principe
+Minimalist dispel frame prototype for World of Warcraft Retail 12.1+.
 
-L’addon affiche cinq boutons permanents associés aux unités fixes `player`, `party1`, `party2`, `party3` et `party4`. L’icône du rôle est affichée avant le nom de chaque unité.
+## Overview
 
-Jusqu’à trois sorts de dissipation alliés distincts sont attribués automatiquement :
+The addon displays five permanent buttons assigned to the fixed units `player`, `party1`, `party2`, `party3`, and `party4`. Each unit's role icon is displayed before its name. Names and the addon title can be hidden for a compact role-only layout.
 
-1. clic gauche ;
-2. clic droit ;
-3. clic molette, uniquement lorsqu’un troisième sort est disponible.
+Up to three distinct friendly dispel spells are assigned automatically:
 
-Chaque bouton contient un `CustomAuraContainerTemplate` Blizzard configuré avec un unique `AuraSlot`. Blizzard décide seul si une aura correspondant au filtre `HARMFUL|RAID_PLAYER_DISPELLABLE` et aux types que le sort actif peut dissiper doit être affichée. Le Lua de l’addon ne lit jamais les auras actives.
+1. left click;
+2. right click;
+3. middle click, only when a third spell is available.
 
-## Commandes
+Each button contains a Blizzard `CustomAuraContainerTemplate` configured with a managed `AuraGroup` limited to three icons. Blizzard alone determines whether to display an aura matching the `HARMFUL|RAID_PLAYER_DISPELLABLE` filter and the dispel types supported by the assigned spells. The addon's Lua code never reads active aura data.
 
-- `/ldec` : affiche l’aide ;
-- `/ldec lock` : verrouille ou déverrouille le déplacement ;
-- `/ldec test` : active un indicateur purement visuel, uniquement hors combat.
-- `/ldec config` : ouvre le panneau de configuration natif ;
-- `/ldec minimap` : affiche ou masque le bouton de minimap.
+The native settings panel provides a three-aura visual test, vertical or horizontal player layouts, three background modes (full frame, player frames only, or hidden), class-colored frames or a custom background with adjustable opacity, title/name visibility, frame locking, minimap visibility, and position/color reset controls. In horizontal mode, player buttons run from left to right and their auras grow downward.
 
-Le bouton de minimap permet d’afficher ou masquer le cadre avec le clic gauche et d’ouvrir la configuration avec le clic droit. Il peut être déplacé autour de la minimap.
+## Commands
+
+- `/ldec`: displays help;
+- `/ldec lock`: locks or unlocks frame movement;
+- `/ldec test`: toggles three visual-only test auras while out of combat;
+- `/ldec config`: opens the native configuration panel;
+- `/ldec minimap`: shows or hides the minimap button.
+
+Left-clicking the minimap button shows or hides the main frame. Right-clicking opens the configuration panel. The button can be dragged around the minimap.
 
 ## Architecture
 
-- `Core.lua` : démarrage, événements, commandes et état ;
-- `SecureFrames.lua` : cinq boutons sécurisés à unités fixes ;
-- `AuraDisplay.lua` : intégration au conteneur d’auras géré par Blizzard ;
-- `DispelSpells.lua` : détection hors combat de trois sorts de dissipation au maximum ;
-- `Config.lua` : panneau moderne intégré aux paramètres de WoW ;
-- `Minimap.lua` : bouton de minimap autonome, sans bibliothèque externe.
+- `Core.lua`: startup, events, commands, and state coordination;
+- `SecureFrames.lua`: five secure buttons assigned to fixed units;
+- `AuraDisplay.lua`: integration with Blizzard-managed aura containers;
+- `DispelSpells.lua`: out-of-combat detection of up to three dispel spells;
+- `Config.lua`: modern panel integrated into the WoW settings interface;
+- `Minimap.lua`: standalone minimap button with no external dependency;
+- `Localization.lua`: runtime localization strings.
 
-Les changements de sort, de spécialisation et de configuration protégée reçus en combat sont différés jusqu’à `PLAYER_REGEN_ENABLED`.
+Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Layout changes are accepted only out of combat because they reposition secure buttons.
 
-## Limites du prototype
+## Prototype limitations
 
-- trois sorts distincts au maximum sont attribués aux clics ;
-- les sorts de familiers du démoniste ne sont pas pris en charge ;
-- les Private Auras ne sont ni inspectées ni affichées par ce MVP ;
-- une validation en jeu Retail 12.1 reste indispensable pour confirmer le comportement secure et l’absence de taint.
+- a maximum of three distinct spells can be assigned to clicks;
+- Warlock pet dispels are not supported;
+- Private Auras are neither inspected nor displayed by this MVP;
+- in-game Retail 12.1 testing is still required to validate secure behavior and confirm the absence of taint.
 
-## Localisations
+## Localization
 
-L’interface, les infobulles, les commandes et les messages sont localisés à l’exécution par `Localization.lua` pour deDE, enUS/enGB, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN et zhTW. Les tableaux de référence restent disponibles dans `locales/`.
+The interface, tooltips, commands, and messages are localized at runtime through `Localization.lua` for deDE, enUS/enGB, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, and zhTW.
 
-## Licence
+## License
 
-Ce projet est publié sous une licence propriétaire restrictive. La reproduction, redistribution, modification et réutilisation ne sont pas autorisées sans accord écrit préalable du titulaire des droits. Consulter [LICENSE.md](LICENSE.md).
+This project is released under a restrictive proprietary license. Reproduction, redistribution, modification, and reuse are prohibited without prior written permission from the copyright holder. See [LICENSE.md](LICENSE.md).

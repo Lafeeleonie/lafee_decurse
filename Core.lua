@@ -5,6 +5,51 @@ local eventFrame = CreateFrame("Frame")
 
 local CLICK_NAMES = { L.CLICK_LEFT, L.CLICK_RIGHT, L.CLICK_MIDDLE }
 
+addon.DEFAULT_BACKGROUND_COLOR = { r = 0.07, g = 0.08, b = 0.10, a = 0.92 }
+addon.BACKGROUND_MODE_FULL = "full"
+addon.BACKGROUND_MODE_FRAMES = "frames"
+addon.BACKGROUND_MODE_NONE = "none"
+
+local function InitializeSavedVariables()
+    LafeeDecurseDB = LafeeDecurseDB or {}
+    LafeeDecurseDB.minimap = LafeeDecurseDB.minimap or { hide = false, angle = 220 }
+    if LafeeDecurseDB.showTitle == nil then LafeeDecurseDB.showTitle = true end
+    if LafeeDecurseDB.showNames == nil then LafeeDecurseDB.showNames = true end
+    if LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_FULL
+        and LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_FRAMES
+        and LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_NONE
+    then
+        LafeeDecurseDB.backgroundMode = LafeeDecurseDB.showBackground == false
+            and addon.BACKGROUND_MODE_NONE
+            or addon.BACKGROUND_MODE_FULL
+    end
+    if LafeeDecurseDB.useClassColors == nil then LafeeDecurseDB.useClassColors = false end
+    if LafeeDecurseDB.horizontal == nil then LafeeDecurseDB.horizontal = false end
+    if LafeeDecurseDB.testMode == nil then LafeeDecurseDB.testMode = false end
+
+    local default = addon.DEFAULT_BACKGROUND_COLOR
+    local color = LafeeDecurseDB.backgroundColor
+    if type(color) ~= "table" then
+        LafeeDecurseDB.backgroundColor = { r = default.r, g = default.g, b = default.b, a = default.a }
+    else
+        color.r = tonumber(color.r) or default.r
+        color.g = tonumber(color.g) or default.g
+        color.b = tonumber(color.b) or default.b
+        color.a = tonumber(color.a) or default.a
+    end
+end
+
+local function ApplySavedConfiguration()
+    addon.mainFrame:EnableMouse(not LafeeDecurseDB.locked)
+    addon.mainFrame:SetShown(not LafeeDecurseDB.frameHidden)
+    addon:ApplyDisplaySettings()
+    addon:SetTestMode(LafeeDecurseDB.testMode)
+    if addon.minimapButton then
+        addon.minimapButton:SetShown(not LafeeDecurseDB.minimap.hide)
+    end
+    addon:RefreshConfigurationPanel()
+end
+
 local function SavePosition(frame)
     local point, _, relativePoint, x, y = frame:GetPoint(1)
     LafeeDecurseDB.position = {
@@ -37,10 +82,12 @@ local function CreateMainFrame()
     local background = frame:CreateTexture(nil, "BACKGROUND")
     background:SetAllPoints()
     background:SetColorTexture(0.025, 0.03, 0.04, 0.94)
+    frame.Background = background
 
     local title = frame:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
     title:SetPoint("TOPLEFT", frame, "TOPLEFT", 6, -5)
     title:SetText("Lafee Decurse")
+    frame.TitleText = title
 
     frame:SetScript("OnDragStart", function(self)
         if LafeeDecurseDB.locked or InCombatLockdown() then
@@ -146,11 +193,7 @@ local function InitializeAddon()
         return
     end
 
-    LafeeDecurseDB = LafeeDecurseDB or {}
-    LafeeDecurseDB.minimap = LafeeDecurseDB.minimap or {
-        hide = false,
-        angle = 220,
-    }
+    InitializeSavedVariables()
     local mainFrame = CreateMainFrame()
     if not addon:CreateSecureUnitButtons(mainFrame) then
         return
@@ -165,9 +208,9 @@ local function InitializeAddon()
 
     addon.activeDispels = dispels
     addon.dispelSignature = BuildDispelSignature(dispels)
-    addon:UpdateUnitNames()
     addon:CreateMinimapButton()
     addon:CreateConfigurationPanel()
+    ApplySavedConfiguration()
     addon.initialized = true
     addon.pendingInitialization = nil
 
@@ -188,7 +231,7 @@ local function HandleSlashCommand(input)
     elseif command == "minimap" then
         addon:SetMinimapVisible(LafeeDecurseDB.minimap.hide)
     elseif command == "test" then
-        local enabled = not addon.testMode
+        local enabled = not LafeeDecurseDB.testMode
         if addon:SetTestMode(enabled) then
             addon:Print(enabled and L.TEST_ENABLED or L.TEST_DISABLED)
         else
@@ -206,6 +249,7 @@ SLASH_LAFEEDECURSE1 = "/ldec"
 SlashCmdList.LAFEEDECURSE = HandleSlashCommand
 
 eventFrame:RegisterEvent("ADDON_LOADED")
+eventFrame:RegisterEvent("PLAYER_LOGIN")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -224,6 +268,17 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         return
     end
 
+    if event == "PLAYER_LOGIN" then
+        if not addon.initialized then
+            InitializeAddon()
+        end
+        if addon.initialized then
+            ApplySavedConfiguration()
+            addon:RefreshDispelConfiguration()
+        end
+        return
+    end
+
     if event == "PLAYER_REGEN_ENABLED" then
         if addon.pendingInitialization then
             InitializeAddon()
@@ -234,6 +289,10 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         if addon.initialized and addon.pendingNameRefresh then
             addon.pendingNameRefresh = nil
             addon:UpdateUnitNames()
+        end
+        if addon.initialized and addon.pendingDisplayRefresh then
+            addon.pendingDisplayRefresh = nil
+            addon:ApplyDisplaySettings()
         end
         return
     end

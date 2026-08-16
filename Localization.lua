@@ -34,6 +34,20 @@ locales.enUS = {
     HELP_TEST = "/ldec test — enable or disable the visual test",
     HELP_CONFIG = "/ldec config — open the configuration panel",
     HELP_MINIMAP = "/ldec minimap — show or hide the minimap icon",
+    TEST_MODE = "Show test auras",
+    SECTION_APPEARANCE = "Appearance",
+    SHOW_TITLE = "Show addon title",
+    SHOW_NAMES = "Show player names",
+    SHOW_BACKGROUND = "Show frame background",
+    BACKGROUND_MODE = "Background",
+    BACKGROUND_MODE_FULL = "Full frame",
+    BACKGROUND_MODE_FRAMES = "Player frames only",
+    BACKGROUND_MODE_NONE = "No background",
+    CLASS_COLORS = "Color frames by class",
+    HORIZONTAL_LAYOUT = "Horizontal player layout (auras grow downward)",
+    BACKGROUND_COLOR = "Background color",
+    RESET_COLOR = "Reset color",
+    DISPLAY_COMBAT = "Display settings cannot be changed in combat.",
 }
 
 locales.frFR = {
@@ -52,6 +66,16 @@ locales.frFR = {
     TEST_COMBAT = "Le test visuel ne peut pas être modifié en combat.", HELP_LOCK = "/ldec lock — verrouille ou déverrouille le cadre",
     HELP_TEST = "/ldec test — active ou désactive le test visuel", HELP_CONFIG = "/ldec config — ouvre le panneau de configuration",
     HELP_MINIMAP = "/ldec minimap — affiche ou masque l’icône de minimap",
+    TEST_MODE = "Afficher les auras de test", SECTION_APPEARANCE = "Apparence",
+    SHOW_TITLE = "Afficher le titre de l’addon", SHOW_NAMES = "Afficher les noms des joueurs",
+    SHOW_BACKGROUND = "Afficher le fond des cadres",
+    BACKGROUND_MODE = "Fond",
+    BACKGROUND_MODE_FULL = "Cadre complet",
+    BACKGROUND_MODE_FRAMES = "Frames seulement",
+    BACKGROUND_MODE_NONE = "Aucun fond",
+    CLASS_COLORS = "Colorer les cadres selon la classe", HORIZONTAL_LAYOUT = "Disposition horizontale des joueurs (auras vers le bas)",
+    BACKGROUND_COLOR = "Couleur de fond", RESET_COLOR = "Réinitialiser la couleur",
+    DISPLAY_COMBAT = "Les réglages d’affichage ne peuvent pas être modifiés en combat.",
 }
 
 locales.deDE = {
@@ -69,6 +93,12 @@ locales.deDE = {
     TEST_COMBAT = "Der visuelle Test kann im Kampf nicht geändert werden.", HELP_LOCK = "/ldec lock — Fenster sperren oder entsperren",
     HELP_TEST = "/ldec test — visuellen Test ein- oder ausschalten", HELP_CONFIG = "/ldec config — Konfiguration öffnen",
     HELP_MINIMAP = "/ldec minimap — Minikartensymbol ein- oder ausblenden",
+    TEST_MODE = "Testauren anzeigen", SECTION_APPEARANCE = "Aussehen",
+    SHOW_TITLE = "Addontitel anzeigen", SHOW_NAMES = "Spielernamen anzeigen",
+    SHOW_BACKGROUND = "Fensterhintergrund anzeigen",
+    CLASS_COLORS = "Fenster nach Klasse färben", HORIZONTAL_LAYOUT = "Horizontale Spieleranordnung (Auren wachsen nach unten)",
+    BACKGROUND_COLOR = "Hintergrundfarbe", RESET_COLOR = "Farbe zurücksetzen",
+    DISPLAY_COMBAT = "Anzeigeeinstellungen können im Kampf nicht geändert werden.",
 }
 
 locales.esES = {
@@ -86,6 +116,12 @@ locales.esES = {
     TEST_COMBAT = "La prueba visual no se puede cambiar en combate.", HELP_LOCK = "/ldec lock — bloquea o desbloquea el marco",
     HELP_TEST = "/ldec test — activa o desactiva la prueba visual", HELP_CONFIG = "/ldec config — abre la configuración",
     HELP_MINIMAP = "/ldec minimap — muestra u oculta el icono del minimapa",
+    TEST_MODE = "Mostrar auras de prueba", SECTION_APPEARANCE = "Apariencia",
+    SHOW_TITLE = "Mostrar título del addon", SHOW_NAMES = "Mostrar nombres de jugadores",
+    SHOW_BACKGROUND = "Mostrar fondo de los marcos",
+    CLASS_COLORS = "Colorear marcos según la clase", HORIZONTAL_LAYOUT = "Disposición horizontal (auras hacia abajo)",
+    BACKGROUND_COLOR = "Color de fondo", RESET_COLOR = "Restablecer color",
+    DISPLAY_COMBAT = "Los ajustes de visualización no se pueden cambiar en combate.",
 }
 locales.esMX = locales.esES
 locales.enGB = locales.enUS
@@ -105,6 +141,12 @@ locales.itIT = {
     TEST_COMBAT = "Il test visivo non può essere modificato in combattimento.", HELP_LOCK = "/ldec lock — blocca o sblocca il riquadro",
     HELP_TEST = "/ldec test — attiva o disattiva il test visivo", HELP_CONFIG = "/ldec config — apre la configurazione",
     HELP_MINIMAP = "/ldec minimap — mostra o nasconde l’icona della minimappa",
+    TEST_MODE = "Mostra aure di prova", SECTION_APPEARANCE = "Aspetto",
+    SHOW_TITLE = "Mostra titolo dell’addon", SHOW_NAMES = "Mostra nomi dei giocatori",
+    SHOW_BACKGROUND = "Mostra sfondo dei riquadri",
+    CLASS_COLORS = "Colora i riquadri per classe", HORIZONTAL_LAYOUT = "Disposizione orizzontale (aure verso il basso)",
+    BACKGROUND_COLOR = "Colore di sfondo", RESET_COLOR = "Ripristina colore",
+    DISPLAY_COMBAT = "Le impostazioni di visualizzazione non possono essere modificate in combattimento.",
 }
 
 locales.ptBR = {
@@ -122,6 +164,12 @@ locales.ptBR = {
     TEST_COMBAT = "O teste visual não pode ser alterado em combate.", HELP_LOCK = "/ldec lock — bloqueia ou desbloqueia o quadro",
     HELP_TEST = "/ldec test — ativa ou desativa o teste visual", HELP_CONFIG = "/ldec config — abre as configurações",
     HELP_MINIMAP = "/ldec minimap — mostra ou oculta o ícone do minimapa",
+    TEST_MODE = "Mostrar auras de teste", SECTION_APPEARANCE = "Aparência",
+    SHOW_TITLE = "Mostrar título do addon", SHOW_NAMES = "Mostrar nomes dos jogadores",
+    SHOW_BACKGROUND = "Mostrar fundo dos quadros",
+    CLASS_COLORS = "Colorir quadros por classe", HORIZONTAL_LAYOUT = "Disposição horizontal (auras crescem para baixo)",
+    BACKGROUND_COLOR = "Cor de fundo", RESET_COLOR = "Redefinir cor",
+    DISPLAY_COMBAT = "As configurações de exibição não podem ser alteradas em combate.",
 }
 
 locales.ruRU = {
@@ -139,6 +187,12 @@ locales.ruRU = {
     TEST_COMBAT = "Визуальный тест нельзя изменить в бою.", HELP_LOCK = "/ldec lock — закрепить или открепить рамку",
     HELP_TEST = "/ldec test — включить или выключить визуальный тест", HELP_CONFIG = "/ldec config — открыть настройки",
     HELP_MINIMAP = "/ldec minimap — показать или скрыть значок миникарты",
+    TEST_MODE = "Показывать тестовые ауры", SECTION_APPEARANCE = "Внешний вид",
+    SHOW_TITLE = "Показывать название аддона", SHOW_NAMES = "Показывать имена игроков",
+    SHOW_BACKGROUND = "Показывать фон рамок",
+    CLASS_COLORS = "Окрашивать рамки по классу", HORIZONTAL_LAYOUT = "Горизонтальное расположение (ауры растут вниз)",
+    BACKGROUND_COLOR = "Цвет фона", RESET_COLOR = "Сбросить цвет",
+    DISPLAY_COMBAT = "Настройки отображения нельзя менять в бою.",
 }
 
 locales.koKR = {
@@ -156,6 +210,12 @@ locales.koKR = {
     TEST_COMBAT = "전투 중에는 시각 테스트를 변경할 수 없습니다.", HELP_LOCK = "/ldec lock — 프레임 잠금 전환",
     HELP_TEST = "/ldec test — 시각 테스트 전환", HELP_CONFIG = "/ldec config — 설정 열기",
     HELP_MINIMAP = "/ldec minimap — 미니맵 아이콘 표시 전환",
+    TEST_MODE = "테스트 오라 표시", SECTION_APPEARANCE = "외형",
+    SHOW_TITLE = "애드온 제목 표시", SHOW_NAMES = "플레이어 이름 표시",
+    SHOW_BACKGROUND = "프레임 배경 표시",
+    CLASS_COLORS = "직업별 프레임 색상", HORIZONTAL_LAYOUT = "가로 플레이어 배치 (오라는 아래로 확장)",
+    BACKGROUND_COLOR = "배경 색상", RESET_COLOR = "색상 초기화",
+    DISPLAY_COMBAT = "전투 중에는 표시 설정을 변경할 수 없습니다.",
 }
 
 locales.zhCN = {
@@ -173,6 +233,12 @@ locales.zhCN = {
     TEST_COMBAT = "战斗中无法更改视觉测试。", HELP_LOCK = "/ldec lock — 锁定或解锁框架",
     HELP_TEST = "/ldec test — 开关视觉测试", HELP_CONFIG = "/ldec config — 打开设置",
     HELP_MINIMAP = "/ldec minimap — 显示或隐藏小地图图标",
+    TEST_MODE = "显示测试光环", SECTION_APPEARANCE = "外观",
+    SHOW_TITLE = "显示插件标题", SHOW_NAMES = "显示玩家名称",
+    SHOW_BACKGROUND = "显示框体背景",
+    CLASS_COLORS = "按职业着色框体", HORIZONTAL_LAYOUT = "横向玩家布局（光环向下延伸）",
+    BACKGROUND_COLOR = "背景颜色", RESET_COLOR = "重置颜色",
+    DISPLAY_COMBAT = "战斗中无法更改显示设置。",
 }
 
 locales.zhTW = {
@@ -190,6 +256,12 @@ locales.zhTW = {
     TEST_COMBAT = "戰鬥中無法變更視覺測試。", HELP_LOCK = "/ldec lock — 鎖定或解鎖框架",
     HELP_TEST = "/ldec test — 開關視覺測試", HELP_CONFIG = "/ldec config — 開啟設定",
     HELP_MINIMAP = "/ldec minimap — 顯示或隱藏小地圖圖示",
+    TEST_MODE = "顯示測試光環", SECTION_APPEARANCE = "外觀",
+    SHOW_TITLE = "顯示插件標題", SHOW_NAMES = "顯示玩家名稱",
+    SHOW_BACKGROUND = "顯示框架背景",
+    CLASS_COLORS = "依職業著色框架", HORIZONTAL_LAYOUT = "橫向玩家排列（光環向下延伸）",
+    BACKGROUND_COLOR = "背景顏色", RESET_COLOR = "重設顏色",
+    DISPLAY_COMBAT = "戰鬥中無法變更顯示設定。",
 }
 
 local selected = locales[GetLocale()] or locales.enUS

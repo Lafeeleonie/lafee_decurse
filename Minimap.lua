@@ -33,6 +33,8 @@ function addon:SetMinimapVisible(visible)
 end
 
 function addon:CreateMinimapButton()
+    -- Keep the button as a Minimap child so managers such as WindTools can
+    -- include it in their minimap-button bar.
     local button = CreateFrame("Button", "LafeeDecurseMinimapButton", Minimap)
     button:SetSize(32, 32)
     button:SetFrameStrata("MEDIUM")
@@ -40,27 +42,11 @@ function addon:CreateMinimapButton()
     button:RegisterForClicks("LeftButtonUp", "RightButtonUp")
     button:RegisterForDrag("LeftButton")
 
-    local background = button:CreateTexture(nil, "BACKGROUND")
-    background:SetSize(24, 24)
-    background:SetPoint("CENTER")
-    background:SetTexture("Interface\\Minimap\\UI-Minimap-Background")
-
     local icon = button:CreateTexture(nil, "ARTWORK")
     icon:SetSize(20, 20)
     icon:SetPoint("CENTER")
     icon:SetTexture("Interface\\Icons\\Spell_Holy_DispelMagic")
     icon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
-
-    local border = button:CreateTexture(nil, "OVERLAY")
-    border:SetSize(54, 54)
-    border:SetPoint("CENTER")
-    border:SetTexture("Interface\\Minimap\\MiniMap-TrackingBorder")
-
-    local highlight = button:CreateTexture(nil, "HIGHLIGHT")
-    highlight:SetSize(28, 28)
-    highlight:SetPoint("CENTER")
-    highlight:SetTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
-    highlight:SetBlendMode("ADD")
 
     button:SetScript("OnClick", function(_, mouseButton)
         if mouseButton == "LeftButton" then

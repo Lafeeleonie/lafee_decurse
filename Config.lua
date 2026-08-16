@@ -74,6 +74,43 @@ local function CreateClickRow(card, index)
     return row
 end
 
+local function CreateColorButton(card, y, labelText, onColorChanged)
+    local button = CreateFrame("Button", nil, card, "UIPanelButtonTemplate")
+    button:SetSize(180, 26)
+    button:SetPoint("TOPLEFT", card, "TOPLEFT", 16, y)
+
+    local swatch = button:CreateTexture(nil, "ARTWORK")
+    swatch:SetSize(18, 18)
+    swatch:SetPoint("LEFT", button, "LEFT", 5, 0)
+    button.Swatch = swatch
+
+    local label = button:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    label:SetPoint("LEFT", swatch, "RIGHT", 6, 0)
+    label:SetText(labelText)
+
+    button:SetScript("OnClick", function()
+        local color = LafeeDecurseDB.backgroundColor
+        local oldR, oldG, oldB, oldA = color.r, color.g, color.b, color.a
+        local function ColorChanged()
+            local r, g, b = ColorPickerFrame:GetColorRGB()
+            onColorChanged(r, g, b, ColorPickerFrame:GetColorAlpha())
+        end
+        ColorPickerFrame:SetupColorPickerAndShow({
+            r = oldR,
+            g = oldG,
+            b = oldB,
+            opacity = oldA,
+            hasOpacity = true,
+            swatchFunc = ColorChanged,
+            opacityFunc = ColorChanged,
+            cancelFunc = function()
+                onColorChanged(oldR, oldG, oldB, oldA)
+            end,
+        })
+    end)
+    return button
+end
+
 function addon:RefreshConfigurationPanel()
     local panel = self.configurationPanel
     if not panel or not LafeeDecurseDB then
@@ -82,6 +119,22 @@ function addon:RefreshConfigurationPanel()
 
     panel.LockCheckbox:SetChecked(LafeeDecurseDB.locked == true)
     panel.MinimapCheckbox:SetChecked(not LafeeDecurseDB.minimap.hide)
+    panel.TestCheckbox:SetChecked(LafeeDecurseDB.testMode == true)
+    panel.TitleCheckbox:SetChecked(LafeeDecurseDB.showTitle == true)
+    panel.NamesCheckbox:SetChecked(LafeeDecurseDB.showNames == true)
+    panel.ClassColorCheckbox:SetChecked(LafeeDecurseDB.useClassColors == true)
+    panel.HorizontalCheckbox:SetChecked(LafeeDecurseDB.horizontal == true)
+
+    local modeLabels = {
+        [addon.BACKGROUND_MODE_FULL] = L.BACKGROUND_MODE_FULL,
+        [addon.BACKGROUND_MODE_FRAMES] = L.BACKGROUND_MODE_FRAMES,
+        [addon.BACKGROUND_MODE_NONE] = L.BACKGROUND_MODE_NONE,
+    }
+    panel.BackgroundModeButton:SetText(L.BACKGROUND_MODE .. ": " .. modeLabels[LafeeDecurseDB.backgroundMode])
+
+    local color = LafeeDecurseDB.backgroundColor
+    panel.ColorButton.Swatch:SetColorTexture(color.r, color.g, color.b, color.a)
+    panel.ColorButton:SetEnabled(LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_NONE)
 
     for index, row in ipairs(panel.ClickRows) do
         local dispel = self.activeDispels and self.activeDispels[index]
@@ -112,7 +165,15 @@ function addon:CreateConfigurationPanel()
     subtitle:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -8)
     subtitle:SetText(L.CONFIG_SUBTITLE)
 
-    local generalCard = CreateCard(panel, -82, 142, L.SECTION_INTERFACE)
+    local scrollFrame = CreateFrame("ScrollFrame", nil, panel, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT", panel, "TOPLEFT", 0, -82)
+    scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
+
+    local content = CreateFrame("Frame", nil, scrollFrame)
+    content:SetSize(600, 760)
+    scrollFrame:SetScrollChild(content)
+
+    local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
     panel.LockCheckbox = CreateCheckbox(generalCard, -42, L.LOCK_FRAME, function(checked)
         if not addon:SetLocked(checked) then
             addon:RefreshConfigurationPanel()
@@ -120,6 +181,12 @@ function addon:CreateConfigurationPanel()
     end)
     panel.MinimapCheckbox = CreateCheckbox(generalCard, -78, L.SHOW_MINIMAP, function(checked)
         addon:SetMinimapVisible(checked)
+    end)
+    panel.TestCheckbox = CreateCheckbox(generalCard, -110, L.TEST_MODE, function(checked)
+        if not addon:SetTestMode(checked) then
+            addon:Print(L.TEST_COMBAT)
+            addon:RefreshConfigurationPanel()
+        end
     end)
 
     local resetButton = CreateFrame("Button", nil, generalCard, "UIPanelButtonTemplate")
@@ -130,7 +197,46 @@ function addon:CreateConfigurationPanel()
         addon:ResetMainFramePosition()
     end)
 
-    local clickCard = CreateCard(panel, -240, 250, L.CLICK_ASSIGNMENTS)
+    local appearanceCard = CreateCard(content, -158, 286, L.SECTION_APPEARANCE)
+    panel.TitleCheckbox = CreateCheckbox(appearanceCard, -42, L.SHOW_TITLE, function(checked)
+        if not addon:SetDisplayOption("showTitle", checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.NamesCheckbox = CreateCheckbox(appearanceCard, -76, L.SHOW_NAMES, function(checked)
+        if not addon:SetDisplayOption("showNames", checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.BackgroundModeButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
+    panel.BackgroundModeButton:SetSize(280, 26)
+    panel.BackgroundModeButton:SetPoint("TOPLEFT", appearanceCard, "TOPLEFT", 16, -110)
+    panel.BackgroundModeButton:SetScript("OnClick", function()
+        local nextMode = {
+            [addon.BACKGROUND_MODE_FULL] = addon.BACKGROUND_MODE_FRAMES,
+            [addon.BACKGROUND_MODE_FRAMES] = addon.BACKGROUND_MODE_NONE,
+            [addon.BACKGROUND_MODE_NONE] = addon.BACKGROUND_MODE_FULL,
+        }
+        if not addon:SetBackgroundMode(nextMode[LafeeDecurseDB.backgroundMode]) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+    panel.ClassColorCheckbox = CreateCheckbox(appearanceCard, -144, L.CLASS_COLORS, function(checked)
+        if not addon:SetDisplayOption("useClassColors", checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.HorizontalCheckbox = CreateCheckbox(appearanceCard, -178, L.HORIZONTAL_LAYOUT, function(checked)
+        if not addon:SetDisplayOption("horizontal", checked) then addon:RefreshConfigurationPanel() end
+    end)
+
+    panel.ColorButton = CreateColorButton(appearanceCard, -218, L.BACKGROUND_COLOR, function(r, g, b, a)
+        addon:SetBackgroundColor(r, g, b, a)
+    end)
+
+    local resetColorButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
+    resetColorButton:SetSize(150, 26)
+    resetColorButton:SetPoint("LEFT", panel.ColorButton, "RIGHT", 12, 0)
+    resetColorButton:SetText(L.RESET_COLOR)
+    resetColorButton:SetScript("OnClick", function()
+        addon:ResetBackgroundColor()
+    end)
+
+    local clickCard = CreateCard(content, -460, 250, L.CLICK_ASSIGNMENTS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)
