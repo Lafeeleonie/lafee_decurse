@@ -8,6 +8,7 @@
 ## SavedVariables: LafeeDecurseDB
 
 Localization.lua
+LocalizationOverrides.lua
 DispelSpells.lua
 SecureFrames.lua
 AuraDisplay.lua
