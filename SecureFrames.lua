@@ -114,20 +114,21 @@ function addon:CreateSecureUnitButtons(parent)
     return true
 end
 
-function addon:ApplyDispelSpells(dispels)
+function addon:ApplyClickSpells(spells)
     if InCombatLockdown() then
         self.pendingDispelRefresh = true
         return false
     end
 
     for _, button in ipairs(self.unitButtons) do
-        -- Changing secure action attributes in combat is forbidden. This
-        -- function is only called after the lockdown guard above.
+        -- Secure action attributes are configured only outside combat. The unit
+        -- remains permanent; only the player's chosen spell per mouse button is
+        -- updated when the character/spec profile changes.
         for clickIndex = 1, 3 do
-            local dispel = dispels and dispels[clickIndex]
-            if dispel then
+            local spell = spells and spells[clickIndex]
+            if spell then
                 button:SetAttribute("type" .. clickIndex, "spell")
-                button:SetAttribute("spell" .. clickIndex, dispel.spellName)
+                button:SetAttribute("spell" .. clickIndex, spell.spellID)
             else
                 button:SetAttribute("type" .. clickIndex, nil)
                 button:SetAttribute("spell" .. clickIndex, nil)
@@ -135,7 +136,7 @@ function addon:ApplyDispelSpells(dispels)
         end
     end
 
-    self.activeDispels = dispels or {}
+    self.activeClickSpells = spells or {}
     return true
 end
 
@@ -297,6 +298,9 @@ function addon:ApplyDisplaySettings()
     self:UpdateUnitNames()
     if self.UpdateAuraDisplayLayout then
         self:UpdateAuraDisplayLayout()
+    end
+    if self.UpdateCooldownBarLayout then
+        self:UpdateCooldownBarLayout()
     end
     self:RefreshConfigurationPanel()
     return true
