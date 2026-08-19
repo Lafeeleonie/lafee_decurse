@@ -47,6 +47,9 @@ local function ApplySavedConfiguration()
     if addon.minimapButton then
         addon.minimapButton:SetShown(not LafeeDecurseDB.minimap.hide)
     end
+    if addon.RefreshCooldownBars then
+        addon:RefreshCooldownBars()
+    end
     addon:RefreshConfigurationPanel()
 end
 
@@ -143,24 +146,31 @@ function addon:ToggleMainFrame()
     return true
 end
 
-local function BuildDispelSignature(dispels)
+local function BuildClickSignature(spells)
     local signature = {}
-    for index, dispel in ipairs(dispels) do
-        signature[index] = tostring(dispel.spellID)
+    for index = 1, 3 do
+        local spell = spells and spells[index]
+        signature[index] = spell and tostring(spell.spellID) or "-"
     end
     return table.concat(signature, ":")
 end
 
-local function PrintClickAssignments(dispels)
-    if #dispels == 0 then
-        addon:Print(L.NO_DISPEL)
+local function PrintClickAssignments(spells)
+    local assignments = {}
+    local hasAssignment = false
+    for index = 1, 3 do
+        local spell = spells and spells[index]
+        if spell then
+            assignments[#assignments + 1] = CLICK_NAMES[index] .. " : " .. spell.spellName
+            hasAssignment = true
+        end
+    end
+
+    if not hasAssignment then
+        addon:Print(L.NO_ACTION or L.NO_DISPEL)
         return
     end
 
-    local assignments = {}
-    for index, dispel in ipairs(dispels) do
-        assignments[index] = CLICK_NAMES[index] .. " : " .. dispel.spellName
-    end
     addon:Print(table.concat(assignments, " — "))
 end
 
@@ -172,14 +182,25 @@ function addon:RefreshDispelConfiguration()
 
     local dispels = self:DetectDispelSpells()
     local combinedTypes = self:GetCombinedDispelTypes(dispels)
-    self:ApplyDispelSpells(dispels)
+
+    -- Force profile lookup again so specialization changes switch to the
+    -- correct per-character, per-spec configuration.
+    self.activeDispels = dispels
+    self.currentActionProfile = nil
+    local clickSpells = self:GetConfiguredSpells(dispels)
+
+    self:ApplyClickSpells(clickSpells)
     self:ApplyAuraDispelTypes(combinedTypes)
     self.pendingDispelRefresh = nil
 
-    local signature = BuildDispelSignature(dispels)
-    if signature ~= self.dispelSignature then
-        self.dispelSignature = signature
-        PrintClickAssignments(dispels)
+    local signature = BuildClickSignature(clickSpells)
+    if signature ~= self.clickSpellSignature then
+        self.clickSpellSignature = signature
+        PrintClickAssignments(clickSpells)
+    end
+
+    if self.RefreshCooldownBars then
+        self:RefreshCooldownBars()
     end
     self:RefreshConfigurationPanel()
 end
@@ -200,21 +221,25 @@ local function InitializeAddon()
     end
 
     local dispels = addon:DetectDispelSpells()
+    addon.activeDispels = dispels
+    addon.currentActionProfile = nil
+    local clickSpells = addon:GetConfiguredSpells(dispels)
     local combinedTypes = addon:GetCombinedDispelTypes(dispels)
-    addon:ApplyDispelSpells(dispels)
+
+    addon:ApplyClickSpells(clickSpells)
     if not addon:CreateAuraDisplays(combinedTypes) then
         addon:Print(L.AURA_DISPLAY_FAILED)
     end
 
-    addon.activeDispels = dispels
-    addon.dispelSignature = BuildDispelSignature(dispels)
+    addon.clickSpellSignature = BuildClickSignature(clickSpells)
+    addon:CreateCooldownBars(mainFrame)
     addon:CreateMinimapButton()
     addon:CreateConfigurationPanel()
     ApplySavedConfiguration()
     addon.initialized = true
     addon.pendingInitialization = nil
 
-    PrintClickAssignments(dispels)
+    PrintClickAssignments(clickSpells)
 end
 
 local function HandleSlashCommand(input)
