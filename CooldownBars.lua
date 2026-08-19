@@ -180,7 +180,7 @@ local function ApplySpellDuration(widget, spellID)
         widget.Bar:SetTimerDuration(
             duration,
             Enum.StatusBarInterpolation.Immediate,
-            Enum.StatusBarTimerDirection.RemainingTime
+            Enum.StatusBarTimerDirection.ElapsedTime
         )
     else
         widget.Bar:SetMinMaxValues(0, 1)
