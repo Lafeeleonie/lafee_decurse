@@ -10,8 +10,10 @@
 Localization.lua
 LocalizationOverrides.lua
 DispelSpells.lua
+ClickActions.lua
 SecureFrames.lua
 AuraDisplay.lua
+CooldownBars.lua
 Config.lua
 Minimap.lua
 Core.lua
