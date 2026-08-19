@@ -11,6 +11,12 @@ local overrides = {
         BACKGROUND_MODE_FULL = "Cadre complet",
         BACKGROUND_MODE_FRAMES = "Cadres des joueurs uniquement",
         BACKGROUND_MODE_NONE = "Aucun fond",
+        AURA_COUNT = "Nombre d’auras",
+        AURA_GROWTH = "Croissance des auras",
+        GROWTH_LEFT = "Gauche",
+        GROWTH_RIGHT = "Droite",
+        GROWTH_UP = "Haut",
+        GROWTH_DOWN = "Bas",
     },
     deDE = {
         BACKGROUND_MODE = "Hintergrund",
@@ -67,3 +73,12 @@ overrides.esMX = overrides.esES
 for key, value in pairs(overrides[locale] or {}) do
     addon.L[key] = value
 end
+
+-- New strings use English as a temporary fallback until the localization
+-- folder refactor gives every supported locale its own table.
+addon.L.AURA_COUNT = addon.L.AURA_COUNT or "Aura count"
+addon.L.AURA_GROWTH = addon.L.AURA_GROWTH or "Aura growth"
+addon.L.GROWTH_LEFT = addon.L.GROWTH_LEFT or "Left"
+addon.L.GROWTH_RIGHT = addon.L.GROWTH_RIGHT or "Right"
+addon.L.GROWTH_UP = addon.L.GROWTH_UP or "Up"
+addon.L.GROWTH_DOWN = addon.L.GROWTH_DOWN or "Down"
