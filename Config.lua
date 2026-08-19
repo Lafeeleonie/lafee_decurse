@@ -136,6 +136,15 @@ function addon:RefreshConfigurationPanel()
     panel.ColorButton.Swatch:SetColorTexture(color.r, color.g, color.b, color.a)
     panel.ColorButton:SetEnabled(LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_NONE)
 
+    panel.AuraCountButton:SetText(L.AURA_COUNT .. ": " .. tostring(addon:GetAuraCount()))
+    local growthLabels = {
+        LEFT = L.GROWTH_LEFT,
+        RIGHT = L.GROWTH_RIGHT,
+        UP = L.GROWTH_UP,
+        DOWN = L.GROWTH_DOWN,
+    }
+    panel.AuraGrowthButton:SetText(L.AURA_GROWTH .. ": " .. growthLabels[addon:GetAuraGrowth()])
+
     for index, row in ipairs(panel.ClickRows) do
         local dispel = self.activeDispels and self.activeDispels[index]
         if dispel then
@@ -170,7 +179,7 @@ function addon:CreateConfigurationPanel()
     scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
-    content:SetSize(600, 760)
+    content:SetSize(600, 820)
     scrollFrame:SetScrollChild(content)
 
     local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
@@ -197,7 +206,7 @@ function addon:CreateConfigurationPanel()
         addon:ResetMainFramePosition()
     end)
 
-    local appearanceCard = CreateCard(content, -158, 286, L.SECTION_APPEARANCE)
+    local appearanceCard = CreateCard(content, -158, 326, L.SECTION_APPEARANCE)
     panel.TitleCheckbox = CreateCheckbox(appearanceCard, -42, L.SHOW_TITLE, function(checked)
         if not addon:SetDisplayOption("showTitle", checked) then addon:RefreshConfigurationPanel() end
     end)
@@ -236,7 +245,30 @@ function addon:CreateConfigurationPanel()
         addon:ResetBackgroundColor()
     end)
 
-    local clickCard = CreateCard(content, -460, 250, L.CLICK_ASSIGNMENTS)
+    panel.AuraCountButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
+    panel.AuraCountButton:SetSize(220, 26)
+    panel.AuraCountButton:SetPoint("TOPLEFT", appearanceCard, "TOPLEFT", 16, -258)
+    panel.AuraCountButton:SetScript("OnClick", function()
+        local nextCount = addon:GetAuraCount() + 1
+        if nextCount > addon.MAX_AURA_COUNT then nextCount = 1 end
+        if not addon:SetAuraCount(nextCount) then addon:RefreshConfigurationPanel() end
+    end)
+
+    panel.AuraGrowthButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
+    panel.AuraGrowthButton:SetSize(260, 26)
+    panel.AuraGrowthButton:SetPoint("LEFT", panel.AuraCountButton, "RIGHT", 12, 0)
+    panel.AuraGrowthButton:SetScript("OnClick", function()
+        local current = addon:GetAuraGrowth()
+        local nextGrowth
+        if LafeeDecurseDB.horizontal then
+            nextGrowth = current == "DOWN" and "UP" or "DOWN"
+        else
+            nextGrowth = current == "RIGHT" and "LEFT" or "RIGHT"
+        end
+        if not addon:SetAuraGrowth(nextGrowth) then addon:RefreshConfigurationPanel() end
+    end)
+
+    local clickCard = CreateCard(content, -500, 250, L.CLICK_ASSIGNMENTS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)
