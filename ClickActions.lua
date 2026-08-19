@@ -56,6 +56,7 @@ function addon:GetCurrentActionProfile(defaultDispels)
         profile.initialized = true
     end
 
+    self.currentActionProfile = profile
     return profile
 end
 
@@ -77,6 +78,10 @@ local function BuildSpellEntry(spellID)
     }
 end
 
+local function GetProfile(addonObject, defaultDispels)
+    return addonObject.currentActionProfile or addonObject:GetCurrentActionProfile(defaultDispels)
+end
+
 function addon:GetConfiguredSpells(defaultDispels)
     local profile = self:GetCurrentActionProfile(defaultDispels)
     local spells = {}
@@ -92,7 +97,7 @@ function addon:GetConfiguredSpells(defaultDispels)
 end
 
 function addon:GetConfiguredSpellForDisplay(clickIndex, defaultDispels)
-    local profile = self:GetCurrentActionProfile(defaultDispels)
+    local profile = GetProfile(self, defaultDispels)
     return BuildSpellEntry(profile.clickSpells[clickIndex])
 end
 
@@ -106,7 +111,7 @@ function addon:SetConfiguredSpell(clickIndex, spellID)
         return false
     end
 
-    local profile = self:GetCurrentActionProfile(self:DetectDispelSpells())
+    local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())
     if spellID == 0 then spellID = nil end
     profile.clickSpells[clickIndex] = spellID
     self:RefreshDispelConfiguration()
@@ -114,7 +119,7 @@ function addon:SetConfiguredSpell(clickIndex, spellID)
 end
 
 function addon:IsCooldownBarEnabled(clickIndex)
-    local profile = self:GetCurrentActionProfile(self:DetectDispelSpells())
+    local profile = GetProfile(self, self.activeDispels)
     return profile.cooldownBars[clickIndex] == true
 end
 
@@ -128,7 +133,7 @@ function addon:SetCooldownBarEnabled(clickIndex, enabled)
         return false
     end
 
-    local profile = self:GetCurrentActionProfile(self:DetectDispelSpells())
+    local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())
     profile.cooldownBars[clickIndex] = enabled == true
     self:ApplyDisplaySettings()
     if self.RefreshCooldownBars then
