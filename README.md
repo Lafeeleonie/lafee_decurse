@@ -8,13 +8,15 @@ Minimalist secure party utility and dispel frame for World of Warcraft Retail 12
 
 The addon displays five permanent buttons assigned to the fixed units `player`, `party1`, `party2`, `party3`, and `party4`. Each unit's role icon is displayed before its name. Names and the addon title can be hidden for a compact role-only layout.
 
-Each mouse button can be assigned a known active helpful spell from the current character specialization:
+Each mouse button can be assigned a known active spell that can target an allied player from the current character specialization:
 
 1. left click;
 2. right click;
 3. middle click.
 
-A new character/specialization profile is initialized with the same friendly dispel spells that Lafee Decurse previously assigned automatically. After that, the player can replace any click with another compatible helpful spellbook ability, such as a friendly utility spell. Offensive actions, auto attack, passive abilities, and ground-target abilities are excluded from the selector.
+A new character/specialization profile is initialized with the same friendly dispel spells that Lafee Decurse previously assigned automatically. After that, the player can replace any click with another compatible allied-player spellbook ability, such as a friendly utility spell or resurrection. Offensive actions, auto attack, passive abilities, self-only abilities, and ground-target abilities are excluded from the selector.
+
+Target compatibility is classified outside combat. Lafee Decurse ignores the actual in-range/out-of-range result and only uses whether Blizzard supports a unit range check for the spell. Dead-player resurrection spells are kept as explicit friendly-target exceptions because probing them against a living unit can be invalid.
 
 The aura display remains independent from these configurable click actions. Blizzard-managed `CustomAuraContainerTemplate` frames determine which `HARMFUL|RAID_PLAYER_DISPELLABLE` auras are visible using only the dispel types the character can actually remove. The addon's Lua code never reads active aura data.
 
@@ -36,7 +38,7 @@ Left-clicking the minimap button shows or hides the main frame. Right-clicking o
 
 - `Core.lua`: startup, events, commands, and state coordination;
 - `DispelSpells.lua`: detection of the character's real friendly dispel capabilities;
-- `ClickActions.lua`: per-character/per-specialization click profiles and helpful spellbook choices;
+- `ClickActions.lua`: per-character/per-specialization click profiles and allied-player spellbook choices;
 - `SecureFrames.lua`: five secure buttons assigned to fixed units and configured spell IDs;
 - `AuraDisplay.lua`: integration with Blizzard-managed aura containers;
 - `CooldownBars.lua`: optional cooldown/recharge bars driven by Blizzard duration objects;
