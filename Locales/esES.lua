@@ -22,6 +22,8 @@ addon.Locales.esES = {
     DISPLAY_COMBAT = "Los ajustes de visualización no se pueden cambiar en combate.",
     AURA_COUNT = "Número de auras", AURA_GROWTH = "Dirección de las auras", GROWTH_LEFT = "Izquierda", GROWTH_RIGHT = "Derecha", GROWTH_UP = "Arriba", GROWTH_DOWN = "Abajo",
     SHOW_AURAS = "Mostrar iconos de aura", AURA_GLOW = "Resaltar el marco cuando sea necesario disipar",
+    SECTION_GLOW = "Resaltado de disipación", GLOW_STYLE = "Estilo", GLOW_STYLE_PULSE = "Pulso", GLOW_STYLE_ANTS = "Hormigas marchantes", GLOW_STYLE_SOLID = "Fijo",
+    GLOW_COLOR = "Color", GLOW_SPEED = "Velocidad", GLOW_THICKNESS = "Grosor del borde",
     ACTION_ASSIGNMENTS = "Acciones de clic", ACTION_NOTE = "Cada clic puede lanzar un hechizo conocido de la especialización actual. Los cambios solo se aplican fuera de combate.",
     ACTION_COMBAT = "Las acciones de clic no se pueden cambiar en combate.", COOLDOWN_BAR = "Recarga",
 }
