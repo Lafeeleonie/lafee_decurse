@@ -21,6 +21,9 @@ addon.Locales.deDE = {
     CLASS_COLORS = "Fenster nach Klasse färben", HORIZONTAL_LAYOUT = "Horizontale Spieleranordnung", BACKGROUND_COLOR = "Hintergrundfarbe", RESET_COLOR = "Farbe zurücksetzen",
     DISPLAY_COMBAT = "Anzeigeeinstellungen können im Kampf nicht geändert werden.",
     AURA_COUNT = "Anzahl der Auren", AURA_GROWTH = "Aurenrichtung", GROWTH_LEFT = "Links", GROWTH_RIGHT = "Rechts", GROWTH_UP = "Oben", GROWTH_DOWN = "Unten",
+    SHOW_AURAS = "Aurasymbole anzeigen", AURA_GLOW = "Spielerrahmen hervorheben, wenn eine Bannung nötig ist",
+    SECTION_GLOW = "Bannungsleuchten", GLOW_STYLE = "Stil", GLOW_STYLE_PULSE = "Pulsieren", GLOW_STYLE_ANTS = "Laufende Punkte", GLOW_STYLE_SOLID = "Statisch",
+    GLOW_COLOR = "Farbe", GLOW_SPEED = "Geschwindigkeit", GLOW_THICKNESS = "Randstärke",
     ACTION_ASSIGNMENTS = "Klickaktionen", ACTION_NOTE = "Jeder Klick kann einen bekannten Zauber der aktuellen Spezialisierung wirken. Änderungen werden nur außerhalb des Kampfes angewendet.",
     ACTION_COMBAT = "Klickaktionen können im Kampf nicht geändert werden.", COOLDOWN_BAR = "Aufladung",
 }

@@ -60,12 +60,7 @@ local function CreateUnitButton(parent, unit, index)
         "SecureActionButtonTemplate"
     )
     button:SetSize(BUTTON_WIDTH_WITH_NAME, BUTTON_HEIGHT)
-    -- Register both phases: SecureActionButtonTemplate chooses the correct one
-    -- from ActionButtonUseKeyDown and executes exactly one secure action.
     button:RegisterForClicks("AnyDown", "AnyUp")
-
-    -- Protected attributes are assigned to a permanent unit outside combat.
-    -- Neither the aura display nor any combat event ever changes this unit.
     button:SetAttribute("unit", unit)
 
     local background = button:CreateTexture(nil, "BACKGROUND")
@@ -121,9 +116,6 @@ function addon:ApplyClickSpells(spells)
     end
 
     for _, button in ipairs(self.unitButtons) do
-        -- Secure action attributes are configured only outside combat. The unit
-        -- remains permanent; only the player's chosen spell per mouse button is
-        -- updated when the character/spec profile changes.
         for clickIndex = 1, 3 do
             local spell = spells and spells[clickIndex]
             if spell then
@@ -228,6 +220,7 @@ end
 local function LayoutTestAuras(button)
     local growth = addon:GetAuraGrowth()
     local count = addon:GetAuraCount()
+    local showAuraIcons = LafeeDecurseDB.showAuras ~= false
 
     for index, icon in ipairs(button.TestAuraIcons) do
         icon:ClearAllPoints()
@@ -240,7 +233,7 @@ local function LayoutTestAuras(button)
         else
             icon:SetPoint("LEFT", button, "RIGHT", 3 + ((index - 1) * (BUTTON_HEIGHT + AURA_SPACING)), 0)
         end
-        icon:SetShown(addon.testMode and index <= count)
+        icon:SetShown(addon.testMode and showAuraIcons and index <= count)
     end
 end
 
@@ -253,8 +246,9 @@ function addon:ApplyDisplaySettings()
     local buttonWidth = GetButtonWidth()
     local titleOffset = LafeeDecurseDB.showTitle and 20 or 5
     local auraCount = self:GetAuraCount()
-    local auraExtent = (BUTTON_HEIGHT * auraCount) + (AURA_SPACING * (auraCount - 1))
-    local auraGap = 3
+    local showAuraIcons = LafeeDecurseDB.showAuras ~= false
+    local auraExtent = showAuraIcons and ((BUTTON_HEIGHT * auraCount) + (AURA_SPACING * (auraCount - 1))) or 0
+    local auraGap = showAuraIcons and 3 or 0
     local growth = self:GetAuraGrowth()
 
     self.mainFrame.TitleText:SetShown(LafeeDecurseDB.showTitle)
@@ -298,6 +292,9 @@ function addon:ApplyDisplaySettings()
     self:UpdateUnitNames()
     if self.UpdateAuraDisplayLayout then
         self:UpdateAuraDisplayLayout()
+    end
+    if self.ApplyAuraVisibility then
+        self:ApplyAuraVisibility()
     end
     if self.UpdateCooldownBarLayout then
         self:UpdateCooldownBarLayout()
@@ -404,9 +401,8 @@ function addon:SetTestMode(enabled)
         LayoutTestAuras(button)
         button:SetAlpha((UnitExists(button.fixedUnit) or self.testMode) and 1 or 0.45)
     end
-    for _, container in ipairs(self.auraContainers or {}) do
-        container:SetEnabled(not self.testMode)
-        container:SetShown(not self.testMode)
+    if self.ApplyAuraVisibility then
+        self:ApplyAuraVisibility()
     end
     self:RefreshConfigurationPanel()
     return true

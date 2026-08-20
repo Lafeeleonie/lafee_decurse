@@ -21,6 +21,9 @@ addon.Locales.itIT = {
     CLASS_COLORS = "Colora i riquadri per classe", HORIZONTAL_LAYOUT = "Disposizione orizzontale dei giocatori", BACKGROUND_COLOR = "Colore di sfondo", RESET_COLOR = "Ripristina colore",
     DISPLAY_COMBAT = "Le impostazioni di visualizzazione non possono essere modificate in combattimento.",
     AURA_COUNT = "Numero di aure", AURA_GROWTH = "Direzione delle aure", GROWTH_LEFT = "Sinistra", GROWTH_RIGHT = "Destra", GROWTH_UP = "Su", GROWTH_DOWN = "Giù",
+    SHOW_AURAS = "Mostra icone delle aure", AURA_GLOW = "Evidenzia il riquadro quando serve una dissoluzione",
+    SECTION_GLOW = "Evidenziazione dissoluzione", GLOW_STYLE = "Stile", GLOW_STYLE_PULSE = "Pulsazione", GLOW_STYLE_ANTS = "Formiche in marcia", GLOW_STYLE_SOLID = "Fisso",
+    GLOW_COLOR = "Colore", GLOW_SPEED = "Velocità", GLOW_THICKNESS = "Spessore del bordo",
     ACTION_ASSIGNMENTS = "Azioni dei clic", ACTION_NOTE = "Ogni clic può lanciare un incantesimo conosciuto della specializzazione attuale. Le modifiche vengono applicate solo fuori dal combattimento.",
     ACTION_COMBAT = "Le azioni dei clic non possono essere modificate in combattimento.", COOLDOWN_BAR = "Ricarica",
 }

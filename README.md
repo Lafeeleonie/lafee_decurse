@@ -22,13 +22,15 @@ The aura display remains independent from these configurable click actions. Bliz
 
 Aura count is configurable from one to five, and aura size always matches the unit-button height. Vertical party layouts can grow auras left or right; horizontal layouts can grow them up or down.
 
+A dedicated Blizzard-managed aura slot can also drive a dispel glow without exposing active aura state to addon Lua. Aura icons and this glow can be enabled independently, so the frame can run in a compact “glow means dispel” mode. The glow appearance is configurable with three styles — pulse, marching ants, and solid — plus color, animation speed, and border thickness. `/ldec test` reproduces the same selected glow appearance without reading any real aura state.
+
 Up to three optional cooldown/recharge bars can be shown for the configured click spells. They are placed opposite the aura side. Vertical party layouts use vertical bars in one column; horizontal layouts use horizontal bars in one row. Cooldown animation is driven directly by Blizzard `LuaDurationObject` values rather than Lua arithmetic on cooldown timestamps.
 
 ## Commands
 
 - `/ldec`: displays help;
 - `/ldec lock`: locks or unlocks frame movement;
-- `/ldec test`: toggles visual-only test auras while out of combat;
+- `/ldec test`: toggles visual-only test auras and the configured test glow while out of combat;
 - `/ldec config`: opens the native configuration panel;
 - `/ldec minimap`: shows or hides the minimap button.
 
@@ -40,18 +42,20 @@ Left-clicking the minimap button shows or hides the main frame. Right-clicking o
 - `DispelSpells.lua`: detection of the character's real friendly dispel capabilities;
 - `ClickActions.lua`: per-character/per-specialization click profiles and allied-player spellbook choices;
 - `SecureFrames.lua`: five secure buttons assigned to fixed units and configured spell IDs;
-- `AuraDisplay.lua`: integration with Blizzard-managed aura containers;
+- `AuraDisplay.lua`: Blizzard-managed aura icons, managed dispel glow slot, and visual glow styles;
 - `CooldownBars.lua`: optional cooldown/recharge bars driven by Blizzard duration objects;
 - `Config.lua`: modern panel integrated into the WoW settings interface;
+- `GlowConfig.lua`: glow style, color, speed, and thickness controls;
 - `Minimap.lua`: standalone minimap button with no external dependency;
 - `Locales/`: one localization table per supported language plus the locale loader.
 
-Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Secure click assignments and layout changes are accepted only out of combat.
+Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Secure click assignments, layout changes, and glow appearance changes are accepted only out of combat.
 
 ## Prototype limitations
 
 - Warlock pet dispels are not supported;
 - Private Auras are neither inspected nor displayed;
+- the managed glow still requires in-game Retail 12.1 validation across combat transitions to confirm the absence of taint, forbidden-object errors, or secret-value issues;
 - in-game Retail 12.1 testing is still required to validate secure behavior and confirm the absence of taint.
 
 ## Localization

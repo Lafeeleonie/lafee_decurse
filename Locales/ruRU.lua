@@ -21,6 +21,9 @@ addon.Locales.ruRU = {
     CLASS_COLORS = "Окрашивать рамки по классу", HORIZONTAL_LAYOUT = "Горизонтальное расположение игроков", BACKGROUND_COLOR = "Цвет фона", RESET_COLOR = "Сбросить цвет",
     DISPLAY_COMBAT = "Настройки отображения нельзя менять в бою.",
     AURA_COUNT = "Количество аур", AURA_GROWTH = "Направление аур", GROWTH_LEFT = "Влево", GROWTH_RIGHT = "Вправо", GROWTH_UP = "Вверх", GROWTH_DOWN = "Вниз",
+    SHOW_AURAS = "Показывать значки аур", AURA_GLOW = "Подсвечивать рамку, когда требуется рассеивание",
+    SECTION_GLOW = "Подсветка рассеивания", GLOW_STYLE = "Стиль", GLOW_STYLE_PULSE = "Пульсация", GLOW_STYLE_ANTS = "Бегущая рамка", GLOW_STYLE_SOLID = "Статичный",
+    GLOW_COLOR = "Цвет", GLOW_SPEED = "Скорость", GLOW_THICKNESS = "Толщина рамки",
     ACTION_ASSIGNMENTS = "Действия мыши", ACTION_NOTE = "Каждой кнопке можно назначить известное заклинание текущей специализации. Изменения применяются только вне боя.",
     ACTION_COMBAT = "Действия мыши нельзя менять в бою.", COOLDOWN_BAR = "Перезарядка",
 }

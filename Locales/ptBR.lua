@@ -21,6 +21,9 @@ addon.Locales.ptBR = {
     CLASS_COLORS = "Colorir quadros por classe", HORIZONTAL_LAYOUT = "Disposição horizontal dos jogadores", BACKGROUND_COLOR = "Cor de fundo", RESET_COLOR = "Redefinir cor",
     DISPLAY_COMBAT = "As configurações de exibição não podem ser alteradas em combate.",
     AURA_COUNT = "Número de auras", AURA_GROWTH = "Direção das auras", GROWTH_LEFT = "Esquerda", GROWTH_RIGHT = "Direita", GROWTH_UP = "Cima", GROWTH_DOWN = "Baixo",
+    SHOW_AURAS = "Mostrar ícones de aura", AURA_GLOW = "Destacar o quadro quando for preciso dissipar",
+    SECTION_GLOW = "Destaque de dissipação", GLOW_STYLE = "Estilo", GLOW_STYLE_PULSE = "Pulsação", GLOW_STYLE_ANTS = "Formigas em movimento", GLOW_STYLE_SOLID = "Fixo",
+    GLOW_COLOR = "Cor", GLOW_SPEED = "Velocidade", GLOW_THICKNESS = "Espessura da borda",
     ACTION_ASSIGNMENTS = "Ações de clique", ACTION_NOTE = "Cada clique pode lançar um feitiço conhecido da especialização atual. As alterações só são aplicadas fora de combate.",
     ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Recarga",
 }

@@ -21,6 +21,9 @@ addon.Locales.zhTW = {
     CLASS_COLORS = "依職業著色框架", HORIZONTAL_LAYOUT = "橫向玩家排列", BACKGROUND_COLOR = "背景顏色", RESET_COLOR = "重設顏色",
     DISPLAY_COMBAT = "戰鬥中無法變更顯示設定。",
     AURA_COUNT = "光環數量", AURA_GROWTH = "光環延伸方向", GROWTH_LEFT = "向左", GROWTH_RIGHT = "向右", GROWTH_UP = "向上", GROWTH_DOWN = "向下",
+    SHOW_AURAS = "顯示光環圖示", AURA_GLOW = "需要驅散時醒目提示玩家框架",
+    SECTION_GLOW = "驅散醒目提示", GLOW_STYLE = "樣式", GLOW_STYLE_PULSE = "脈衝", GLOW_STYLE_ANTS = "流動虛線", GLOW_STYLE_SOLID = "固定",
+    GLOW_COLOR = "顏色", GLOW_SPEED = "速度", GLOW_THICKNESS = "邊框粗細",
     ACTION_ASSIGNMENTS = "點擊動作", ACTION_NOTE = "每個點擊都可以施放目前專精已學會的法術。變更僅會在非戰鬥狀態下套用。",
     ACTION_COMBAT = "戰鬥中無法變更點擊動作。", COOLDOWN_BAR = "充能",
 }
