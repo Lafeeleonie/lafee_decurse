@@ -22,6 +22,8 @@ addon.Locales.koKR = {
     DISPLAY_COMBAT = "전투 중에는 표시 설정을 변경할 수 없습니다.",
     AURA_COUNT = "오라 수", AURA_GROWTH = "오라 확장 방향", GROWTH_LEFT = "왼쪽", GROWTH_RIGHT = "오른쪽", GROWTH_UP = "위", GROWTH_DOWN = "아래",
     SHOW_AURAS = "오라 아이콘 표시", AURA_GLOW = "해제가 필요할 때 플레이어 프레임 강조",
+    SECTION_GLOW = "해제 강조", GLOW_STYLE = "스타일", GLOW_STYLE_PULSE = "맥동", GLOW_STYLE_ANTS = "움직이는 점선", GLOW_STYLE_SOLID = "고정",
+    GLOW_COLOR = "색상", GLOW_SPEED = "속도", GLOW_THICKNESS = "테두리 두께",
     ACTION_ASSIGNMENTS = "클릭 동작", ACTION_NOTE = "각 클릭에 현재 전문화의 알려진 주문을 지정할 수 있습니다. 변경 사항은 전투 중이 아닐 때만 적용됩니다.",
     ACTION_COMBAT = "전투 중에는 클릭 동작을 변경할 수 없습니다.", COOLDOWN_BAR = "재사용 대기",
 }
