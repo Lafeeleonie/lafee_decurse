@@ -62,15 +62,11 @@ local function CreateGlowEdge(parent)
     return texture
 end
 
-local function InitializeGlowAuraButton(auraButton)
-    -- This frame is shown and hidden only by Blizzard's managed aura-slot
-    -- assignment. Lua never queries its visibility or aura contents.
-    auraButton:SetAllPoints()
-    auraButton:EnableMouse(false)
-
-    local glow = CreateFrame("Frame", nil, auraButton)
-    glow:SetPoint("TOPLEFT", auraButton, "TOPLEFT", -3, 3)
-    glow:SetPoint("BOTTOMRIGHT", auraButton, "BOTTOMRIGHT", 3, -3)
+local function CreateGlowVisual(parent)
+    local glow = CreateFrame("Frame", nil, parent)
+    glow:SetPoint("TOPLEFT", parent, "TOPLEFT", -3, 3)
+    glow:SetPoint("BOTTOMRIGHT", parent, "BOTTOMRIGHT", 3, -3)
+    glow:EnableMouse(false)
 
     local top = CreateGlowEdge(glow)
     top:SetPoint("TOPLEFT")
@@ -102,8 +98,19 @@ local function InitializeGlowAuraButton(auraButton)
     alpha:SetSmoothing("IN")
     pulse:Play()
 
+    glow.GlowAnimation = pulse
+    return glow
+end
+
+local function InitializeGlowAuraButton(auraButton)
+    -- This frame is shown and hidden only by Blizzard's managed aura-slot
+    -- assignment. Lua never queries its visibility or aura contents.
+    auraButton:SetAllPoints()
+    auraButton:EnableMouse(false)
+
+    local glow = CreateGlowVisual(auraButton)
     auraButton.GlowFrame = glow
-    auraButton.GlowAnimation = pulse
+    auraButton.GlowAnimation = glow.GlowAnimation
 end
 
 local function CreateAuraContainer(button, index, dispelTypes)
@@ -163,7 +170,9 @@ function addon:ApplyAuraVisibility()
     end
 
     local showAuraIcons = LafeeDecurseDB.showAuras ~= false and not self.testMode
-    local showGlow = LafeeDecurseDB.auraGlow ~= false and not self.testMode
+    local glowEnabled = LafeeDecurseDB.auraGlow ~= false
+    local showGlow = glowEnabled and not self.testMode
+    local showTestGlow = glowEnabled and self.testMode
 
     for _, container in ipairs(self.auraContainers or {}) do
         container:SetEnabled(showAuraIcons)
@@ -173,6 +182,14 @@ function addon:ApplyAuraVisibility()
     for _, container in ipairs(self.glowAuraContainers or {}) do
         container:SetEnabled(showGlow)
         container:SetShown(showGlow)
+    end
+
+    -- Test glow is a purely visual simulation driven only by test mode and the
+    -- user's glow setting. It never mirrors or inspects managed aura state.
+    for _, button in ipairs(self.unitButtons or {}) do
+        if button.TestAuraGlow then
+            button.TestAuraGlow:SetShown(showTestGlow)
+        end
     end
 
     return true
@@ -278,6 +295,13 @@ function addon:CreateAuraDisplays(dispelTypes)
     for index, button in ipairs(self.unitButtons) do
         self.auraContainers[index] = CreateAuraContainer(button, index, dispelTypes)
         self.glowAuraContainers[index] = CreateGlowAuraContainer(button, index, dispelTypes)
+
+        -- Managed glow is disabled during visual test mode, so each fixed unit
+        -- also gets a harmless visual-only copy for /ldec test.
+        if not button.TestAuraGlow then
+            button.TestAuraGlow = CreateGlowVisual(button)
+            button.TestAuraGlow:Hide()
+        end
     end
 
     self:UpdateAuraDisplayLayout()
