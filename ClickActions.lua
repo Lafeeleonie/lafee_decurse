@@ -162,20 +162,16 @@ function addon:GetAssignableSpells()
                     and spellID
                     and not seen[spellID]
                     and not C_SpellBook.IsSpellBookItemPassive(slotIndex, PLAYER_SPELL_BANK)
+                    and C_SpellBook.IsSpellBookItemHelpful(slotIndex, PLAYER_SPELL_BANK)
                 then
-                    local isHelpful = C_SpellBook.IsSpellBookItemHelpful(slotIndex, PLAYER_SPELL_BANK)
-                    local isHarmful = C_SpellBook.IsSpellBookItemHarmful(slotIndex, PLAYER_SPELL_BANK)
-
-                    -- Friendly-target spells are included directly. Non-harmful active
-                    -- utility spells are also included so ground-target abilities such
-                    -- as defensive zones can be selected and tested with the secure
-                    -- unit-target spell action.
-                    if isHelpful or not isHarmful then
-                        local entry = BuildSpellEntry(spellID)
-                        if entry and entry.isKnown then
-                            seen[spellID] = true
-                            spells[#spells + 1] = entry
-                        end
+                    -- Only spells Blizzard classifies as helpful are offered.
+                    -- This keeps unit-target dispels and friendly utility while
+                    -- excluding offensive actions, auto attack, and ground-target
+                    -- abilities that would open a placement reticle.
+                    local entry = BuildSpellEntry(spellID)
+                    if entry and entry.isKnown then
+                        seen[spellID] = true
+                        spells[#spells + 1] = entry
                     end
                 end
             end
