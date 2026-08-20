@@ -56,36 +56,76 @@ local function CreateDropdown(card, x, y, width, defaultText)
     return dropdown
 end
 
+local function IsConfiguredSpell(clickIndex, spellID)
+    local configured = addon:GetConfiguredSpellForDisplay(clickIndex, addon.activeDispels)
+    local configuredID = configured and configured.spellID or 0
+    return configuredID == spellID
+end
+
+local function SetConfiguredSpell(clickIndex, spellID)
+    addon:SetConfiguredSpell(clickIndex, spellID)
+end
+
 local function CreateClickRow(card, index)
     local row = CreateFrame("Frame", nil, card, "BackdropTemplate")
-    row:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -42 - ((index - 1) * 48))
-    row:SetPoint("TOPRIGHT", card, "TOPRIGHT", -14, -42 - ((index - 1) * 48))
-    row:SetHeight(40)
+    row:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -42 - ((index - 1) * 54))
+    row:SetPoint("TOPRIGHT", card, "TOPRIGHT", -14, -42 - ((index - 1) * 54))
+    row:SetHeight(46)
     row:SetBackdrop({ bgFile = "Interface\\Buttons\\WHITE8X8" })
     row:SetBackdropColor(0.07, 0.085, 0.11, 0.9)
 
-    local badge = row:CreateFontString(nil, "OVERLAY", "GameFontNormalLarge")
-    badge:SetSize(24, 24)
-    badge:SetPoint("LEFT", row, "LEFT", 10, 0)
-    badge:SetText(index)
-    badge:SetTextColor(0.55, 0.90, 1)
-
     local clickLabel = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    clickLabel:SetPoint("LEFT", badge, "RIGHT", 8, 8)
+    clickLabel:SetPoint("LEFT", row, "LEFT", 10, 0)
+    clickLabel:SetWidth(86)
+    clickLabel:SetJustifyH("LEFT")
     clickLabel:SetText(CLICK_LABELS[index])
 
     local spellIcon = row:CreateTexture(nil, "ARTWORK")
     spellIcon:SetSize(28, 28)
-    spellIcon:SetPoint("RIGHT", row, "RIGHT", -10, 0)
+    spellIcon:SetPoint("LEFT", row, "LEFT", 96, 0)
     spellIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
 
-    local spellName = row:CreateFontString(nil, "OVERLAY", "GameFontNormal")
-    spellName:SetPoint("LEFT", badge, "RIGHT", 8, -8)
-    spellName:SetPoint("RIGHT", spellIcon, "LEFT", -8, -8)
-    spellName:SetJustifyH("LEFT")
+    local dropdown = CreateFrame("DropdownButton", nil, row, "WowStyle1DropdownTemplate")
+    dropdown:SetSize(300, 30)
+    dropdown:SetPoint("LEFT", spellIcon, "RIGHT", 8, 0)
+    dropdown:SetDefaultText(L.UNASSIGNED)
+    dropdown:SetupMenu(function(_, rootDescription)
+        rootDescription:CreateRadio(
+            L.UNASSIGNED,
+            function(spellID) return IsConfiguredSpell(index, spellID) end,
+            function(spellID) SetConfiguredSpell(index, spellID) end,
+            0
+        )
+
+        local spells = addon:GetAssignableSpells()
+        if #spells > 0 then
+            rootDescription:CreateDivider()
+        end
+        for _, spell in ipairs(spells) do
+            rootDescription:CreateRadio(
+                spell.spellName,
+                function(spellID) return IsConfiguredSpell(index, spellID) end,
+                function(spellID) SetConfiguredSpell(index, spellID) end,
+                spell.spellID
+            )
+        end
+    end)
+
+    local cooldownCheckbox = CreateFrame("CheckButton", nil, row, "UICheckButtonTemplate")
+    cooldownCheckbox:SetPoint("RIGHT", row, "RIGHT", -66, 0)
+    cooldownCheckbox:SetScript("OnClick", function(self)
+        if not addon:SetCooldownBarEnabled(index, self:GetChecked() == true) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+
+    local cooldownLabel = row:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    cooldownLabel:SetPoint("LEFT", cooldownCheckbox, "RIGHT", 2, 0)
+    cooldownLabel:SetText(L.COOLDOWN_BAR)
 
     row.SpellIcon = spellIcon
-    row.SpellName = spellName
+    row.SpellDropdown = dropdown
+    row.CooldownCheckbox = cooldownCheckbox
     return row
 end
 
@@ -160,18 +200,18 @@ function addon:RefreshConfigurationPanel()
     end
 
     for index, row in ipairs(panel.ClickRows) do
-        local dispel = self.activeDispels and self.activeDispels[index]
-        if dispel then
-            local iconID = C_Spell.GetSpellTexture(dispel.spellID)
-            row.SpellName:SetText(dispel.spellName)
-            row.SpellName:SetTextColor(1, 0.82, 0)
-            row.SpellIcon:SetTexture(iconID)
+        local spell = self:GetConfiguredSpellForDisplay(index, self.activeDispels)
+        if spell then
+            row.SpellIcon:SetTexture(spell.iconID)
+            row.SpellIcon:SetDesaturated(not spell.isKnown)
             row.SpellIcon:Show()
         else
-            row.SpellName:SetText(L.UNASSIGNED)
-            row.SpellName:SetTextColor(0.55, 0.58, 0.64)
             row.SpellIcon:Hide()
         end
+
+        row.CooldownCheckbox:SetChecked(self:IsCooldownBarEnabled(index))
+        row.CooldownCheckbox:SetEnabled(spell ~= nil and spell.isKnown == true)
+        RefreshDropdown(row.SpellDropdown)
     end
 end
 
@@ -197,7 +237,7 @@ function addon:CreateConfigurationPanel()
     scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
-    content:SetSize(600, 820)
+    content:SetSize(600, 850)
     scrollFrame:SetScrollChild(content)
 
     local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
@@ -334,18 +374,18 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    local clickCard = CreateCard(content, -500, 250, L.CLICK_ASSIGNMENTS)
+    local clickCard = CreateCard(content, -500, 284, L.ACTION_ASSIGNMENTS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)
     end
 
     local note = clickCard:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
-    note:SetPoint("TOPLEFT", clickCard, "TOPLEFT", 16, -204)
-    note:SetPoint("TOPRIGHT", clickCard, "TOPRIGHT", -16, -204)
+    note:SetPoint("TOPLEFT", clickCard, "TOPLEFT", 16, -222)
+    note:SetPoint("TOPRIGHT", clickCard, "TOPRIGHT", -16, -222)
     note:SetJustifyH("LEFT")
     note:SetJustifyV("TOP")
-    note:SetText(L.THIRD_CLICK_NOTE)
+    note:SetText(L.ACTION_NOTE)
     note:SetTextColor(0.65, 0.69, 0.75)
 
     panel.OnRefresh = function()
