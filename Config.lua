@@ -185,6 +185,8 @@ function addon:RefreshConfigurationPanel()
     panel.NamesCheckbox:SetChecked(LafeeDecurseDB.showNames == true)
     panel.ClassColorCheckbox:SetChecked(LafeeDecurseDB.useClassColors == true)
     panel.HorizontalCheckbox:SetChecked(LafeeDecurseDB.horizontal == true)
+    panel.ShowAurasCheckbox:SetChecked(LafeeDecurseDB.showAuras ~= false)
+    panel.AuraGlowCheckbox:SetChecked(LafeeDecurseDB.auraGlow ~= false)
 
     RefreshDropdown(panel.BackgroundModeDropdown)
     RefreshDropdown(panel.AuraGrowthDropdown)
@@ -237,7 +239,7 @@ function addon:CreateConfigurationPanel()
     scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
-    content:SetSize(600, 850)
+    content:SetSize(600, 980)
     scrollFrame:SetScrollChild(content)
 
     local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
@@ -264,7 +266,7 @@ function addon:CreateConfigurationPanel()
         addon:ResetMainFramePosition()
     end)
 
-    local appearanceCard = CreateCard(content, -158, 326, L.SECTION_APPEARANCE)
+    local appearanceCard = CreateCard(content, -158, 430, L.SECTION_APPEARANCE)
     panel.TitleCheckbox = CreateCheckbox(appearanceCard, -42, L.SHOW_TITLE, function(checked)
         if not addon:SetDisplayOption("showTitle", checked) then addon:RefreshConfigurationPanel() end
     end)
@@ -374,7 +376,14 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    local clickCard = CreateCard(content, -500, 284, L.ACTION_ASSIGNMENTS)
+    panel.ShowAurasCheckbox = CreateCheckbox(appearanceCard, -342, L.SHOW_AURAS, function(checked)
+        if not addon:SetAuraIconsVisible(checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.AuraGlowCheckbox = CreateCheckbox(appearanceCard, -376, L.AURA_GLOW, function(checked)
+        if not addon:SetAuraGlowEnabled(checked) then addon:RefreshConfigurationPanel() end
+    end)
+
+    local clickCard = CreateCard(content, -604, 284, L.ACTION_ASSIGNMENTS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)
