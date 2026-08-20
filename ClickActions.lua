@@ -3,6 +3,24 @@ local L = addon.L
 
 local PLAYER_SPELL_BANK = Enum.SpellBookSpellBank.Player
 
+-- Resurrection spells can require a dead friendly player and may therefore
+-- fail a live-unit range probe even though they are valid secure unit actions.
+-- Keep these well-known player-targeted resurrection spells explicitly valid.
+local DEAD_FRIENDLY_TARGET_SPELLS = {
+    [2006] = true,   -- Resurrection (Priest)
+    [2008] = true,   -- Ancestral Spirit (Shaman)
+    [7328] = true,   -- Redemption (Paladin)
+    [20484] = true,  -- Rebirth (Druid)
+    [20707] = true,  -- Soulstone (Warlock)
+    [50769] = true,  -- Revive (Druid)
+    [61999] = true,  -- Raise Ally (Death Knight)
+    [115178] = true, -- Resuscitate (Monk)
+    [361227] = true, -- Return (Evoker)
+}
+
+local FRIENDLY_PROBE_UNITS = { "party1", "party2", "party3", "party4", "player" }
+local friendlyTargetCache = {}
+
 local function GetCharacterKey()
     local guid = UnitGUID("player")
     if guid then
@@ -78,6 +96,59 @@ local function BuildSpellEntry(spellID)
     }
 end
 
+local function CanTargetFriendlyPlayer(spellID)
+    if DEAD_FRIENDLY_TARGET_SPELLS[spellID] then
+        return true
+    end
+
+    local cached = friendlyTargetCache[spellID]
+    if cached ~= nil then
+        return cached
+    end
+
+    -- Range probing is only used to classify a spell outside combat. We never
+    -- use the true/false range result for combat UI logic; only nil vs non-nil
+    -- tells us whether the spell accepts that friendly UnitToken as a target.
+    if InCombatLockdown() then
+        return false
+    end
+
+    local spellInfo = C_Spell.GetSpellInfo(spellID)
+    if not spellInfo or (tonumber(spellInfo.maxRange) or 0) <= 0 then
+        friendlyTargetCache[spellID] = false
+        return false
+    end
+
+    for _, unit in ipairs(FRIENDLY_PROBE_UNITS) do
+        if UnitExists(unit) then
+            local inRange = C_Spell.IsSpellInRange(spellID, unit)
+            if inRange ~= nil then
+                friendlyTargetCache[spellID] = true
+                return true
+            end
+        end
+    end
+
+    friendlyTargetCache[spellID] = false
+    return false
+end
+
+local function IsAssignableSpellBookItem(slotIndex, spellBank, spellID)
+    if not slotIndex or spellBank ~= PLAYER_SPELL_BANK or not spellID then
+        return false
+    end
+
+    if C_SpellBook.IsSpellBookItemPassive(slotIndex, spellBank) then
+        return false
+    end
+
+    if C_SpellBook.IsSpellBookItemHarmful(slotIndex, spellBank) == true then
+        return false
+    end
+
+    return CanTargetFriendlyPlayer(spellID)
+end
+
 local function IsAssignableSpell(spellID)
     if not spellID then
         return false
@@ -90,15 +161,7 @@ local function IsAssignableSpell(spellID)
         false,
         false
     )
-    if not slotIndex or spellBank ~= PLAYER_SPELL_BANK then
-        return false
-    end
-
-    if C_SpellBook.IsSpellBookItemPassive(slotIndex, spellBank) then
-        return false
-    end
-
-    return C_SpellBook.IsSpellBookItemHelpful(slotIndex, spellBank) == true
+    return IsAssignableSpellBookItem(slotIndex, spellBank, spellID)
 end
 
 local function GetProfile(addonObject, defaultDispels)
@@ -116,7 +179,7 @@ function addon:GetConfiguredSpells(defaultDispels)
             spells[clickIndex] = entry
         elseif spellID then
             -- Remove stale selections that are no longer valid click actions,
-            -- including ground-target abilities saved by earlier alpha builds.
+            -- including self-only and ground-target abilities saved by alphas.
             profile.clickSpells[clickIndex] = nil
             profile.cooldownBars[clickIndex] = false
         end
@@ -199,13 +262,8 @@ function addon:GetAssignableSpells()
                 if itemType == Enum.SpellBookItemType.Spell
                     and spellID
                     and not seen[spellID]
-                    and not C_SpellBook.IsSpellBookItemPassive(slotIndex, PLAYER_SPELL_BANK)
-                    and C_SpellBook.IsSpellBookItemHelpful(slotIndex, PLAYER_SPELL_BANK)
+                    and IsAssignableSpellBookItem(slotIndex, PLAYER_SPELL_BANK, spellID)
                 then
-                    -- Only spells Blizzard classifies as helpful are offered.
-                    -- This keeps unit-target dispels and friendly utility while
-                    -- excluding offensive actions, auto attack, and ground-target
-                    -- abilities that would open a placement reticle.
                     local entry = BuildSpellEntry(spellID)
                     if entry and entry.isKnown then
                         seen[spellID] = true
