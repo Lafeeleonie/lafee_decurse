@@ -165,16 +165,16 @@ function addon:CreateConfigurationPanel()
         addon:GetAuraGlowSpeed(),
         addon.MIN_AURA_GLOW_SPEED,
         addon.MAX_AURA_GLOW_SPEED,
-        13,
+        26,
         {
             [MinimalSliderWithSteppersMixin.Label.Right] = function(value)
-                return string.format("%.1f s", value)
+                return string.format("%.2f s", value)
             end,
             [MinimalSliderWithSteppersMixin.Label.Min] = function()
-                return "0.2"
+                return "0.20"
             end,
             [MinimalSliderWithSteppersMixin.Label.Max] = function()
-                return "1.5"
+                return "1.50"
             end,
         }
     )
@@ -182,7 +182,7 @@ function addon:CreateConfigurationPanel()
         if panel.GlowSpeedSlider.ignoreValueChanged then
             return
         end
-        local speed = math.floor((value * 10) + 0.5) / 10
+        local speed = math.floor((value * 20) + 0.5) / 20
         if math.abs(speed - addon:GetAuraGlowSpeed()) > 0.001 then
             addon:SetAuraGlowSpeed(speed)
         end
