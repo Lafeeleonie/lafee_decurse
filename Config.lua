@@ -41,6 +41,21 @@ local function CreateCheckbox(card, y, labelText, onClick)
     return checkbox
 end
 
+local function CreateFieldLabel(card, x, y, labelText)
+    local label = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    label:SetPoint("LEFT", card, "TOPLEFT", x, y)
+    label:SetText(labelText)
+    return label
+end
+
+local function CreateDropdown(card, x, y, width, defaultText)
+    local dropdown = CreateFrame("DropdownButton", nil, card, "WowStyle1DropdownTemplate")
+    dropdown:SetPoint("TOPLEFT", card, "TOPLEFT", x, y)
+    dropdown:SetWidth(width)
+    dropdown:SetDefaultText(defaultText)
+    return dropdown
+end
+
 local function CreateClickRow(card, index)
     local row = CreateFrame("Frame", nil, card, "BackdropTemplate")
     row:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -42 - ((index - 1) * 48))
@@ -111,6 +126,12 @@ local function CreateColorButton(card, y, labelText, onColorChanged)
     return button
 end
 
+local function RefreshDropdown(dropdown)
+    if dropdown and dropdown.GenerateMenu then
+        dropdown:GenerateMenu()
+    end
+end
+
 function addon:RefreshConfigurationPanel()
     local panel = self.configurationPanel
     if not panel or not LafeeDecurseDB then
@@ -125,16 +146,18 @@ function addon:RefreshConfigurationPanel()
     panel.ClassColorCheckbox:SetChecked(LafeeDecurseDB.useClassColors == true)
     panel.HorizontalCheckbox:SetChecked(LafeeDecurseDB.horizontal == true)
 
-    local modeLabels = {
-        [addon.BACKGROUND_MODE_FULL] = L.BACKGROUND_MODE_FULL,
-        [addon.BACKGROUND_MODE_FRAMES] = L.BACKGROUND_MODE_FRAMES,
-        [addon.BACKGROUND_MODE_NONE] = L.BACKGROUND_MODE_NONE,
-    }
-    panel.BackgroundModeButton:SetText(L.BACKGROUND_MODE .. ": " .. modeLabels[LafeeDecurseDB.backgroundMode])
+    RefreshDropdown(panel.BackgroundModeDropdown)
+    RefreshDropdown(panel.AuraGrowthDropdown)
 
     local color = LafeeDecurseDB.backgroundColor
     panel.ColorButton.Swatch:SetColorTexture(color.r, color.g, color.b, color.a)
     panel.ColorButton:SetEnabled(LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_NONE)
+
+    if panel.AuraCountSlider then
+        panel.AuraCountSlider.ignoreValueChanged = true
+        panel.AuraCountSlider:SetValue(addon:GetAuraCount())
+        panel.AuraCountSlider.ignoreValueChanged = nil
+    end
 
     for index, row in ipairs(panel.ClickRows) do
         local dispel = self.activeDispels and self.activeDispels[index]
@@ -153,6 +176,10 @@ function addon:RefreshConfigurationPanel()
 end
 
 function addon:CreateConfigurationPanel()
+    if not C_AddOns.IsAddOnLoaded("Blizzard_Menu") then
+        C_AddOns.LoadAddOn("Blizzard_Menu")
+    end
+
     local panel = CreateFrame("Frame", "LafeeDecurseConfigurationPanel")
     panel:SetSize(640, 620)
 
@@ -170,7 +197,7 @@ function addon:CreateConfigurationPanel()
     scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
-    content:SetSize(600, 760)
+    content:SetSize(600, 820)
     scrollFrame:SetScrollChild(content)
 
     local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
@@ -197,26 +224,35 @@ function addon:CreateConfigurationPanel()
         addon:ResetMainFramePosition()
     end)
 
-    local appearanceCard = CreateCard(content, -158, 286, L.SECTION_APPEARANCE)
+    local appearanceCard = CreateCard(content, -158, 326, L.SECTION_APPEARANCE)
     panel.TitleCheckbox = CreateCheckbox(appearanceCard, -42, L.SHOW_TITLE, function(checked)
         if not addon:SetDisplayOption("showTitle", checked) then addon:RefreshConfigurationPanel() end
     end)
     panel.NamesCheckbox = CreateCheckbox(appearanceCard, -76, L.SHOW_NAMES, function(checked)
         if not addon:SetDisplayOption("showNames", checked) then addon:RefreshConfigurationPanel() end
     end)
-    panel.BackgroundModeButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
-    panel.BackgroundModeButton:SetSize(280, 26)
-    panel.BackgroundModeButton:SetPoint("TOPLEFT", appearanceCard, "TOPLEFT", 16, -110)
-    panel.BackgroundModeButton:SetScript("OnClick", function()
-        local nextMode = {
-            [addon.BACKGROUND_MODE_FULL] = addon.BACKGROUND_MODE_FRAMES,
-            [addon.BACKGROUND_MODE_FRAMES] = addon.BACKGROUND_MODE_NONE,
-            [addon.BACKGROUND_MODE_NONE] = addon.BACKGROUND_MODE_FULL,
+
+    CreateFieldLabel(appearanceCard, 16, -121, L.BACKGROUND_MODE)
+    panel.BackgroundModeDropdown = CreateDropdown(appearanceCard, 245, -104, 285, L.BACKGROUND_MODE)
+    panel.BackgroundModeDropdown:SetupMenu(function(_, rootDescription)
+        local options = {
+            { value = addon.BACKGROUND_MODE_FULL, text = L.BACKGROUND_MODE_FULL },
+            { value = addon.BACKGROUND_MODE_FRAMES, text = L.BACKGROUND_MODE_FRAMES },
+            { value = addon.BACKGROUND_MODE_NONE, text = L.BACKGROUND_MODE_NONE },
         }
-        if not addon:SetBackgroundMode(nextMode[LafeeDecurseDB.backgroundMode]) then
-            addon:RefreshConfigurationPanel()
+        local function IsSelected(value)
+            return LafeeDecurseDB.backgroundMode == value
+        end
+        local function SetSelected(value)
+            if not addon:SetBackgroundMode(value) then
+                addon:RefreshConfigurationPanel()
+            end
+        end
+        for _, option in ipairs(options) do
+            rootDescription:CreateRadio(option.text, IsSelected, SetSelected, option.value)
         end
     end)
+
     panel.ClassColorCheckbox = CreateCheckbox(appearanceCard, -144, L.CLASS_COLORS, function(checked)
         if not addon:SetDisplayOption("useClassColors", checked) then addon:RefreshConfigurationPanel() end
     end)
@@ -236,7 +272,69 @@ function addon:CreateConfigurationPanel()
         addon:ResetBackgroundColor()
     end)
 
-    local clickCard = CreateCard(content, -460, 250, L.CLICK_ASSIGNMENTS)
+    CreateFieldLabel(appearanceCard, 16, -261, L.AURA_COUNT)
+    panel.AuraCountSlider = CreateFrame("Frame", nil, appearanceCard, "MinimalSliderWithSteppersTemplate")
+    panel.AuraCountSlider:SetSize(250, 40)
+    panel.AuraCountSlider:SetPoint("TOPLEFT", appearanceCard, "TOPLEFT", 260, -242)
+    local sliderFormatters = {
+        [MinimalSliderWithSteppersMixin.Label.Right] = function(value)
+            return tostring(math.floor(value + 0.5))
+        end,
+        [MinimalSliderWithSteppersMixin.Label.Min] = function()
+            return "1"
+        end,
+        [MinimalSliderWithSteppersMixin.Label.Max] = function()
+            return tostring(addon.MAX_AURA_COUNT)
+        end,
+    }
+    panel.AuraCountSlider:Init(
+        addon:GetAuraCount(),
+        1,
+        addon.MAX_AURA_COUNT,
+        addon.MAX_AURA_COUNT - 1,
+        sliderFormatters
+    )
+    panel.AuraCountSlider.Slider:HookScript("OnValueChanged", function(_, value)
+        if panel.AuraCountSlider.ignoreValueChanged then
+            return
+        end
+
+        local count = math.floor(value + 0.5)
+        if count ~= addon:GetAuraCount() and not addon:SetAuraCount(count) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+
+    CreateFieldLabel(appearanceCard, 16, -304, L.AURA_GROWTH)
+    panel.AuraGrowthDropdown = CreateDropdown(appearanceCard, 245, -287, 285, L.AURA_GROWTH)
+    panel.AuraGrowthDropdown:SetupMenu(function(_, rootDescription)
+        local options
+        if LafeeDecurseDB.horizontal then
+            options = {
+                { value = "UP", text = L.GROWTH_UP },
+                { value = "DOWN", text = L.GROWTH_DOWN },
+            }
+        else
+            options = {
+                { value = "LEFT", text = L.GROWTH_LEFT },
+                { value = "RIGHT", text = L.GROWTH_RIGHT },
+            }
+        end
+
+        local function IsSelected(value)
+            return addon:GetAuraGrowth() == value
+        end
+        local function SetSelected(value)
+            if not addon:SetAuraGrowth(value) then
+                addon:RefreshConfigurationPanel()
+            end
+        end
+        for _, option in ipairs(options) do
+            rootDescription:CreateRadio(option.text, IsSelected, SetSelected, option.value)
+        end
+    end)
+
+    local clickCard = CreateCard(content, -500, 250, L.CLICK_ASSIGNMENTS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)

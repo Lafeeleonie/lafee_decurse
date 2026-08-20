@@ -2,16 +2,19 @@ local addonName, addon = ...
 
 addon.UNITS = { "player", "party1", "party2", "party3", "party4" }
 addon.unitButtons = {}
+addon.UNIT_BUTTON_HEIGHT = 30
+addon.MAX_AURA_COUNT = 5
 
-local BUTTON_HEIGHT = 30
+local BUTTON_HEIGHT = addon.UNIT_BUTTON_HEIGHT
 local BUTTON_WIDTH_WITH_NAME = 120
 local BUTTON_WIDTH_ROLE_ONLY = 30
-local AURA_SIZE = 24
 local AURA_SPACING = 2
 local TEST_AURA_TEXTURES = {
     "Interface\\Icons\\Spell_Holy_DispelMagic",
     "Interface\\Icons\\Spell_Nature_NullifyDisease",
     "Interface\\Icons\\Spell_Nature_RemoveCurse",
+    "Interface\\Icons\\Spell_Holy_DispelMagic",
+    "Interface\\Icons\\Spell_Nature_NullifyDisease",
 }
 
 local ROLE_ATLASES = {
@@ -87,7 +90,7 @@ local function CreateUnitButton(parent, unit, index)
     button.TestAuraIcons = {}
     for auraIndex, texture in ipairs(TEST_AURA_TEXTURES) do
         local testIcon = button:CreateTexture(nil, "OVERLAY")
-        testIcon:SetSize(AURA_SIZE, AURA_SIZE)
+        testIcon:SetSize(BUTTON_HEIGHT, BUTTON_HEIGHT)
         testIcon:SetTexture(texture)
         testIcon:SetTexCoord(0.08, 0.92, 0.08, 0.92)
         testIcon:Hide()
@@ -136,6 +139,49 @@ function addon:ApplyDispelSpells(dispels)
     return true
 end
 
+function addon:GetAuraCount()
+    local count = tonumber(LafeeDecurseDB and LafeeDecurseDB.auraCount) or 3
+    count = math.floor(count)
+    return math.max(1, math.min(self.MAX_AURA_COUNT, count))
+end
+
+function addon:GetAuraGrowth()
+    if LafeeDecurseDB and LafeeDecurseDB.horizontal then
+        local growth = LafeeDecurseDB.auraGrowthHorizontal
+        return growth == "UP" and "UP" or "DOWN"
+    end
+
+    local growth = LafeeDecurseDB and LafeeDecurseDB.auraGrowthVertical
+    return growth == "LEFT" and "LEFT" or "RIGHT"
+end
+
+function addon:SetAuraCount(count)
+    if InCombatLockdown() then
+        self:Print(addon.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    count = math.floor(tonumber(count) or 3)
+    LafeeDecurseDB.auraCount = math.max(1, math.min(self.MAX_AURA_COUNT, count))
+    return self:ApplyDisplaySettings()
+end
+
+function addon:SetAuraGrowth(growth)
+    if InCombatLockdown() then
+        self:Print(addon.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    if LafeeDecurseDB.horizontal then
+        if growth ~= "UP" and growth ~= "DOWN" then return false end
+        LafeeDecurseDB.auraGrowthHorizontal = growth
+    else
+        if growth ~= "LEFT" and growth ~= "RIGHT" then return false end
+        LafeeDecurseDB.auraGrowthVertical = growth
+    end
+    return self:ApplyDisplaySettings()
+end
+
 local function GetDisplayedRole(unit)
     local role = UnitGroupRolesAssigned(unit)
     if role == "NONE" and unit == "player" then
@@ -179,13 +225,21 @@ local function UpdateMainFrameBackground()
 end
 
 local function LayoutTestAuras(button)
+    local growth = addon:GetAuraGrowth()
+    local count = addon:GetAuraCount()
+
     for index, icon in ipairs(button.TestAuraIcons) do
         icon:ClearAllPoints()
-        if LafeeDecurseDB.horizontal then
-            icon:SetPoint("TOP", button, "BOTTOM", 0, -3 - ((index - 1) * (AURA_SIZE + AURA_SPACING)))
+        if growth == "UP" then
+            icon:SetPoint("BOTTOM", button, "TOP", 0, 3 + ((index - 1) * (BUTTON_HEIGHT + AURA_SPACING)))
+        elseif growth == "DOWN" then
+            icon:SetPoint("TOP", button, "BOTTOM", 0, -3 - ((index - 1) * (BUTTON_HEIGHT + AURA_SPACING)))
+        elseif growth == "LEFT" then
+            icon:SetPoint("RIGHT", button, "LEFT", -3 - ((index - 1) * (BUTTON_HEIGHT + AURA_SPACING)), 0)
         else
-            icon:SetPoint("LEFT", button, "RIGHT", 3 + ((index - 1) * (AURA_SIZE + AURA_SPACING)), 0)
+            icon:SetPoint("LEFT", button, "RIGHT", 3 + ((index - 1) * (BUTTON_HEIGHT + AURA_SPACING)), 0)
         end
+        icon:SetShown(addon.testMode and index <= count)
     end
 end
 
@@ -197,25 +251,47 @@ function addon:ApplyDisplaySettings()
 
     local buttonWidth = GetButtonWidth()
     local titleOffset = LafeeDecurseDB.showTitle and 20 or 5
-    local auraExtent = (AURA_SIZE * 3) + (AURA_SPACING * 2)
+    local auraCount = self:GetAuraCount()
+    local auraExtent = (BUTTON_HEIGHT * auraCount) + (AURA_SPACING * (auraCount - 1))
+    local auraGap = 3
+    local growth = self:GetAuraGrowth()
 
     self.mainFrame.TitleText:SetShown(LafeeDecurseDB.showTitle)
     UpdateMainFrameBackground()
+
+    local leftPadding = (not LafeeDecurseDB.horizontal and growth == "LEFT") and (auraExtent + auraGap) or 0
+    local topPadding = (LafeeDecurseDB.horizontal and growth == "UP") and (auraExtent + auraGap) or 0
+
     for index, button in ipairs(self.unitButtons) do
         button:SetSize(buttonWidth, BUTTON_HEIGHT)
         button:ClearAllPoints()
         if LafeeDecurseDB.horizontal then
-            button:SetPoint("TOPLEFT", self.mainFrame, "TOPLEFT", 5 + ((index - 1) * (buttonWidth + 2)), -titleOffset)
+            button:SetPoint(
+                "TOPLEFT",
+                self.mainFrame,
+                "TOPLEFT",
+                5 + ((index - 1) * (buttonWidth + 2)),
+                -titleOffset - topPadding
+            )
         else
-            button:SetPoint("TOPLEFT", self.mainFrame, "TOPLEFT", 5, -titleOffset - ((index - 1) * BUTTON_HEIGHT))
+            button:SetPoint(
+                "TOPLEFT",
+                self.mainFrame,
+                "TOPLEFT",
+                5 + leftPadding,
+                -titleOffset - ((index - 1) * BUTTON_HEIGHT)
+            )
         end
         LayoutTestAuras(button)
     end
 
     if LafeeDecurseDB.horizontal then
-        self.mainFrame:SetSize(10 + (#self.unitButtons * buttonWidth) + ((#self.unitButtons - 1) * 2), titleOffset + BUTTON_HEIGHT + auraExtent + 8)
+        local tableWidth = 10 + (#self.unitButtons * buttonWidth) + ((#self.unitButtons - 1) * 2)
+        local bottomAura = growth == "DOWN" and (auraExtent + auraGap) or 0
+        self.mainFrame:SetSize(tableWidth, titleOffset + topPadding + BUTTON_HEIGHT + bottomAura + 5)
     else
-        self.mainFrame:SetSize(8 + buttonWidth + auraExtent, titleOffset + (#self.unitButtons * BUTTON_HEIGHT) + 5)
+        local rightAura = growth == "RIGHT" and (auraExtent + auraGap) or 0
+        self.mainFrame:SetSize(8 + leftPadding + buttonWidth + rightAura, titleOffset + (#self.unitButtons * BUTTON_HEIGHT) + 5)
     end
 
     self:UpdateUnitNames()
@@ -321,9 +397,7 @@ function addon:SetTestMode(enabled)
     self.testMode = enabled == true
     LafeeDecurseDB.testMode = self.testMode
     for _, button in ipairs(self.unitButtons) do
-        for _, icon in ipairs(button.TestAuraIcons) do
-            icon:SetShown(self.testMode)
-        end
+        LayoutTestAuras(button)
         button:SetAlpha((UnitExists(button.fixedUnit) or self.testMode) and 1 or 0.45)
     end
     for _, container in ipairs(self.auraContainers or {}) do

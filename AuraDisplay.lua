@@ -5,14 +5,21 @@ addon.auraContainers = {}
 
 local AURA_FILTER = "HARMFUL|RAID_PLAYER_DISPELLABLE"
 local GROUP_KEY = "dispellable"
-local MAX_AURAS = 3
-local AURA_SIZE = 24
 local AURA_SPACING = 2
 
+local function GetAuraSize()
+    return addon.UNIT_BUTTON_HEIGHT or 30
+end
+
+local function GetAuraCount()
+    return addon:GetAuraCount()
+end
+
 local function GetGroupLayout()
+    local size = GetAuraSize()
     return {
-        elementWidth = AURA_SIZE,
-        elementHeight = AURA_SIZE,
+        elementWidth = size,
+        elementHeight = size,
         elementSpacing = AURA_SPACING,
         lineSpacing = AURA_SPACING,
         elementSpacingX = AURA_SPACING,
@@ -23,7 +30,8 @@ end
 local function InitializeAuraButton(auraButton)
     -- Aura buttons can become forbidden while aura data is secret. Every
     -- region is therefore created and registered in this secure initializer.
-    auraButton:SetSize(24, 24)
+    local size = GetAuraSize()
+    auraButton:SetSize(size, size)
     auraButton:EnableMouse(false)
 
     local icon = auraButton:CreateTexture(nil, "ARTWORK")
@@ -47,18 +55,20 @@ local function InitializeAuraButton(auraButton)
 end
 
 local function CreateAuraContainer(button, index, dispelTypes)
+    local size = GetAuraSize()
+    local maxAuras = GetAuraCount()
     local container = CreateFrame(
         "AuraContainer",
         "LafeeDecurseAuraContainer" .. index,
         button,
         "CustomAuraContainerTemplate"
     )
-    container:SetSize((AURA_SIZE * MAX_AURAS) + (AURA_SPACING * (MAX_AURAS - 1)), AURA_SIZE)
+    container:SetSize((size * maxAuras) + (AURA_SPACING * (maxAuras - 1)), size)
     container:SetUnit(button.fixedUnit)
 
     container:AddAuraGroup(GROUP_KEY, AURA_FILTER, {
         initializeFrame = InitializeAuraButton,
-        maxFrameCount = MAX_AURAS,
+        maxFrameCount = maxAuras,
         candidateFilters = {
             includeDispelTypes = dispelTypes or {},
         },
@@ -77,25 +87,54 @@ function addon:UpdateAuraDisplayLayout()
         return false
     end
 
-    local totalSize = (AURA_SIZE * MAX_AURAS) + (AURA_SPACING * (MAX_AURAS - 1))
+    local size = GetAuraSize()
+    local count = GetAuraCount()
+    local totalSize = (size * count) + (AURA_SPACING * (count - 1))
+    local growth = self:GetAuraGrowth()
+
     for index, container in ipairs(self.auraContainers) do
         local button = self.unitButtons[index]
         container:ClearAllPoints()
+        container:SetAuraGroupMaxFrameCount(GROUP_KEY, count)
+
         if LafeeDecurseDB.horizontal then
-            container:SetSize(AURA_SIZE, totalSize)
-            container:SetPoint("TOP", button, "BOTTOM", 0, -3)
+            container:SetSize(size, totalSize)
             container:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Vertical)
-            container:SetFlowLayoutAnchorPoint("TOP")
+            if growth == "UP" then
+                container:SetPoint("BOTTOM", button, "TOP", 0, 3)
+                container:SetFlowLayoutAnchorPoint("BOTTOM")
+                container:SetFlowLayoutGrowthDirection(
+                    AnchorUtil.FlowDirection.Right,
+                    AnchorUtil.FlowDirection.Up
+                )
+            else
+                container:SetPoint("TOP", button, "BOTTOM", 0, -3)
+                container:SetFlowLayoutAnchorPoint("TOP")
+                container:SetFlowLayoutGrowthDirection(
+                    AnchorUtil.FlowDirection.Right,
+                    AnchorUtil.FlowDirection.Down
+                )
+            end
         else
-            container:SetSize(totalSize, AURA_SIZE)
-            container:SetPoint("LEFT", button, "RIGHT", 3, 0)
+            container:SetSize(totalSize, size)
             container:SetFlowLayoutAxis(AnchorUtil.FlowLayoutAxis.Horizontal)
-            container:SetFlowLayoutAnchorPoint("LEFT")
+            if growth == "LEFT" then
+                container:SetPoint("RIGHT", button, "LEFT", -3, 0)
+                container:SetFlowLayoutAnchorPoint("RIGHT")
+                container:SetFlowLayoutGrowthDirection(
+                    AnchorUtil.FlowDirection.Left,
+                    AnchorUtil.FlowDirection.Down
+                )
+            else
+                container:SetPoint("LEFT", button, "RIGHT", 3, 0)
+                container:SetFlowLayoutAnchorPoint("LEFT")
+                container:SetFlowLayoutGrowthDirection(
+                    AnchorUtil.FlowDirection.Right,
+                    AnchorUtil.FlowDirection.Down
+                )
+            end
         end
-        container:SetFlowLayoutGrowthDirection(
-            AnchorUtil.FlowDirection.Right,
-            AnchorUtil.FlowDirection.Down
-        )
+
         container:SetAuraGroupLayout(GROUP_KEY, GetGroupLayout())
     end
     return true
