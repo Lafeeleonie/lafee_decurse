@@ -2,15 +2,11 @@ local addonName, addon = ...
 local L = addon.L
 
 local DISPLAY_ORDER = { 1, 3, 2 } -- Left, middle, right.
-local GAP = 4
+local HORIZONTAL_BUTTON_GAP = 2
 local VERTICAL_WIDGET_WIDTH = 30
-local VERTICAL_WIDGET_HEIGHT = 38
 local VERTICAL_BAR_WIDTH = 12
-local VERTICAL_BAR_HEIGHT = 26
-local HORIZONTAL_WIDGET_WIDTH = 92
 local HORIZONTAL_WIDGET_HEIGHT = 16
-local HORIZONTAL_BAR_WIDTH = 72
-local HORIZONTAL_BAR_HEIGHT = 12
+local HORIZONTAL_LABEL_WIDTH = 18
 
 local function GetShortClickLabel(clickIndex)
     if clickIndex == 1 then
@@ -79,29 +75,32 @@ function addon:CreateCooldownBars(parent)
     self:RefreshCooldownBars()
 end
 
-local function ConfigureVerticalWidget(widget)
-    widget:SetSize(VERTICAL_WIDGET_WIDTH, VERTICAL_WIDGET_HEIGHT)
+local function ConfigureVerticalWidget(widget, height)
+    widget:SetSize(VERTICAL_WIDGET_WIDTH, height)
     widget.Background:SetAllPoints(widget)
 
     widget.Label:ClearAllPoints()
-    widget.Label:SetPoint("TOP", widget, "TOP", 0, 0)
+    widget.Label:SetPoint("TOP", widget, "TOP", 0, -1)
 
     widget.Bar:ClearAllPoints()
-    widget.Bar:SetSize(VERTICAL_BAR_WIDTH, VERTICAL_BAR_HEIGHT)
-    widget.Bar:SetPoint("BOTTOM", widget, "BOTTOM", 0, 0)
+    widget.Bar:SetPoint("TOP", widget, "TOP", 0, -12)
+    widget.Bar:SetPoint("BOTTOM", widget, "BOTTOM", 0, 1)
+    widget.Bar:SetWidth(VERTICAL_BAR_WIDTH)
     widget.Bar:SetOrientation("VERTICAL")
 end
 
-local function ConfigureHorizontalWidget(widget)
-    widget:SetSize(HORIZONTAL_WIDGET_WIDTH, HORIZONTAL_WIDGET_HEIGHT)
+local function ConfigureHorizontalWidget(widget, width)
+    widget:SetSize(width, HORIZONTAL_WIDGET_HEIGHT)
     widget.Background:SetAllPoints(widget)
 
     widget.Label:ClearAllPoints()
     widget.Label:SetPoint("LEFT", widget, "LEFT", 2, 0)
+    widget.Label:SetWidth(HORIZONTAL_LABEL_WIDTH - 2)
+    widget.Label:SetJustifyH("CENTER")
 
     widget.Bar:ClearAllPoints()
-    widget.Bar:SetSize(HORIZONTAL_BAR_WIDTH, HORIZONTAL_BAR_HEIGHT)
-    widget.Bar:SetPoint("RIGHT", widget, "RIGHT", -2, 0)
+    widget.Bar:SetPoint("TOPLEFT", widget, "TOPLEFT", HORIZONTAL_LABEL_WIDTH, -2)
+    widget.Bar:SetPoint("BOTTOMRIGHT", widget, "BOTTOMRIGHT", -2, 2)
     widget.Bar:SetOrientation("HORIZONTAL")
 end
 
@@ -113,21 +112,25 @@ local function ApplyBackgroundMode(widget)
     widget.BarBackground:SetShown(showBackground == true)
 end
 
-local function GetVisibleWidgets()
-    local widgets = {}
+local function IsWidgetVisible(clickIndex)
+    local spell = addon:GetConfiguredSpellForDisplay(clickIndex, addon.activeDispels)
+    return spell and spell.isKnown and addon:IsCooldownBarEnabled(clickIndex)
+end
+
+local function UpdateWidgetVisibility()
+    local anyVisible = false
     for _, clickIndex in ipairs(DISPLAY_ORDER) do
-        local spell = addon:GetConfiguredSpellForDisplay(clickIndex, addon.activeDispels)
         local widget = addon.cooldownBarWidgets and addon.cooldownBarWidgets[clickIndex]
-        local visible = widget and spell and spell.isKnown and addon:IsCooldownBarEnabled(clickIndex)
+        local visible = widget and IsWidgetVisible(clickIndex)
         if widget then
             widget:SetShown(visible == true)
             ApplyBackgroundMode(widget)
         end
         if visible then
-            widgets[#widgets + 1] = widget
+            anyVisible = true
         end
     end
-    return widgets
+    return anyVisible
 end
 
 function addon:UpdateCooldownBarLayout()
@@ -136,10 +139,10 @@ function addon:UpdateCooldownBarLayout()
         return
     end
 
-    local widgets = GetVisibleWidgets()
+    local anyVisible = UpdateWidgetVisibility()
     container:ClearAllPoints()
 
-    if #widgets == 0 then
+    if not anyVisible then
         container:SetSize(1, 1)
         container:Hide()
         return
@@ -150,8 +153,11 @@ function addon:UpdateCooldownBarLayout()
     local growth = self:GetAuraGrowth()
 
     if LafeeDecurseDB.horizontal then
-        local width = (#widgets * HORIZONTAL_WIDGET_WIDTH) + ((#widgets - 1) * GAP)
-        container:SetSize(width, HORIZONTAL_WIDGET_HEIGHT)
+        local buttonWidth = firstButton:GetWidth()
+        local tableWidth = (#self.unitButtons * buttonWidth)
+            + ((#self.unitButtons - 1) * HORIZONTAL_BUTTON_GAP)
+        local thirdWidth = tableWidth / 3
+        container:SetSize(tableWidth, HORIZONTAL_WIDGET_HEIGHT)
 
         if growth == "DOWN" then
             container:SetPoint("BOTTOMLEFT", firstButton, "TOPLEFT", 0, 5)
@@ -159,14 +165,16 @@ function addon:UpdateCooldownBarLayout()
             container:SetPoint("TOPLEFT", firstButton, "BOTTOMLEFT", 0, -5)
         end
 
-        for position, widget in ipairs(widgets) do
-            ConfigureHorizontalWidget(widget)
+        for position, clickIndex in ipairs(DISPLAY_ORDER) do
+            local widget = self.cooldownBarWidgets[clickIndex]
+            ConfigureHorizontalWidget(widget, thirdWidth)
             widget:ClearAllPoints()
-            widget:SetPoint("LEFT", container, "LEFT", (position - 1) * (HORIZONTAL_WIDGET_WIDTH + GAP), 0)
+            widget:SetPoint("LEFT", container, "LEFT", (position - 1) * thirdWidth, 0)
         end
     else
-        local height = (#widgets * VERTICAL_WIDGET_HEIGHT) + ((#widgets - 1) * GAP)
-        container:SetSize(VERTICAL_WIDGET_WIDTH, height)
+        local tableHeight = #self.unitButtons * firstButton:GetHeight()
+        local thirdHeight = tableHeight / 3
+        container:SetSize(VERTICAL_WIDGET_WIDTH, tableHeight)
 
         if growth == "RIGHT" then
             container:SetPoint("TOPRIGHT", firstButton, "TOPLEFT", -5, 0)
@@ -174,10 +182,11 @@ function addon:UpdateCooldownBarLayout()
             container:SetPoint("TOPLEFT", firstButton, "TOPRIGHT", 5, 0)
         end
 
-        for position, widget in ipairs(widgets) do
-            ConfigureVerticalWidget(widget)
+        for position, clickIndex in ipairs(DISPLAY_ORDER) do
+            local widget = self.cooldownBarWidgets[clickIndex]
+            ConfigureVerticalWidget(widget, thirdHeight)
             widget:ClearAllPoints()
-            widget:SetPoint("TOP", container, "TOP", 0, -((position - 1) * (VERTICAL_WIDGET_HEIGHT + GAP)))
+            widget:SetPoint("TOP", container, "TOP", 0, -((position - 1) * thirdHeight))
         end
     end
 end
