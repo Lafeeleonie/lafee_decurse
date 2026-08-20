@@ -24,6 +24,8 @@ addon.Locales.ptBR = {
     SHOW_AURAS = "Mostrar ícones de aura", AURA_GLOW = "Destacar o quadro quando for preciso dissipar",
     SECTION_GLOW = "Destaque de dissipação", GLOW_STYLE = "Estilo", GLOW_STYLE_PULSE = "Pulsação", GLOW_STYLE_ANTS = "Formigas em movimento", GLOW_STYLE_SOLID = "Fixo",
     GLOW_COLOR = "Cor", GLOW_SPEED = "Velocidade", GLOW_THICKNESS = "Espessura da borda",
+    SECTION_GROUP_ORDER = "Ordem das funções", GROUP_ORDER_DESC = "Ordena automaticamente os cinco quadros do grupo por função. Escolha a prioridade das funções; jogadores com a mesma função mantêm uma ordem estável.",
+    GROUP_ORDER_POSITION = "Prioridade %d", GROUP_ORDER_RESET = "Redefinir ordem das funções",
     ACTION_ASSIGNMENTS = "Ações de clique", ACTION_NOTE = "Cada clique pode lançar um feitiço conhecido da especialização atual. As alterações só são aplicadas fora de combate.",
     ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Recarga",
 }
