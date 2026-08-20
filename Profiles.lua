@@ -199,6 +199,33 @@ local function MigrateLegacyStorage(root)
     return profiles
 end
 
+local function MoveShadowedRootSettings(root, profiles)
+    if type(root) ~= "table" or type(profiles) ~= "table" then
+        return
+    end
+
+    local currentProfile = EnsureSpecProfile(profiles, GetCharacterKey(), GetCurrentSpecID())
+    local keysToRemove = {}
+
+    -- Schema v2 stores every actual setting inside profiles[character][specID].
+    -- If an older alpha left a raw setting at the SavedVariables root, normal
+    -- table lookup would bypass __index and shadow the active profile forever.
+    -- Preserve such a value only when the active profile has no value yet, then
+    -- remove the raw key so all subsequent access goes through the proxy.
+    for key, value in pairs(root) do
+        if not ROOT_KEYS[key] then
+            if currentProfile[key] == nil then
+                currentProfile[key] = CopyValue(value)
+            end
+            keysToRemove[#keysToRemove + 1] = key
+        end
+    end
+
+    for _, key in ipairs(keysToRemove) do
+        rawset(root, key, nil)
+    end
+end
+
 local function InstallCompatibilityProxy(root)
     setmetatable(root, {
         __index = function(_, key)
@@ -270,6 +297,9 @@ function addon:InitializeProfileStorage()
     then
         MigrateLegacyStorage(root)
     end
+
+    local profiles = rawget(root, "profiles")
+    MoveShadowedRootSettings(root, profiles)
 
     self.dbRoot = root
     InstallCompatibilityProxy(root)

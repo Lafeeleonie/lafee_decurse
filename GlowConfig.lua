@@ -1,6 +1,8 @@
 local addonName, addon = ...
 local L = addon.L
 
+local colorPickerHooked = false
+
 local function CreateCard(parent, topOffset, height, titleText)
     local card = CreateFrame("Frame", nil, parent, "BackdropTemplate")
     card:SetPoint("TOPLEFT", parent, "TOPLEFT", 24, topOffset)
@@ -36,6 +38,20 @@ local function CreateDropdown(card, x, y, width, defaultText)
     return dropdown
 end
 
+local function SetColorPickerOnHide(callback)
+    if not colorPickerHooked then
+        ColorPickerFrame:HookScript("OnHide", function(frame)
+            local handler = frame.LafeeDecurseGlowOnHide
+            frame.LafeeDecurseGlowOnHide = nil
+            if handler then
+                handler()
+            end
+        end)
+        colorPickerHooked = true
+    end
+    ColorPickerFrame.LafeeDecurseGlowOnHide = callback
+end
+
 local function CreateGlowColorButton(card, y)
     local button = CreateFrame("Button", nil, card, "UIPanelButtonTemplate")
     button:SetSize(220, 26)
@@ -53,19 +69,34 @@ local function CreateGlowColorButton(card, y)
     button:SetScript("OnClick", function()
         local color = addon:GetAuraGlowColor()
         local oldR, oldG, oldB = color.r, color.g, color.b
-        local function ColorChanged()
-            local r, g, b = ColorPickerFrame:GetColorRGB()
-            addon:SetAuraGlowColor(r, g, b)
+        local selectedR, selectedG, selectedB = oldR, oldG, oldB
+        local cancelled = false
+
+        local function PreviewColor()
+            selectedR, selectedG, selectedB = ColorPickerFrame:GetColorRGB()
+            button.Swatch:SetColorTexture(selectedR, selectedG, selectedB, 1)
         end
+
+        local function CancelColor()
+            cancelled = true
+            button.Swatch:SetColorTexture(oldR, oldG, oldB, 1)
+        end
+
+        SetColorPickerOnHide(function()
+            if cancelled then
+                addon:RefreshGlowConfigurationPanel()
+                return
+            end
+            addon:SetAuraGlowColor(selectedR, selectedG, selectedB)
+        end)
+
         ColorPickerFrame:SetupColorPickerAndShow({
             r = oldR,
             g = oldG,
             b = oldB,
             hasOpacity = false,
-            swatchFunc = ColorChanged,
-            cancelFunc = function()
-                addon:SetAuraGlowColor(oldR, oldG, oldB)
-            end,
+            swatchFunc = PreviewColor,
+            cancelFunc = CancelColor,
         })
     end)
     return button

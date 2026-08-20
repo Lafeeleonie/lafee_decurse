@@ -24,9 +24,11 @@ ClickActions.lua
 GroupOrder.lua
 SecureFrames.lua
 AuraDisplay.lua
+GlowRuntimeFix.lua
 CooldownBars.lua
 Config.lua
 GlowConfig.lua
 GroupOrderConfig.lua
+VisibilitySettingsFix.lua
 Minimap.lua
 Core.lua
