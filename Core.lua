@@ -2,6 +2,7 @@ local addonName, addon = ...
 local L = addon.L
 
 local eventFrame = CreateFrame("Frame")
+local worldRefreshQueued = false
 
 local CLICK_NAME_KEYS = { "CLICK_LEFT", "CLICK_RIGHT", "CLICK_MIDDLE" }
 local CLICK_NAME_FALLBACKS = { "Left click", "Right click", "Middle click" }
@@ -342,6 +343,39 @@ local function InitializeAddon()
     PrintClickAssignments(clickSpells)
 end
 
+local function QueueWorldRefresh()
+    if worldRefreshQueued then
+        return
+    end
+    worldRefreshQueued = true
+
+    local function RefreshWorld()
+        worldRefreshQueued = false
+        if not addon.initialized then
+            return
+        end
+
+        if InCombatLockdown() then
+            addon.pendingDispelRefresh = true
+            addon.pendingNameRefresh = true
+            addon.pendingDisplayRefresh = true
+            return
+        end
+
+        -- PLAYER_ENTERING_WORLD fires for zone/loading transitions. Refresh on the
+        -- following frame so unit/role data and Blizzard aura containers have
+        -- finished their own world transition before we resynchronize them.
+        addon:RefreshDispelConfiguration()
+        ApplySavedConfiguration()
+    end
+
+    if C_Timer and type(C_Timer.After) == "function" then
+        C_Timer.After(0, RefreshWorld)
+    else
+        RefreshWorld()
+    end
+end
+
 local function HandleSlashCommand(input)
     if not addon.initialized then
         addon:Print(L.INIT_DEFERRED)
@@ -375,6 +409,7 @@ SlashCmdList.LAFEEDECURSE = HandleSlashCommand
 
 eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("PLAYER_LOGIN")
+eventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 eventFrame:RegisterEvent("PLAYER_REGEN_ENABLED")
 eventFrame:RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 eventFrame:RegisterEvent("PLAYER_TALENT_UPDATE")
@@ -403,6 +438,11 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         return
     end
 
+    if event == "PLAYER_ENTERING_WORLD" then
+        QueueWorldRefresh()
+        return
+    end
+
     if event == "PLAYER_REGEN_ENABLED" then
         if addon.pendingInitialization then
             InitializeAddon()
@@ -412,6 +452,9 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         end
         if addon.initialized and addon.pendingDispelRefresh then
             addon:RefreshDispelConfiguration()
+        end
+        if addon.initialized and addon.pendingGlowRebuild and addon.RebuildManagedAuraGlowContainers then
+            addon:RebuildManagedAuraGlowContainers()
         end
         if addon.initialized and addon.pendingNameRefresh then
             addon.pendingNameRefresh = nil
