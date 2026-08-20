@@ -43,6 +43,7 @@ local function CreateCooldownWidget(parent, clickIndex)
     local barBackground = bar:CreateTexture(nil, "BACKGROUND")
     barBackground:SetAllPoints()
     barBackground:SetColorTexture(0.10, 0.11, 0.13, 0.95)
+    widget.BarBackground = barBackground
 
     widget:Hide()
     return widget
@@ -104,6 +105,14 @@ local function ConfigureHorizontalWidget(widget)
     widget.Bar:SetOrientation("HORIZONTAL")
 end
 
+local function ApplyBackgroundMode(widget)
+    local showBackground = LafeeDecurseDB
+        and LafeeDecurseDB.backgroundMode == addon.BACKGROUND_MODE_FULL
+
+    widget.Background:SetShown(showBackground == true)
+    widget.BarBackground:SetShown(showBackground == true)
+end
+
 local function GetVisibleWidgets()
     local widgets = {}
     for _, clickIndex in ipairs(DISPLAY_ORDER) do
@@ -112,6 +121,7 @@ local function GetVisibleWidgets()
         local visible = widget and spell and spell.isKnown and addon:IsCooldownBarEnabled(clickIndex)
         if widget then
             widget:SetShown(visible == true)
+            ApplyBackgroundMode(widget)
         end
         if visible then
             widgets[#widgets + 1] = widget
