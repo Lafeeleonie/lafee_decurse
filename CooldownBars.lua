@@ -33,12 +33,14 @@ local function CreateCooldownWidget(parent, clickIndex)
     bar:SetStatusBarTexture("Interface\\Buttons\\WHITE8X8")
     bar:SetStatusBarColor(0.55, 0.90, 1.00, 1)
     bar:SetMinMaxValues(0, 1)
-    bar:SetValue(1)
+    bar:SetValue(0)
+    bar:SetAlpha(0)
     widget.Bar = bar
 
     local barBackground = bar:CreateTexture(nil, "BACKGROUND")
     barBackground:SetAllPoints()
     barBackground:SetColorTexture(0.10, 0.11, 0.13, 0.95)
+    barBackground:SetAlpha(0)
     widget.BarBackground = barBackground
 
     widget:Hide()
@@ -195,16 +197,25 @@ local function ApplySpellDuration(widget, spellID)
     local duration = C_Spell.GetSpellChargeDuration(spellID)
         or C_Spell.GetSpellCooldownDuration(spellID, true)
 
-    if duration then
-        widget.Bar:SetTimerDuration(
-            duration,
-            Enum.StatusBarInterpolation.Immediate,
-            Enum.StatusBarTimerDirection.ElapsedTime
-        )
-    else
+    if not duration then
         widget.Bar:SetMinMaxValues(0, 1)
-        widget.Bar:SetValue(1)
+        widget.Bar:SetValue(0)
+        widget.Bar:SetAlpha(0)
+        widget.BarBackground:SetAlpha(0)
+        return
     end
+
+    widget.Bar:SetTimerDuration(
+        duration,
+        Enum.StatusBarInterpolation.Immediate,
+        Enum.StatusBarTimerDirection.RemainingTime
+    )
+
+    -- IsActive() can reflect restricted cooldown state. Feed that boolean
+    -- directly into secret-aware region APIs instead of branching on it in Lua.
+    local isActive = duration:IsActive()
+    widget.Bar:SetAlphaFromBoolean(isActive, 1, 0)
+    widget.BarBackground:SetAlphaFromBoolean(isActive, 1, 0)
 end
 
 function addon:RefreshCooldownBars()
