@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.esES = {
+    CLICK_LEFT = "Clic izquierdo", CLICK_RIGHT = "Clic derecho", CLICK_MIDDLE = "Clic central",
+    CLICK_SHORT_LEFT = "I", CLICK_SHORT_RIGHT = "D", CLICK_SHORT_MIDDLE = "C",
+    CONFIG_SUBTITLE = "Configuración del marco seguro de grupo para disipaciones y utilidades",
+    SECTION_INTERFACE = "Interfaz", LOCK_FRAME = "Bloquear marco", SHOW_MINIMAP = "Mostrar icono del minimapa", RESET_POSITION = "Restablecer posición",
+    UNASSIGNED = "Sin asignar",
+    MINIMAP_TOGGLE = "Clic izquierdo: mostrar/ocultar", MINIMAP_CONFIG = "Clic derecho: configuración", MINIMAP_DRAG = "Arrastrar: mover",
+    LOCK_COMBAT = "El bloqueo no se puede cambiar en combate.", FRAME_LOCKED = "Marco bloqueado.", FRAME_UNLOCKED = "Marco desbloqueado.",
+    POSITION_COMBAT = "La posición no se puede cambiar en combate.", POSITION_RESET = "Posición restablecida.",
+    VISIBILITY_COMBAT = "El marco no se puede mostrar ni ocultar en combate.", NO_DISPEL = "No se conoce ningún hechizo de disipación amistoso compatible.",
+    NO_ACTION = "No hay ningún hechizo configurado para las acciones de clic.",
+    AURA_CONTAINER_FAILED = "No se pudo cargar Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Los botones están disponibles, pero no se pudo crear la visualización de auras.",
+    INIT_DEFERRED = "Inicialización aplazada hasta el final del combate.", TEST_ENABLED = "Prueba visual activada.", TEST_DISABLED = "Prueba visual desactivada.",
+    TEST_COMBAT = "La prueba visual no se puede cambiar en combate.", HELP_LOCK = "/ldec lock — bloquea o desbloquea el marco",
+    HELP_TEST = "/ldec test — activa o desactiva la prueba visual", HELP_CONFIG = "/ldec config — abre la configuración", HELP_MINIMAP = "/ldec minimap — muestra u oculta el icono del minimapa",
+    TEST_MODE = "Mostrar auras de prueba", SECTION_APPEARANCE = "Apariencia", SHOW_TITLE = "Mostrar título del addon", SHOW_NAMES = "Mostrar nombres de jugadores",
+    SHOW_BACKGROUND = "Mostrar fondo de los marcos", BACKGROUND_MODE = "Fondo", BACKGROUND_MODE_FULL = "Marco completo", BACKGROUND_MODE_FRAMES = "Solo marcos de jugadores", BACKGROUND_MODE_NONE = "Sin fondo",
+    CLASS_COLORS = "Colorear marcos según la clase", HORIZONTAL_LAYOUT = "Disposición horizontal de jugadores", BACKGROUND_COLOR = "Color de fondo", RESET_COLOR = "Restablecer color",
+    DISPLAY_COMBAT = "Los ajustes de visualización no se pueden cambiar en combate.",
+    AURA_COUNT = "Número de auras", AURA_GROWTH = "Dirección de las auras", GROWTH_LEFT = "Izquierda", GROWTH_RIGHT = "Derecha", GROWTH_UP = "Arriba", GROWTH_DOWN = "Abajo",
+    ACTION_ASSIGNMENTS = "Acciones de clic", ACTION_NOTE = "Cada clic puede lanzar un hechizo conocido de la especialización actual. Los cambios solo se aplican fuera de combate.",
+    ACTION_COMBAT = "Las acciones de clic no se pueden cambiar en combate.", COOLDOWN_BAR = "Recarga",
+}

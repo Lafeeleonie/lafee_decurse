@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.zhTW = {
+    CLICK_LEFT = "左鍵點擊", CLICK_RIGHT = "右鍵點擊", CLICK_MIDDLE = "中鍵點擊",
+    CLICK_SHORT_LEFT = "左", CLICK_SHORT_RIGHT = "右", CLICK_SHORT_MIDDLE = "中",
+    CONFIG_SUBTITLE = "安全驅散與輔助技能隊伍框架設定",
+    SECTION_INTERFACE = "介面", LOCK_FRAME = "鎖定框架", SHOW_MINIMAP = "顯示小地圖圖示", RESET_POSITION = "重設位置",
+    UNASSIGNED = "未指派",
+    MINIMAP_TOGGLE = "左鍵：顯示/隱藏", MINIMAP_CONFIG = "右鍵：設定", MINIMAP_DRAG = "拖曳：移動",
+    LOCK_COMBAT = "戰鬥中無法變更鎖定狀態。", FRAME_LOCKED = "框架已鎖定。", FRAME_UNLOCKED = "框架已解鎖。",
+    POSITION_COMBAT = "戰鬥中無法變更位置。", POSITION_RESET = "位置已重設。",
+    VISIBILITY_COMBAT = "戰鬥中無法顯示或隱藏框架。", NO_DISPEL = "找不到支援的友方驅散法術。",
+    NO_ACTION = "點擊動作尚未設定任何法術。",
+    AURA_CONTAINER_FAILED = "無法載入 Blizzard_AuraContainer：%s", AURA_DISPLAY_FAILED = "按鈕可用，但無法建立光環顯示。",
+    INIT_DEFERRED = "初始化延後至戰鬥結束。", TEST_ENABLED = "視覺測試已啟用。", TEST_DISABLED = "視覺測試已停用。",
+    TEST_COMBAT = "戰鬥中無法變更視覺測試。", HELP_LOCK = "/ldec lock — 鎖定或解鎖框架",
+    HELP_TEST = "/ldec test — 開關視覺測試", HELP_CONFIG = "/ldec config — 開啟設定", HELP_MINIMAP = "/ldec minimap — 顯示或隱藏小地圖圖示",
+    TEST_MODE = "顯示測試光環", SECTION_APPEARANCE = "外觀", SHOW_TITLE = "顯示插件標題", SHOW_NAMES = "顯示玩家名稱",
+    SHOW_BACKGROUND = "顯示框架背景", BACKGROUND_MODE = "背景", BACKGROUND_MODE_FULL = "整個框架", BACKGROUND_MODE_FRAMES = "僅玩家框架", BACKGROUND_MODE_NONE = "無背景",
+    CLASS_COLORS = "依職業著色框架", HORIZONTAL_LAYOUT = "橫向玩家排列", BACKGROUND_COLOR = "背景顏色", RESET_COLOR = "重設顏色",
+    DISPLAY_COMBAT = "戰鬥中無法變更顯示設定。",
+    AURA_COUNT = "光環數量", AURA_GROWTH = "光環延伸方向", GROWTH_LEFT = "向左", GROWTH_RIGHT = "向右", GROWTH_UP = "向上", GROWTH_DOWN = "向下",
+    ACTION_ASSIGNMENTS = "點擊動作", ACTION_NOTE = "每個點擊都可以施放目前專精已學會的法術。變更僅會在非戰鬥狀態下套用。",
+    ACTION_COMBAT = "戰鬥中無法變更點擊動作。", COOLDOWN_BAR = "充能",
+}

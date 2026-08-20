@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.ptBR = {
+    CLICK_LEFT = "Clique esquerdo", CLICK_RIGHT = "Clique direito", CLICK_MIDDLE = "Clique do meio",
+    CLICK_SHORT_LEFT = "E", CLICK_SHORT_RIGHT = "D", CLICK_SHORT_MIDDLE = "M",
+    CONFIG_SUBTITLE = "Configuração do quadro seguro de grupo para dissipação e utilidades",
+    SECTION_INTERFACE = "Interface", LOCK_FRAME = "Bloquear quadro", SHOW_MINIMAP = "Mostrar ícone do minimapa", RESET_POSITION = "Redefinir posição",
+    UNASSIGNED = "Não atribuído",
+    MINIMAP_TOGGLE = "Clique esquerdo: mostrar/ocultar", MINIMAP_CONFIG = "Clique direito: configurações", MINIMAP_DRAG = "Arrastar: mover",
+    LOCK_COMBAT = "O bloqueio não pode ser alterado em combate.", FRAME_LOCKED = "Quadro bloqueado.", FRAME_UNLOCKED = "Quadro desbloqueado.",
+    POSITION_COMBAT = "A posição não pode ser alterada em combate.", POSITION_RESET = "Posição redefinida.",
+    VISIBILITY_COMBAT = "O quadro não pode ser mostrado ou ocultado em combate.", NO_DISPEL = "Nenhum feitiço aliado de dissipação compatível é conhecido.",
+    NO_ACTION = "Nenhum feitiço está configurado nas ações de clique.",
+    AURA_CONTAINER_FAILED = "Não foi possível carregar Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Os botões estão disponíveis, mas a exibição de auras não pôde ser criada.",
+    INIT_DEFERRED = "Inicialização adiada até o fim do combate.", TEST_ENABLED = "Teste visual ativado.", TEST_DISABLED = "Teste visual desativado.",
+    TEST_COMBAT = "O teste visual não pode ser alterado em combate.", HELP_LOCK = "/ldec lock — bloqueia ou desbloqueia o quadro",
+    HELP_TEST = "/ldec test — ativa ou desativa o teste visual", HELP_CONFIG = "/ldec config — abre as configurações", HELP_MINIMAP = "/ldec minimap — mostra ou oculta o ícone do minimapa",
+    TEST_MODE = "Mostrar auras de teste", SECTION_APPEARANCE = "Aparência", SHOW_TITLE = "Mostrar título do addon", SHOW_NAMES = "Mostrar nomes dos jogadores",
+    SHOW_BACKGROUND = "Mostrar fundo dos quadros", BACKGROUND_MODE = "Fundo", BACKGROUND_MODE_FULL = "Quadro completo", BACKGROUND_MODE_FRAMES = "Apenas quadros dos jogadores", BACKGROUND_MODE_NONE = "Sem fundo",
+    CLASS_COLORS = "Colorir quadros por classe", HORIZONTAL_LAYOUT = "Disposição horizontal dos jogadores", BACKGROUND_COLOR = "Cor de fundo", RESET_COLOR = "Redefinir cor",
+    DISPLAY_COMBAT = "As configurações de exibição não podem ser alteradas em combate.",
+    AURA_COUNT = "Número de auras", AURA_GROWTH = "Direção das auras", GROWTH_LEFT = "Esquerda", GROWTH_RIGHT = "Direita", GROWTH_UP = "Cima", GROWTH_DOWN = "Baixo",
+    ACTION_ASSIGNMENTS = "Ações de clique", ACTION_NOTE = "Cada clique pode lançar um feitiço conhecido da especialização atual. As alterações só são aplicadas fora de combate.",
+    ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Recarga",
+}

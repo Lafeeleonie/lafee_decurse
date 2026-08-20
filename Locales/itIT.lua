@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.itIT = {
+    CLICK_LEFT = "Clic sinistro", CLICK_RIGHT = "Clic destro", CLICK_MIDDLE = "Clic centrale",
+    CLICK_SHORT_LEFT = "S", CLICK_SHORT_RIGHT = "D", CLICK_SHORT_MIDDLE = "C",
+    CONFIG_SUBTITLE = "Configurazione del riquadro gruppo sicuro per dissoluzioni e utilità",
+    SECTION_INTERFACE = "Interfaccia", LOCK_FRAME = "Blocca riquadro", SHOW_MINIMAP = "Mostra icona minimappa", RESET_POSITION = "Reimposta posizione",
+    UNASSIGNED = "Non assegnato",
+    MINIMAP_TOGGLE = "Clic sinistro: mostra/nascondi", MINIMAP_CONFIG = "Clic destro: configurazione", MINIMAP_DRAG = "Trascina: sposta",
+    LOCK_COMBAT = "Il blocco non può essere modificato in combattimento.", FRAME_LOCKED = "Riquadro bloccato.", FRAME_UNLOCKED = "Riquadro sbloccato.",
+    POSITION_COMBAT = "La posizione non può essere modificata in combattimento.", POSITION_RESET = "Posizione reimpostata.",
+    VISIBILITY_COMBAT = "Il riquadro non può essere mostrato o nascosto in combattimento.", NO_DISPEL = "Nessun incantesimo di dissoluzione alleato supportato è conosciuto.",
+    NO_ACTION = "Nessun incantesimo è configurato per le azioni di clic.",
+    AURA_CONTAINER_FAILED = "Impossibile caricare Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "I pulsanti sono disponibili, ma non è stato possibile creare la visualizzazione delle aure.",
+    INIT_DEFERRED = "Inizializzazione rimandata alla fine del combattimento.", TEST_ENABLED = "Test visivo attivato.", TEST_DISABLED = "Test visivo disattivato.",
+    TEST_COMBAT = "Il test visivo non può essere modificato in combattimento.", HELP_LOCK = "/ldec lock — blocca o sblocca il riquadro",
+    HELP_TEST = "/ldec test — attiva o disattiva il test visivo", HELP_CONFIG = "/ldec config — apre la configurazione", HELP_MINIMAP = "/ldec minimap — mostra o nasconde l’icona della minimappa",
+    TEST_MODE = "Mostra aure di prova", SECTION_APPEARANCE = "Aspetto", SHOW_TITLE = "Mostra titolo dell’addon", SHOW_NAMES = "Mostra nomi dei giocatori",
+    SHOW_BACKGROUND = "Mostra sfondo dei riquadri", BACKGROUND_MODE = "Sfondo", BACKGROUND_MODE_FULL = "Riquadro completo", BACKGROUND_MODE_FRAMES = "Solo riquadri dei giocatori", BACKGROUND_MODE_NONE = "Nessuno sfondo",
+    CLASS_COLORS = "Colora i riquadri per classe", HORIZONTAL_LAYOUT = "Disposizione orizzontale dei giocatori", BACKGROUND_COLOR = "Colore di sfondo", RESET_COLOR = "Ripristina colore",
+    DISPLAY_COMBAT = "Le impostazioni di visualizzazione non possono essere modificate in combattimento.",
+    AURA_COUNT = "Numero di aure", AURA_GROWTH = "Direzione delle aure", GROWTH_LEFT = "Sinistra", GROWTH_RIGHT = "Destra", GROWTH_UP = "Su", GROWTH_DOWN = "Giù",
+    ACTION_ASSIGNMENTS = "Azioni dei clic", ACTION_NOTE = "Ogni clic può lanciare un incantesimo conosciuto della specializzazione attuale. Le modifiche vengono applicate solo fuori dal combattimento.",
+    ACTION_COMBAT = "Le azioni dei clic non possono essere modificate in combattimento.", COOLDOWN_BAR = "Ricarica",
+}

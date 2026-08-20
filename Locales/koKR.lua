@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.koKR = {
+    CLICK_LEFT = "왼쪽 클릭", CLICK_RIGHT = "오른쪽 클릭", CLICK_MIDDLE = "가운데 클릭",
+    CLICK_SHORT_LEFT = "좌", CLICK_SHORT_RIGHT = "우", CLICK_SHORT_MIDDLE = "중",
+    CONFIG_SUBTITLE = "보안 해제 및 유틸리티 파티 프레임 설정",
+    SECTION_INTERFACE = "인터페이스", LOCK_FRAME = "프레임 잠금", SHOW_MINIMAP = "미니맵 아이콘 표시", RESET_POSITION = "위치 초기화",
+    UNASSIGNED = "지정되지 않음",
+    MINIMAP_TOGGLE = "왼쪽 클릭: 표시/숨기기", MINIMAP_CONFIG = "오른쪽 클릭: 설정", MINIMAP_DRAG = "드래그: 이동",
+    LOCK_COMBAT = "전투 중에는 잠금을 변경할 수 없습니다.", FRAME_LOCKED = "프레임이 잠겼습니다.", FRAME_UNLOCKED = "프레임 잠금이 해제되었습니다.",
+    POSITION_COMBAT = "전투 중에는 위치를 변경할 수 없습니다.", POSITION_RESET = "위치가 초기화되었습니다.",
+    VISIBILITY_COMBAT = "전투 중에는 프레임을 표시하거나 숨길 수 없습니다.", NO_DISPEL = "사용 가능한 아군 해제 주문을 찾지 못했습니다.",
+    NO_ACTION = "클릭 동작에 설정된 주문이 없습니다.",
+    AURA_CONTAINER_FAILED = "Blizzard_AuraContainer를 불러올 수 없습니다: %s", AURA_DISPLAY_FAILED = "버튼은 사용할 수 있지만 오라 표시를 만들 수 없습니다.",
+    INIT_DEFERRED = "전투 종료 후 초기화됩니다.", TEST_ENABLED = "시각 테스트가 활성화되었습니다.", TEST_DISABLED = "시각 테스트가 비활성화되었습니다.",
+    TEST_COMBAT = "전투 중에는 시각 테스트를 변경할 수 없습니다.", HELP_LOCK = "/ldec lock — 프레임 잠금 전환",
+    HELP_TEST = "/ldec test — 시각 테스트 전환", HELP_CONFIG = "/ldec config — 설정 열기", HELP_MINIMAP = "/ldec minimap — 미니맵 아이콘 표시 전환",
+    TEST_MODE = "테스트 오라 표시", SECTION_APPEARANCE = "외형", SHOW_TITLE = "애드온 제목 표시", SHOW_NAMES = "플레이어 이름 표시",
+    SHOW_BACKGROUND = "프레임 배경 표시", BACKGROUND_MODE = "배경", BACKGROUND_MODE_FULL = "전체 프레임", BACKGROUND_MODE_FRAMES = "플레이어 프레임만", BACKGROUND_MODE_NONE = "배경 없음",
+    CLASS_COLORS = "직업별 프레임 색상", HORIZONTAL_LAYOUT = "가로 플레이어 배치", BACKGROUND_COLOR = "배경 색상", RESET_COLOR = "색상 초기화",
+    DISPLAY_COMBAT = "전투 중에는 표시 설정을 변경할 수 없습니다.",
+    AURA_COUNT = "오라 수", AURA_GROWTH = "오라 확장 방향", GROWTH_LEFT = "왼쪽", GROWTH_RIGHT = "오른쪽", GROWTH_UP = "위", GROWTH_DOWN = "아래",
+    ACTION_ASSIGNMENTS = "클릭 동작", ACTION_NOTE = "각 클릭에 현재 전문화의 알려진 주문을 지정할 수 있습니다. 변경 사항은 전투 중이 아닐 때만 적용됩니다.",
+    ACTION_COMBAT = "전투 중에는 클릭 동작을 변경할 수 없습니다.", COOLDOWN_BAR = "재사용 대기",
+}
