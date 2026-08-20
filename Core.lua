@@ -3,7 +3,8 @@ local L = addon.L
 
 local eventFrame = CreateFrame("Frame")
 
-local CLICK_NAMES = { L.CLICK_LEFT, L.CLICK_RIGHT, L.CLICK_MIDDLE }
+local CLICK_NAME_KEYS = { "CLICK_LEFT", "CLICK_RIGHT", "CLICK_MIDDLE" }
+local CLICK_NAME_FALLBACKS = { "Left click", "Right click", "Middle click" }
 
 addon.DEFAULT_BACKGROUND_COLOR = { r = 0.07, g = 0.08, b = 0.10, a = 0.92 }
 addon.BACKGROUND_MODE_FULL = "full"
@@ -229,13 +230,19 @@ local function BuildClickSignature(spells)
     return table.concat(signature, ":")
 end
 
+local function GetClickName(index)
+    local key = CLICK_NAME_KEYS[index]
+    return (key and L[key]) or CLICK_NAME_FALLBACKS[index] or ("Click " .. tostring(index))
+end
+
 local function PrintClickAssignments(spells)
     local assignments = {}
     local hasAssignment = false
     for index = 1, 3 do
         local spell = spells and spells[index]
         if spell then
-            assignments[#assignments + 1] = CLICK_NAMES[index] .. " : " .. spell.spellName
+            local spellName = spell.spellName or tostring(spell.spellID or "?")
+            assignments[#assignments + 1] = GetClickName(index) .. " : " .. spellName
             hasAssignment = true
         end
     end
