@@ -8,6 +8,10 @@ Minimalist secure party utility and dispel frame for World of Warcraft Retail 12
 
 The addon displays five permanent buttons assigned to the fixed units `player`, `party1`, `party2`, `party3`, and `party4`. Each unit's role icon is displayed before its name. Names and the addon title can be hidden for a compact role-only layout.
 
+Every character specialization has one complete profile. The same profile table stores position, minimap, layout, background, aura display, dispel glow, click actions, and cooldown-bar choices. Switching specialization therefore switches the complete Lafee Decurse configuration, not only the assigned spells.
+
+SavedVariables are stored as `LafeeDecurseDB.profiles[character][specID]`. Older alpha layouts are migrated automatically: global display settings, the temporary per-character settings format from the early PR #7 draft, and the previous `characterProfiles[character][specID]` click-action store are merged into the new unified specialization profile without intentionally discarding existing settings.
+
 Each mouse button can be assigned a known active spell that can target an allied player from the current character specialization:
 
 1. left click;
@@ -38,15 +42,16 @@ Left-clicking the minimap button shows or hides the main frame. Right-clicking o
 
 ## Architecture
 
-- `Core.lua`: startup, events, commands, and state coordination;
+- `Profiles.lua`: unified character/specialization profile selection plus migration of older SavedVariables layouts;
+- `Core.lua`: startup, profile application, events, commands, and state coordination;
 - `DispelSpells.lua`: detection of the character's real friendly dispel capabilities;
-- `ClickActions.lua`: per-character/per-specialization click profiles and allied-player spellbook choices;
+- `ClickActions.lua`: allied-player spellbook choices stored directly in the active specialization profile;
 - `SecureFrames.lua`: five secure buttons assigned to fixed units and configured spell IDs;
 - `AuraDisplay.lua`: Blizzard-managed aura icons, managed dispel glow slot, and visual glow styles;
 - `CooldownBars.lua`: optional cooldown/recharge bars driven by Blizzard duration objects;
 - `Config.lua`: modern panel integrated into the WoW settings interface;
 - `GlowConfig.lua`: glow style, color, speed, and thickness controls;
-- `Minimap.lua`: standalone minimap button with no external dependency;
+- `Minimap.lua`: standalone minimap button with per-profile position/visibility;
 - `Locales/`: one localization table per supported language plus the locale loader.
 
 Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Secure click assignments, layout changes, and glow appearance changes are accepted only out of combat.

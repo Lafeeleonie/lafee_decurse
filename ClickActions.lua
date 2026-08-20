@@ -21,57 +21,22 @@ local DEAD_FRIENDLY_TARGET_SPELLS = {
 local FRIENDLY_PROBE_UNITS = { "party1", "party2", "party3", "party4", "player" }
 local friendlyTargetCache = {}
 
-local function GetCharacterKey()
-    local guid = UnitGUID("player")
-    if guid then
-        return guid
-    end
-
-    local name = UnitName("player") or "player"
-    local realm = GetRealmName() or "realm"
-    return name .. "-" .. realm
-end
-
-local function GetCurrentSpecID()
-    local specIndex = GetSpecialization()
-    if not specIndex then
-        return 0
-    end
-
-    return GetSpecializationInfo(specIndex) or 0
-end
-
 function addon:GetCurrentActionProfile(defaultDispels)
-    LafeeDecurseDB.characterProfiles = LafeeDecurseDB.characterProfiles or {}
-
-    local characterKey = GetCharacterKey()
-    local characterProfiles = LafeeDecurseDB.characterProfiles[characterKey]
-    if not characterProfiles then
-        characterProfiles = {}
-        LafeeDecurseDB.characterProfiles[characterKey] = characterProfiles
-    end
-
-    local specID = GetCurrentSpecID()
-    local profile = characterProfiles[specID]
+    local profile = self:GetCurrentProfile() or self:ActivateCurrentProfile()
     if not profile then
-        profile = {
-            clickSpells = {},
-            cooldownBars = {},
-            initialized = false,
-        }
-        characterProfiles[specID] = profile
+        return nil
     end
 
     profile.clickSpells = profile.clickSpells or {}
     profile.cooldownBars = profile.cooldownBars or {}
 
-    if not profile.initialized then
+    if profile.clickActionsInitialized ~= true then
         for clickIndex = 1, 3 do
             local dispel = defaultDispels and defaultDispels[clickIndex]
             profile.clickSpells[clickIndex] = dispel and dispel.spellID or nil
             profile.cooldownBars[clickIndex] = false
         end
-        profile.initialized = true
+        profile.clickActionsInitialized = true
     end
 
     self.currentActionProfile = profile
@@ -172,6 +137,10 @@ function addon:GetConfiguredSpells(defaultDispels)
     local profile = self:GetCurrentActionProfile(defaultDispels)
     local spells = {}
 
+    if not profile then
+        return spells
+    end
+
     for clickIndex = 1, 3 do
         local spellID = profile.clickSpells[clickIndex]
         local entry = BuildSpellEntry(spellID)
@@ -190,6 +159,10 @@ end
 
 function addon:GetConfiguredSpellForDisplay(clickIndex, defaultDispels)
     local profile = GetProfile(self, defaultDispels)
+    if not profile then
+        return nil
+    end
+
     local spellID = profile.clickSpells[clickIndex]
     if not IsAssignableSpell(spellID) then
         return nil
@@ -214,6 +187,10 @@ function addon:SetConfiguredSpell(clickIndex, spellID)
     end
 
     local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())
+    if not profile then
+        return false
+    end
+
     profile.clickSpells[clickIndex] = spellID
     self:RefreshDispelConfiguration()
     return true
@@ -221,7 +198,7 @@ end
 
 function addon:IsCooldownBarEnabled(clickIndex)
     local profile = GetProfile(self, self.activeDispels)
-    return profile.cooldownBars[clickIndex] == true
+    return profile and profile.cooldownBars[clickIndex] == true or false
 end
 
 function addon:SetCooldownBarEnabled(clickIndex, enabled)
@@ -235,6 +212,10 @@ function addon:SetCooldownBarEnabled(clickIndex, enabled)
     end
 
     local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())
+    if not profile then
+        return false
+    end
+
     profile.cooldownBars[clickIndex] = enabled == true
     self:ApplyDisplaySettings()
     if self.RefreshCooldownBars then
