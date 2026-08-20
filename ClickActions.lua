@@ -78,6 +78,29 @@ local function BuildSpellEntry(spellID)
     }
 end
 
+local function IsAssignableSpell(spellID)
+    if not spellID then
+        return false
+    end
+
+    local slotIndex, spellBank = C_SpellBook.FindSpellBookSlotForSpell(
+        spellID,
+        false,
+        false,
+        false,
+        false
+    )
+    if not slotIndex or spellBank ~= PLAYER_SPELL_BANK then
+        return false
+    end
+
+    if C_SpellBook.IsSpellBookItemPassive(slotIndex, spellBank) then
+        return false
+    end
+
+    return C_SpellBook.IsSpellBookItemHelpful(slotIndex, spellBank) == true
+end
+
 local function GetProfile(addonObject, defaultDispels)
     return addonObject.currentActionProfile or addonObject:GetCurrentActionProfile(defaultDispels)
 end
@@ -87,9 +110,15 @@ function addon:GetConfiguredSpells(defaultDispels)
     local spells = {}
 
     for clickIndex = 1, 3 do
-        local entry = BuildSpellEntry(profile.clickSpells[clickIndex])
-        if entry and entry.isKnown then
+        local spellID = profile.clickSpells[clickIndex]
+        local entry = BuildSpellEntry(spellID)
+        if entry and entry.isKnown and IsAssignableSpell(spellID) then
             spells[clickIndex] = entry
+        elseif spellID then
+            -- Remove stale selections that are no longer valid click actions,
+            -- including ground-target abilities saved by earlier alpha builds.
+            profile.clickSpells[clickIndex] = nil
+            profile.cooldownBars[clickIndex] = false
         end
     end
 
@@ -98,7 +127,11 @@ end
 
 function addon:GetConfiguredSpellForDisplay(clickIndex, defaultDispels)
     local profile = GetProfile(self, defaultDispels)
-    return BuildSpellEntry(profile.clickSpells[clickIndex])
+    local spellID = profile.clickSpells[clickIndex]
+    if not IsAssignableSpell(spellID) then
+        return nil
+    end
+    return BuildSpellEntry(spellID)
 end
 
 function addon:SetConfiguredSpell(clickIndex, spellID)
@@ -111,8 +144,13 @@ function addon:SetConfiguredSpell(clickIndex, spellID)
         return false
     end
 
+    if spellID == 0 then
+        spellID = nil
+    elseif not IsAssignableSpell(spellID) then
+        return false
+    end
+
     local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())
-    if spellID == 0 then spellID = nil end
     profile.clickSpells[clickIndex] = spellID
     self:RefreshDispelConfiguration()
     return true
