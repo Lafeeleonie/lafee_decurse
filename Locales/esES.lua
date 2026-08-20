@@ -24,6 +24,8 @@ addon.Locales.esES = {
     SHOW_AURAS = "Mostrar iconos de aura", AURA_GLOW = "Resaltar el marco cuando sea necesario disipar",
     SECTION_GLOW = "Resaltado de disipación", GLOW_STYLE = "Estilo", GLOW_STYLE_PULSE = "Pulso", GLOW_STYLE_ANTS = "Hormigas marchantes", GLOW_STYLE_SOLID = "Fijo",
     GLOW_COLOR = "Color", GLOW_SPEED = "Velocidad", GLOW_THICKNESS = "Grosor del borde",
+    SECTION_GROUP_ORDER = "Orden de roles", GROUP_ORDER_DESC = "Ordena automáticamente los cinco marcos del grupo por rol. Elige la prioridad de los roles; los jugadores con el mismo rol mantienen un orden estable.",
+    GROUP_ORDER_POSITION = "Prioridad %d", GROUP_ORDER_RESET = "Restablecer orden de roles",
     ACTION_ASSIGNMENTS = "Acciones de clic", ACTION_NOTE = "Cada clic puede lanzar un hechizo conocido de la especialización actual. Los cambios solo se aplican fuera de combate.",
     ACTION_COMBAT = "Las acciones de clic no se pueden cambiar en combate.", COOLDOWN_BAR = "Recarga",
 }

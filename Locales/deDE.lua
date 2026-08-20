@@ -24,6 +24,8 @@ addon.Locales.deDE = {
     SHOW_AURAS = "Aurasymbole anzeigen", AURA_GLOW = "Spielerrahmen hervorheben, wenn eine Bannung nötig ist",
     SECTION_GLOW = "Bannungsleuchten", GLOW_STYLE = "Stil", GLOW_STYLE_PULSE = "Pulsieren", GLOW_STYLE_ANTS = "Laufende Punkte", GLOW_STYLE_SOLID = "Statisch",
     GLOW_COLOR = "Farbe", GLOW_SPEED = "Geschwindigkeit", GLOW_THICKNESS = "Randstärke",
+    SECTION_GROUP_ORDER = "Rollenreihenfolge", GROUP_ORDER_DESC = "Sortiert die fünf Gruppenrahmen automatisch nach Rolle. Lege unten die Rollenpriorität fest; Spieler mit derselben Rolle behalten eine stabile Reihenfolge.",
+    GROUP_ORDER_POSITION = "Priorität %d", GROUP_ORDER_RESET = "Rollenreihenfolge zurücksetzen",
     ACTION_ASSIGNMENTS = "Klickaktionen", ACTION_NOTE = "Jeder Klick kann einen bekannten Zauber der aktuellen Spezialisierung wirken. Änderungen werden nur außerhalb des Kampfes angewendet.",
     ACTION_COMBAT = "Klickaktionen können im Kampf nicht geändert werden.", COOLDOWN_BAR = "Aufladung",
 }

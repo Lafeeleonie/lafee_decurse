@@ -21,10 +21,12 @@ Locales/Loader.lua
 Profiles.lua
 DispelSpells.lua
 ClickActions.lua
+GroupOrder.lua
 SecureFrames.lua
 AuraDisplay.lua
 CooldownBars.lua
 Config.lua
 GlowConfig.lua
+GroupOrderConfig.lua
 Minimap.lua
 Core.lua

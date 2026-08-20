@@ -250,6 +250,7 @@ function addon:ApplyDisplaySettings()
     local auraExtent = showAuraIcons and ((BUTTON_HEIGHT * auraCount) + (AURA_SPACING * (auraCount - 1))) or 0
     local auraGap = showAuraIcons and 3 or 0
     local growth = self:GetAuraGrowth()
+    local orderedButtons = self.GetOrderedUnitButtons and self:GetOrderedUnitButtons() or self.unitButtons
 
     self.mainFrame.TitleText:SetShown(LafeeDecurseDB.showTitle)
     UpdateMainFrameBackground()
@@ -257,7 +258,7 @@ function addon:ApplyDisplaySettings()
     local leftPadding = (not LafeeDecurseDB.horizontal and growth == "LEFT") and (auraExtent + auraGap) or 0
     local topPadding = (LafeeDecurseDB.horizontal and growth == "UP") and (auraExtent + auraGap) or 0
 
-    for index, button in ipairs(self.unitButtons) do
+    for index, button in ipairs(orderedButtons) do
         button:SetSize(buttonWidth, BUTTON_HEIGHT)
         button:ClearAllPoints()
         if LafeeDecurseDB.horizontal then
@@ -281,12 +282,12 @@ function addon:ApplyDisplaySettings()
     end
 
     if LafeeDecurseDB.horizontal then
-        local tableWidth = 10 + (#self.unitButtons * buttonWidth) + ((#self.unitButtons - 1) * 2)
+        local tableWidth = 10 + (#orderedButtons * buttonWidth) + ((#orderedButtons - 1) * 2)
         local bottomAura = growth == "DOWN" and (auraExtent + auraGap) or 0
         self.mainFrame:SetSize(tableWidth, titleOffset + topPadding + BUTTON_HEIGHT + bottomAura + 5)
     else
         local rightAura = growth == "RIGHT" and (auraExtent + auraGap) or 0
-        self.mainFrame:SetSize(8 + leftPadding + buttonWidth + rightAura, titleOffset + (#self.unitButtons * BUTTON_HEIGHT) + 5)
+        self.mainFrame:SetSize(8 + leftPadding + buttonWidth + rightAura, titleOffset + (#orderedButtons * BUTTON_HEIGHT) + 5)
     end
 
     self:UpdateUnitNames()

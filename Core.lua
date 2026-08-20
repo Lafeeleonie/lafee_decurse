@@ -432,10 +432,14 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     end
 
     if event == "GROUP_ROSTER_UPDATE"
-        or event == "UNIT_NAME_UPDATE"
         or event == "PLAYER_ROLES_ASSIGNED"
         or event == "ROLE_CHANGED_INFORM"
     then
+        addon:ApplyDisplaySettings()
+        return
+    end
+
+    if event == "UNIT_NAME_UPDATE" then
         addon:UpdateUnitNames()
         return
     end

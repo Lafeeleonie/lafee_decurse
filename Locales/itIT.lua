@@ -24,6 +24,8 @@ addon.Locales.itIT = {
     SHOW_AURAS = "Mostra icone delle aure", AURA_GLOW = "Evidenzia il riquadro quando serve una dissoluzione",
     SECTION_GLOW = "Evidenziazione dissoluzione", GLOW_STYLE = "Stile", GLOW_STYLE_PULSE = "Pulsazione", GLOW_STYLE_ANTS = "Formiche in marcia", GLOW_STYLE_SOLID = "Fisso",
     GLOW_COLOR = "Colore", GLOW_SPEED = "Velocità", GLOW_THICKNESS = "Spessore del bordo",
+    SECTION_GROUP_ORDER = "Ordine dei ruoli", GROUP_ORDER_DESC = "Ordina automaticamente i cinque riquadri del gruppo per ruolo. Scegli la priorità dei ruoli; i giocatori con lo stesso ruolo mantengono un ordine stabile.",
+    GROUP_ORDER_POSITION = "Priorità %d", GROUP_ORDER_RESET = "Reimposta ordine dei ruoli",
     ACTION_ASSIGNMENTS = "Azioni dei clic", ACTION_NOTE = "Ogni clic può lanciare un incantesimo conosciuto della specializzazione attuale. Le modifiche vengono applicate solo fuori dal combattimento.",
     ACTION_COMBAT = "Le azioni dei clic non possono essere modificate in combattimento.", COOLDOWN_BAR = "Ricarica",
 }
