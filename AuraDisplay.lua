@@ -2,9 +2,11 @@ local addonName, addon = ...
 local L = addon.L
 
 addon.auraContainers = {}
+addon.glowAuraContainers = {}
 
 local AURA_FILTER = "HARMFUL|RAID_PLAYER_DISPELLABLE"
 local GROUP_KEY = "dispellable"
+local GLOW_SLOT_KEY = "dispellable-glow"
 local AURA_SPACING = 2
 
 local function GetAuraSize()
@@ -29,7 +31,7 @@ end
 
 local function InitializeAuraButton(auraButton)
     -- Aura buttons can become forbidden while aura data is secret. Every
-    -- region is therefore created and registered in this secure initializer.
+    -- region is therefore created and registered in this initializer.
     local size = GetAuraSize()
     auraButton:SetSize(size, size)
     auraButton:EnableMouse(false)
@@ -52,6 +54,56 @@ local function InitializeAuraButton(auraButton)
         showWhenHelpful = false,
         style = Enum.CustomAuraButtonDispelTypeTextureStyle.Border,
     })
+end
+
+local function CreateGlowEdge(parent)
+    local texture = parent:CreateTexture(nil, "OVERLAY")
+    texture:SetColorTexture(0.55, 0.90, 1.00, 1)
+    return texture
+end
+
+local function InitializeGlowAuraButton(auraButton)
+    -- This frame is shown and hidden only by Blizzard's managed aura-slot
+    -- assignment. Lua never queries its visibility or aura contents.
+    auraButton:SetAllPoints()
+    auraButton:EnableMouse(false)
+
+    local glow = CreateFrame("Frame", nil, auraButton)
+    glow:SetPoint("TOPLEFT", auraButton, "TOPLEFT", -3, 3)
+    glow:SetPoint("BOTTOMRIGHT", auraButton, "BOTTOMRIGHT", 3, -3)
+
+    local top = CreateGlowEdge(glow)
+    top:SetPoint("TOPLEFT")
+    top:SetPoint("TOPRIGHT")
+    top:SetHeight(2)
+
+    local bottom = CreateGlowEdge(glow)
+    bottom:SetPoint("BOTTOMLEFT")
+    bottom:SetPoint("BOTTOMRIGHT")
+    bottom:SetHeight(2)
+
+    local left = CreateGlowEdge(glow)
+    left:SetPoint("TOPLEFT")
+    left:SetPoint("BOTTOMLEFT")
+    left:SetWidth(2)
+
+    local right = CreateGlowEdge(glow)
+    right:SetPoint("TOPRIGHT")
+    right:SetPoint("BOTTOMRIGHT")
+    right:SetWidth(2)
+
+    glow:SetAlpha(0.30)
+    local pulse = glow:CreateAnimationGroup()
+    pulse:SetLooping("BOUNCE")
+    local alpha = pulse:CreateAnimation("Alpha")
+    alpha:SetFromAlpha(0.30)
+    alpha:SetToAlpha(1.00)
+    alpha:SetDuration(0.45)
+    alpha:SetSmoothing("IN")
+    pulse:Play()
+
+    auraButton.GlowFrame = glow
+    auraButton.GlowAnimation = pulse
 end
 
 local function CreateAuraContainer(button, index, dispelTypes)
@@ -79,6 +131,75 @@ local function CreateAuraContainer(button, index, dispelTypes)
     container:SetEnabled(true)
     container:Show()
     return container
+end
+
+local function CreateGlowAuraContainer(button, index, dispelTypes)
+    local container = CreateFrame(
+        "AuraContainer",
+        "LafeeDecurseGlowAuraContainer" .. index,
+        button,
+        "CustomAuraContainerTemplate"
+    )
+    container:SetAllPoints(button)
+    container:SetUnit(button.fixedUnit)
+
+    container:AddAuraSlot(GLOW_SLOT_KEY, AURA_FILTER, {
+        initializeFrame = InitializeGlowAuraButton,
+        candidateFilters = {
+            includeDispelTypes = dispelTypes or {},
+        },
+        sortMethod = AuraContainerSortMethod.Expiration,
+        sortDirection = AuraContainerSortDirection.Normal,
+    })
+    container:SetEnabled(true)
+    container:Show()
+    return container
+end
+
+function addon:ApplyAuraVisibility()
+    if InCombatLockdown() then
+        self.pendingDisplayRefresh = true
+        return false
+    end
+
+    local showAuraIcons = LafeeDecurseDB.showAuras ~= false and not self.testMode
+    local showGlow = LafeeDecurseDB.auraGlow ~= false and not self.testMode
+
+    for _, container in ipairs(self.auraContainers or {}) do
+        container:SetEnabled(showAuraIcons)
+        container:SetShown(showAuraIcons)
+    end
+
+    for _, container in ipairs(self.glowAuraContainers or {}) do
+        container:SetEnabled(showGlow)
+        container:SetShown(showGlow)
+    end
+
+    return true
+end
+
+function addon:SetAuraIconsVisible(visible)
+    if InCombatLockdown() then
+        self:Print(L.DISPLAY_COMBAT)
+        return false
+    end
+
+    LafeeDecurseDB.showAuras = visible == true
+    self:ApplyAuraVisibility()
+    self:ApplyDisplaySettings()
+    return true
+end
+
+function addon:SetAuraGlowEnabled(enabled)
+    if InCombatLockdown() then
+        self:Print(L.DISPLAY_COMBAT)
+        return false
+    end
+
+    LafeeDecurseDB.auraGlow = enabled == true
+    self:ApplyAuraVisibility()
+    self:RefreshConfigurationPanel()
+    return true
 end
 
 function addon:UpdateAuraDisplayLayout()
@@ -156,9 +277,11 @@ function addon:CreateAuraDisplays(dispelTypes)
 
     for index, button in ipairs(self.unitButtons) do
         self.auraContainers[index] = CreateAuraContainer(button, index, dispelTypes)
+        self.glowAuraContainers[index] = CreateGlowAuraContainer(button, index, dispelTypes)
     end
 
     self:UpdateAuraDisplayLayout()
+    self:ApplyAuraVisibility()
 
     return true
 end
@@ -173,6 +296,15 @@ function addon:ApplyAuraDispelTypes(dispelTypes)
         -- Blizzard evaluates the aura's dispel type inside its managed
         -- container. Addon Lua receives no active aura data.
         container:SetAuraGroupCandidateFilters(GROUP_KEY, {
+            includeDispelTypes = dispelTypes or {},
+        })
+    end
+
+    for _, container in ipairs(self.glowAuraContainers) do
+        -- The glow slot is another Blizzard-managed view of the same filter.
+        -- Its aura frame is shown/hidden by the container itself; addon Lua
+        -- never inspects that state.
+        container:SetAuraSlotCandidateFilters(GLOW_SLOT_KEY, {
             includeDispelTypes = dispelTypes or {},
         })
     end
