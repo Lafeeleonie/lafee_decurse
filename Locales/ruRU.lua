@@ -1,0 +1,26 @@
+local _, addon = ...
+addon.Locales = addon.Locales or {}
+
+addon.Locales.ruRU = {
+    CLICK_LEFT = "Левая кнопка", CLICK_RIGHT = "Правая кнопка", CLICK_MIDDLE = "Средняя кнопка",
+    CLICK_SHORT_LEFT = "Л", CLICK_SHORT_RIGHT = "П", CLICK_SHORT_MIDDLE = "С",
+    CONFIG_SUBTITLE = "Настройка защищённых групповых рамок рассеивания и вспомогательных заклинаний",
+    SECTION_INTERFACE = "Интерфейс", LOCK_FRAME = "Закрепить рамку", SHOW_MINIMAP = "Показывать значок у миникарты", RESET_POSITION = "Сбросить позицию",
+    UNASSIGNED = "Не назначено",
+    MINIMAP_TOGGLE = "Левая кнопка: показать/скрыть", MINIMAP_CONFIG = "Правая кнопка: настройки", MINIMAP_DRAG = "Перетащить: переместить",
+    LOCK_COMBAT = "Закрепление нельзя изменить в бою.", FRAME_LOCKED = "Рамка закреплена.", FRAME_UNLOCKED = "Рамка откреплена.",
+    POSITION_COMBAT = "Позицию нельзя изменить в бою.", POSITION_RESET = "Позиция сброшена.",
+    VISIBILITY_COMBAT = "Рамку нельзя показать или скрыть в бою.", NO_DISPEL = "Поддерживаемое союзное заклинание рассеивания не найдено.",
+    NO_ACTION = "Для действий мыши не настроено ни одного заклинания.",
+    AURA_CONTAINER_FAILED = "Не удалось загрузить Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Кнопки доступны, но отображение аур создать не удалось.",
+    INIT_DEFERRED = "Инициализация отложена до окончания боя.", TEST_ENABLED = "Визуальный тест включён.", TEST_DISABLED = "Визуальный тест выключен.",
+    TEST_COMBAT = "Визуальный тест нельзя изменить в бою.", HELP_LOCK = "/ldec lock — закрепить или открепить рамку",
+    HELP_TEST = "/ldec test — включить или выключить визуальный тест", HELP_CONFIG = "/ldec config — открыть настройки", HELP_MINIMAP = "/ldec minimap — показать или скрыть значок миникарты",
+    TEST_MODE = "Показывать тестовые ауры", SECTION_APPEARANCE = "Внешний вид", SHOW_TITLE = "Показывать название аддона", SHOW_NAMES = "Показывать имена игроков",
+    SHOW_BACKGROUND = "Показывать фон рамок", BACKGROUND_MODE = "Фон", BACKGROUND_MODE_FULL = "Вся рамка", BACKGROUND_MODE_FRAMES = "Только рамки игроков", BACKGROUND_MODE_NONE = "Без фона",
+    CLASS_COLORS = "Окрашивать рамки по классу", HORIZONTAL_LAYOUT = "Горизонтальное расположение игроков", BACKGROUND_COLOR = "Цвет фона", RESET_COLOR = "Сбросить цвет",
+    DISPLAY_COMBAT = "Настройки отображения нельзя менять в бою.",
+    AURA_COUNT = "Количество аур", AURA_GROWTH = "Направление аур", GROWTH_LEFT = "Влево", GROWTH_RIGHT = "Вправо", GROWTH_UP = "Вверх", GROWTH_DOWN = "Вниз",
+    ACTION_ASSIGNMENTS = "Действия мыши", ACTION_NOTE = "Каждой кнопке можно назначить известное заклинание текущей специализации. Изменения применяются только вне боя.",
+    ACTION_COMBAT = "Действия мыши нельзя менять в бою.", COOLDOWN_BAR = "Перезарядка",
+}

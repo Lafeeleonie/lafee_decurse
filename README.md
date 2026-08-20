@@ -44,7 +44,7 @@ Left-clicking the minimap button shows or hides the main frame. Right-clicking o
 - `CooldownBars.lua`: optional cooldown/recharge bars driven by Blizzard duration objects;
 - `Config.lua`: modern panel integrated into the WoW settings interface;
 - `Minimap.lua`: standalone minimap button with no external dependency;
-- `Localization.lua` and `LocalizationOverrides.lua`: runtime localization strings pending the locale-folder refactor.
+- `Locales/`: one localization table per supported language plus the locale loader.
 
 Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Secure click assignments and layout changes are accepted only out of combat.
 
@@ -56,7 +56,7 @@ Spell and specialization changes received during combat are deferred until `PLAY
 
 ## Localization
 
-The interface, tooltips, commands, and messages support deDE, enUS/enGB, esES, esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, and zhTW. Localization files are being split into a dedicated folder in a follow-up change.
+Localization files live under `Locales/` for deDE, enUS/enGB, esES/esMX, frFR, itIT, koKR, ptBR, ruRU, zhCN, and zhTW. `enGB` reuses `enUS`, `esMX` reuses `esES`, and missing keys fall back to English.
 
 ## License
 
