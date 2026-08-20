@@ -4,7 +4,7 @@ local L = addon.L
 local MINIMAP_RADIUS = 80
 
 local function UpdatePosition(button)
-    local angle = math.rad(LafeeDecurseDB.minimap.angle or 220)
+    local angle = math.rad((addon.db and addon.db.minimap and addon.db.minimap.angle) or 220)
     button:ClearAllPoints()
     button:SetPoint(
         "CENTER",
@@ -20,12 +20,18 @@ local function UpdateDragPosition(button)
     local scale = Minimap:GetEffectiveScale()
     local centerX, centerY = Minimap:GetCenter()
     local angle = math.deg(math.atan2((cursorY / scale) - centerY, (cursorX / scale) - centerX))
-    LafeeDecurseDB.minimap.angle = angle
+    addon.db.minimap.angle = angle
     UpdatePosition(button)
 end
 
+function addon:RefreshMinimapPosition()
+    if self.minimapButton then
+        UpdatePosition(self.minimapButton)
+    end
+end
+
 function addon:SetMinimapVisible(visible)
-    LafeeDecurseDB.minimap.hide = not visible
+    self.db.minimap.hide = not visible
     if self.minimapButton then
         self.minimapButton:SetShown(visible)
     end
@@ -73,5 +79,5 @@ function addon:CreateMinimapButton()
 
     self.minimapButton = button
     UpdatePosition(button)
-    button:SetShown(not LafeeDecurseDB.minimap.hide)
+    button:SetShown(not self.db.minimap.hide)
 end

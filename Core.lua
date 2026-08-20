@@ -11,41 +11,121 @@ addon.BACKGROUND_MODE_FRAMES = "frames"
 addon.BACKGROUND_MODE_NONE = "none"
 
 local function InitializeSavedVariables()
-    LafeeDecurseDB = LafeeDecurseDB or {}
-    LafeeDecurseDB.minimap = LafeeDecurseDB.minimap or { hide = false, angle = 220 }
-    if LafeeDecurseDB.showTitle == nil then LafeeDecurseDB.showTitle = true end
-    if LafeeDecurseDB.showNames == nil then LafeeDecurseDB.showNames = true end
-    if LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_FULL
-        and LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_FRAMES
-        and LafeeDecurseDB.backgroundMode ~= addon.BACKGROUND_MODE_NONE
+    local db = addon.db
+    if not db then
+        return
+    end
+
+    db.minimap = type(db.minimap) == "table" and db.minimap or { hide = false, angle = 220 }
+    if db.minimap.hide == nil then db.minimap.hide = false end
+    db.minimap.angle = tonumber(db.minimap.angle) or 220
+
+    if db.locked == nil then db.locked = false end
+    if db.frameHidden == nil then db.frameHidden = false end
+    if db.showTitle == nil then db.showTitle = true end
+    if db.showNames == nil then db.showNames = true end
+    if db.backgroundMode ~= addon.BACKGROUND_MODE_FULL
+        and db.backgroundMode ~= addon.BACKGROUND_MODE_FRAMES
+        and db.backgroundMode ~= addon.BACKGROUND_MODE_NONE
     then
-        LafeeDecurseDB.backgroundMode = LafeeDecurseDB.showBackground == false
+        db.backgroundMode = db.showBackground == false
             and addon.BACKGROUND_MODE_NONE
             or addon.BACKGROUND_MODE_FULL
     end
-    if LafeeDecurseDB.useClassColors == nil then LafeeDecurseDB.useClassColors = false end
-    if LafeeDecurseDB.horizontal == nil then LafeeDecurseDB.horizontal = false end
-    if LafeeDecurseDB.testMode == nil then LafeeDecurseDB.testMode = false end
+    if db.useClassColors == nil then db.useClassColors = false end
+    if db.horizontal == nil then db.horizontal = false end
+    if db.testMode == nil then db.testMode = false end
 
     local default = addon.DEFAULT_BACKGROUND_COLOR
-    local color = LafeeDecurseDB.backgroundColor
+    local color = db.backgroundColor
     if type(color) ~= "table" then
-        LafeeDecurseDB.backgroundColor = { r = default.r, g = default.g, b = default.b, a = default.a }
+        db.backgroundColor = { r = default.r, g = default.g, b = default.b, a = default.a }
     else
         color.r = tonumber(color.r) or default.r
         color.g = tonumber(color.g) or default.g
         color.b = tonumber(color.b) or default.b
         color.a = tonumber(color.a) or default.a
     end
+
+    local auraCount = math.floor(tonumber(db.auraCount) or 3)
+    db.auraCount = math.max(1, math.min(addon.MAX_AURA_COUNT or 5, auraCount))
+    if db.auraGrowthVertical ~= "LEFT" and db.auraGrowthVertical ~= "RIGHT" then
+        db.auraGrowthVertical = "RIGHT"
+    end
+    if db.auraGrowthHorizontal ~= "UP" and db.auraGrowthHorizontal ~= "DOWN" then
+        db.auraGrowthHorizontal = "DOWN"
+    end
+    if db.showAuras == nil then db.showAuras = true end
+    if db.auraGlow == nil then db.auraGlow = true end
+
+    if db.auraGlowStyle ~= addon.GLOW_STYLE_PULSE
+        and db.auraGlowStyle ~= addon.GLOW_STYLE_ANTS
+        and db.auraGlowStyle ~= addon.GLOW_STYLE_SOLID
+    then
+        db.auraGlowStyle = addon.GLOW_STYLE_PULSE
+    end
+
+    local glowDefault = addon.DEFAULT_AURA_GLOW_COLOR or { r = 0.55, g = 0.90, b = 1.00 }
+    local glowColor = db.auraGlowColor
+    if type(glowColor) ~= "table" then
+        db.auraGlowColor = { r = glowDefault.r, g = glowDefault.g, b = glowDefault.b }
+    else
+        glowColor.r = math.max(0, math.min(1, tonumber(glowColor.r) or glowDefault.r))
+        glowColor.g = math.max(0, math.min(1, tonumber(glowColor.g) or glowDefault.g))
+        glowColor.b = math.max(0, math.min(1, tonumber(glowColor.b) or glowDefault.b))
+    end
+
+    local minGlowSpeed = addon.MIN_AURA_GLOW_SPEED or 0.20
+    local maxGlowSpeed = addon.MAX_AURA_GLOW_SPEED or 1.50
+    local glowSpeed = tonumber(db.auraGlowSpeed) or addon.DEFAULT_AURA_GLOW_SPEED or 0.45
+    db.auraGlowSpeed = math.max(minGlowSpeed, math.min(maxGlowSpeed, glowSpeed))
+
+    local minThickness = addon.MIN_AURA_GLOW_THICKNESS or 1
+    local maxThickness = addon.MAX_AURA_GLOW_THICKNESS or 4
+    local thickness = math.floor((tonumber(db.auraGlowThickness) or addon.DEFAULT_AURA_GLOW_THICKNESS or 2) + 0.5)
+    db.auraGlowThickness = math.max(minThickness, math.min(maxThickness, thickness))
+
+    db.clickSpells = type(db.clickSpells) == "table" and db.clickSpells or {}
+    db.cooldownBars = type(db.cooldownBars) == "table" and db.cooldownBars or {}
+end
+
+local function ApplyMainFramePosition()
+    local frame = addon.mainFrame
+    if not frame then
+        return
+    end
+
+    local position = addon.db and addon.db.position
+    frame:ClearAllPoints()
+    if type(position) == "table" and position.point and position.relativePoint then
+        frame:SetPoint(
+            position.point,
+            UIParent,
+            position.relativePoint,
+            tonumber(position.x) or 0,
+            tonumber(position.y) or 0
+        )
+    else
+        frame:SetPoint("CENTER", UIParent, "CENTER", -260, 0)
+    end
 end
 
 local function ApplySavedConfiguration()
-    addon.mainFrame:EnableMouse(not LafeeDecurseDB.locked)
-    addon.mainFrame:SetShown(not LafeeDecurseDB.frameHidden)
+    local db = addon.db
+    if not db or not addon.mainFrame then
+        return
+    end
+
+    addon.mainFrame:EnableMouse(not db.locked)
+    addon.mainFrame:SetShown(not db.frameHidden)
+    ApplyMainFramePosition()
     addon:ApplyDisplaySettings()
-    addon:SetTestMode(LafeeDecurseDB.testMode)
+    addon:SetTestMode(db.testMode)
     if addon.minimapButton then
-        addon.minimapButton:SetShown(not LafeeDecurseDB.minimap.hide)
+        addon.minimapButton:SetShown(not db.minimap.hide)
+    end
+    if addon.RefreshMinimapPosition then
+        addon:RefreshMinimapPosition()
     end
     if addon.RefreshCooldownBars then
         addon:RefreshCooldownBars()
@@ -55,7 +135,7 @@ end
 
 local function SavePosition(frame)
     local point, _, relativePoint, x, y = frame:GetPoint(1)
-    LafeeDecurseDB.position = {
+    addon.db.position = {
         point = point,
         relativePoint = relativePoint,
         x = x,
@@ -72,15 +152,11 @@ local function CreateMainFrame()
     frame:SetSize(130, 175)
     frame:SetClampedToScreen(true)
     frame:SetMovable(true)
-    frame:EnableMouse(not LafeeDecurseDB.locked)
+    frame:EnableMouse(not addon.db.locked)
     frame:RegisterForDrag("LeftButton")
 
-    local position = LafeeDecurseDB.position
-    if position then
-        frame:SetPoint(position.point, UIParent, position.relativePoint, position.x, position.y)
-    else
-        frame:SetPoint("CENTER", UIParent, "CENTER", -260, 0)
-    end
+    addon.mainFrame = frame
+    ApplyMainFramePosition()
 
     local background = frame:CreateTexture(nil, "BACKGROUND")
     background:SetAllPoints()
@@ -93,7 +169,7 @@ local function CreateMainFrame()
     frame.TitleText = title
 
     frame:SetScript("OnDragStart", function(self)
-        if LafeeDecurseDB.locked or InCombatLockdown() then
+        if addon.db.locked or InCombatLockdown() then
             return
         end
         self:StartMoving()
@@ -103,8 +179,7 @@ local function CreateMainFrame()
         SavePosition(self)
     end)
 
-    addon.mainFrame = frame
-    frame:SetShown(not LafeeDecurseDB.frameHidden)
+    frame:SetShown(not addon.db.frameHidden)
     return frame
 end
 
@@ -114,9 +189,9 @@ function addon:SetLocked(locked)
         return false
     end
 
-    LafeeDecurseDB.locked = locked == true
-    self.mainFrame:EnableMouse(not LafeeDecurseDB.locked)
-    self:Print(LafeeDecurseDB.locked and L.FRAME_LOCKED or L.FRAME_UNLOCKED)
+    self.db.locked = locked == true
+    self.mainFrame:EnableMouse(not self.db.locked)
+    self:Print(self.db.locked and L.FRAME_LOCKED or L.FRAME_UNLOCKED)
     self:RefreshConfigurationPanel()
     return true
 end
@@ -127,9 +202,8 @@ function addon:ResetMainFramePosition()
         return false
     end
 
-    LafeeDecurseDB.position = nil
-    self.mainFrame:ClearAllPoints()
-    self.mainFrame:SetPoint("CENTER", UIParent, "CENTER", -260, 0)
+    self.db.position = nil
+    ApplyMainFramePosition()
     self:Print(L.POSITION_RESET)
     return true
 end
@@ -140,9 +214,9 @@ function addon:ToggleMainFrame()
         return false
     end
 
-    local show = LafeeDecurseDB.frameHidden == true
+    local show = self.db.frameHidden == true
     self.mainFrame:SetShown(show)
-    LafeeDecurseDB.frameHidden = not show
+    self.db.frameHidden = not show
     return true
 end
 
@@ -183,8 +257,6 @@ function addon:RefreshDispelConfiguration()
     local dispels = self:DetectDispelSpells()
     local combinedTypes = self:GetCombinedDispelTypes(dispels)
 
-    -- Force profile lookup again so specialization changes switch to the
-    -- correct per-character, per-spec configuration.
     self.activeDispels = dispels
     self.currentActionProfile = nil
     local clickSpells = self:GetConfiguredSpells(dispels)
@@ -205,6 +277,26 @@ function addon:RefreshDispelConfiguration()
     self:RefreshConfigurationPanel()
 end
 
+local function ActivateAndApplyCurrentProfile()
+    if InCombatLockdown() then
+        addon.pendingProfileRefresh = true
+        addon.pendingDispelRefresh = true
+        return false
+    end
+
+    addon:ActivateCurrentProfile()
+    InitializeSavedVariables()
+
+    -- Refresh the new specialization's spells before applying appearance. The
+    -- display layout also queries cooldown-bar settings, so doing this first
+    -- prevents an uninitialized profile from inheriting the previous spec's
+    -- detected dispels.
+    addon:RefreshDispelConfiguration()
+    ApplySavedConfiguration()
+    addon.pendingProfileRefresh = nil
+    return true
+end
+
 local function InitializeAddon()
     if addon.initialized then
         return
@@ -214,6 +306,7 @@ local function InitializeAddon()
         return
     end
 
+    addon:InitializeProfileStorage()
     InitializeSavedVariables()
     local mainFrame = CreateMainFrame()
     if not addon:CreateSecureUnitButtons(mainFrame) then
@@ -250,13 +343,13 @@ local function HandleSlashCommand(input)
 
     local command = strtrim(input or ""):lower()
     if command == "lock" then
-        addon:SetLocked(not LafeeDecurseDB.locked)
+        addon:SetLocked(not addon.db.locked)
     elseif command == "config" then
         addon:OpenConfiguration()
     elseif command == "minimap" then
-        addon:SetMinimapVisible(LafeeDecurseDB.minimap.hide)
+        addon:SetMinimapVisible(addon.db.minimap.hide)
     elseif command == "test" then
-        local enabled = not LafeeDecurseDB.testMode
+        local enabled = not addon.db.testMode
         if addon:SetTestMode(enabled) then
             addon:Print(enabled and L.TEST_ENABLED or L.TEST_DISABLED)
         else
@@ -298,8 +391,7 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
             InitializeAddon()
         end
         if addon.initialized then
-            ApplySavedConfiguration()
-            addon:RefreshDispelConfiguration()
+            ActivateAndApplyCurrentProfile()
         end
         return
     end
@@ -307,6 +399,9 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
     if event == "PLAYER_REGEN_ENABLED" then
         if addon.pendingInitialization then
             InitializeAddon()
+        end
+        if addon.initialized and addon.pendingProfileRefresh then
+            ActivateAndApplyCurrentProfile()
         end
         if addon.initialized and addon.pendingDispelRefresh then
             addon:RefreshDispelConfiguration()
@@ -326,12 +421,29 @@ eventFrame:SetScript("OnEvent", function(_, event, ...)
         return
     end
 
+    if event == "PLAYER_SPECIALIZATION_CHANGED" then
+        local unit = ...
+        if unit and unit ~= "player" then
+            return
+        end
+
+        ActivateAndApplyCurrentProfile()
+        return
+    end
+
     if event == "GROUP_ROSTER_UPDATE"
         or event == "UNIT_NAME_UPDATE"
         or event == "PLAYER_ROLES_ASSIGNED"
         or event == "ROLE_CHANGED_INFORM"
     then
         addon:UpdateUnitNames()
+        return
+    end
+
+    if (event == "PLAYER_TALENT_UPDATE" or event == "SPELLS_CHANGED")
+        and addon.profileSpecID ~= addon:GetCurrentSpecID()
+    then
+        ActivateAndApplyCurrentProfile()
     else
         addon:RefreshDispelConfiguration()
     end
