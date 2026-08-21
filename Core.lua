@@ -123,9 +123,6 @@ local function ApplySavedConfiguration()
     ApplyMainFramePosition()
     addon:ApplyDisplaySettings()
     addon:SetTestMode(db.testMode)
-    if addon.minimapButton then
-        addon.minimapButton:SetShown(not db.minimap.hide)
-    end
     if addon.RefreshMinimapPosition then
         addon:RefreshMinimapPosition()
     end

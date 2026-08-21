@@ -7,6 +7,7 @@
 ## DefaultState: enabled
 ## SavedVariables: LafeeDecurseDB
 
+Libraries/Init.xml
 Locales/enUS.lua
 Locales/frFR.lua
 Locales/deDE.lua

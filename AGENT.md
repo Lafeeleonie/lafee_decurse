@@ -297,13 +297,19 @@ Avoid introducing a large framework for trivial UI settings.
 
 # Dependencies
 
-Third-party libraries may be used when they materially improve reliability, interoperability, or maintainability.
+Third-party libraries are allowed when they provide a well-established solution that is preferable to maintaining custom infrastructure.
 
-When a library is required for core addon behavior, package the required library with the addon rather than assuming that another addon provides it.
+When a library is required for core addon functionality:
 
-Do not make core functionality depend on ElvUI. ElvUI may be detected for optional skinning or integration only.
+- bundle it with the addon;
+- do not rely on another installed addon to provide it;
+- load it in the correct order before addon modules that use it;
+- respect the upstream license;
+- document the dependency when appropriate.
 
-Respect upstream library licenses and keep dependency loading explicit and documented.
+Optional integrations such as ElvUI or WindTools may be detected when available, but core addon functionality must not depend on them.
+
+Do not add a large framework when a small native implementation is clearly preferable.
 
 
 # ElvUI / Plater references

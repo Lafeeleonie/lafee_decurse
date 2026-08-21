@@ -42,7 +42,7 @@ Up to three optional cooldown/recharge bars can be shown for the configured clic
 
 Left-clicking the minimap button shows or hides the main frame. Right-clicking opens the configuration panel. The button can be dragged around the minimap.
 
-Lafee Decurse has no mandatory broker dependency. When another loaded addon already provides `LibDataBroker-1.1` and `LibDBIcon-1.0`, Decurse registers a standard launcher so compatible minimap-button managers can consume the standard LibDBIcon button. If those libraries are absent, the addon keeps its own standalone minimap button. Existing per-profile minimap angles are migrated to LibDBIcon's `minimapPos` field when broker integration is available.
+The minimap launcher uses the bundled `LibDataBroker-1.1` and `LibDBIcon-1.0` libraries, so compatible minimap-button managers can identify it without providing those libraries themselves. Existing per-profile minimap angles are migrated non-destructively to LibDBIcon's `minimapPos` field.
 
 ## Architecture
 
@@ -57,7 +57,7 @@ Lafee Decurse has no mandatory broker dependency. When another loaded addon alre
 - `Config.lua`: modern panel integrated into the WoW settings interface;
 - `GlowConfig.lua`: glow style, color, speed, and thickness controls;
 - `GroupOrderConfig.lua`: role-priority controls for automatic group sorting;
-- `Minimap.lua`: standalone minimap fallback plus optional LDB/LibDBIcon launcher integration, with per-profile position/visibility;
+- `Minimap.lua`: LDB/LibDBIcon launcher with per-profile position and visibility;
 - `Locales/`: one localization table per supported language plus the locale loader.
 
 Spell and specialization changes received during combat are deferred until `PLAYER_REGEN_ENABLED`. Secure click assignments, layout changes, role-order changes, and glow appearance changes are accepted only out of combat. Role or roster changes received during combat defer the visual re-sort until combat ends.
