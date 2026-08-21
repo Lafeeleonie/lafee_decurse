@@ -297,16 +297,13 @@ Avoid introducing a large framework for trivial UI settings.
 
 # Dependencies
 
-The addon must work without:
+Third-party libraries may be used when they materially improve reliability, interoperability, or maintainability.
 
-- ElvUI;
-- Ace3;
-- LibStub;
-- third-party libraries.
+When a library is required for core addon behavior, package the required library with the addon rather than assuming that another addon provides it.
 
-ElvUI may later be detected for optional skin integration only.
+Do not make core functionality depend on ElvUI. ElvUI may be detected for optional skinning or integration only.
 
-Core functionality must never depend on ElvUI.
+Respect upstream library licenses and keep dependency loading explicit and documented.
 
 
 # ElvUI / Plater references
