@@ -1,6 +1,7 @@
 local _, addon = ...
 
 local COOLDOWN_TITLE_GAP = 21
+local DEATH_ICON_TEXTURE = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull"
 
 local function ApplyCompactDefaults(profile)
     if type(profile) ~= "table" then
@@ -64,6 +65,64 @@ function addon:GetCurrentActionProfile(defaultDispels)
 
     return BaseGetCurrentActionProfile(self, defaultDispels)
 end
+
+local function UpdateDeathIndicator(button)
+    if not button or not button.DeathIcon or not button.fixedUnit then
+        return
+    end
+
+    button.DeathIcon:SetShown(UnitIsDeadOrGhost(button.fixedUnit) == true)
+end
+
+local function UpdateAllDeathIndicators()
+    for _, button in ipairs(addon.unitButtons or {}) do
+        UpdateDeathIndicator(button)
+    end
+end
+
+local BaseCreateSecureUnitButtons = addon.CreateSecureUnitButtons
+function addon:CreateSecureUnitButtons(parent)
+    local created = BaseCreateSecureUnitButtons(self, parent)
+    if created ~= true then
+        return created
+    end
+
+    for _, button in ipairs(self.unitButtons or {}) do
+        if not button.DeathIcon then
+            local deathIcon = button:CreateTexture(nil, "OVERLAY", nil, 7)
+            deathIcon:SetTexture(DEATH_ICON_TEXTURE)
+            deathIcon:SetSize(18, 18)
+            deathIcon:SetPoint("CENTER", button, "CENTER", 0, 0)
+            deathIcon:Hide()
+            button.DeathIcon = deathIcon
+        end
+        UpdateDeathIndicator(button)
+    end
+
+    return created
+end
+
+local deathEventFrame = CreateFrame("Frame")
+deathEventFrame:RegisterEvent("UNIT_HEALTH")
+deathEventFrame:RegisterEvent("UNIT_FLAGS")
+deathEventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
+deathEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
+deathEventFrame:RegisterEvent("PLAYER_DEAD")
+deathEventFrame:RegisterEvent("PLAYER_ALIVE")
+deathEventFrame:RegisterEvent("PLAYER_UNGHOSTED")
+deathEventFrame:SetScript("OnEvent", function(_, event, unit)
+    if event == "UNIT_HEALTH" or event == "UNIT_FLAGS" then
+        for _, button in ipairs(addon.unitButtons or {}) do
+            if button.fixedUnit == unit then
+                UpdateDeathIndicator(button)
+                return
+            end
+        end
+        return
+    end
+
+    UpdateAllDeathIndicators()
+end)
 
 local function HasVisibleCooldownBar(addonObject)
     if not addonObject.GetConfiguredSpellForDisplay or not addonObject.IsCooldownBarEnabled then
