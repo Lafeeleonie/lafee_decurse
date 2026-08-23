@@ -109,7 +109,7 @@ deathEventFrame:RegisterEvent("GROUP_ROSTER_UPDATE")
 deathEventFrame:RegisterEvent("PLAYER_ENTERING_WORLD")
 deathEventFrame:RegisterEvent("PLAYER_DEAD")
 deathEventFrame:RegisterEvent("PLAYER_ALIVE")
-deathEventFrame:RegisterEvent("PLAYER_UNGHOSTED")
+deathEventFrame:RegisterEvent("PLAYER_UNGHOST")
 deathEventFrame:SetScript("OnEvent", function(_, event, unit)
     if event == "UNIT_HEALTH" or event == "UNIT_FLAGS" then
         for _, button in ipairs(addon.unitButtons or {}) do

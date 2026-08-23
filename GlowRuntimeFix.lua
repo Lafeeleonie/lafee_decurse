@@ -1,11 +1,24 @@
 local _, addon = ...
 local L = addon.L
 
-local AURA_FILTER = "HARMFUL|RAID_PLAYER_DISPELLABLE"
+local AURA_FILTER = "HARMFUL|RAID"
 local GLOW_SLOT_KEY = "dispellable-glow"
 local MAX_HORIZONTAL_ANTS = 24
 local MAX_VERTICAL_ANTS = 8
 local rebuildSerial = 0
+
+local function GetGlowSettingsSignature()
+    local color = addon:GetAuraGlowColor()
+    return string.format(
+        "%s:%.4f:%.4f:%.4f:%.4f:%d",
+        addon:GetAuraGlowStyle(),
+        color.r,
+        color.g,
+        color.b,
+        addon:GetAuraGlowSpeed(),
+        addon:GetAuraGlowThickness()
+    )
+end
 
 local function Clamp(value, minimum, maximum)
     return math.max(minimum, math.min(maximum, value))
@@ -200,15 +213,12 @@ local function InitializeManagedGlowAuraButton(auraButton)
     auraButton.GlowFrame = CreateManagedGlowVisual(auraButton)
 end
 
-local function CreateManagedGlowContainer(button, dispelTypes)
+local function CreateManagedGlowContainer(button)
     local container = CreateFrame("AuraContainer", nil, button, "CustomAuraContainerTemplate")
     container:SetAllPoints(button)
     container:SetUnit(button.fixedUnit)
     container:AddAuraSlot(GLOW_SLOT_KEY, AURA_FILTER, {
         initializeFrame = InitializeManagedGlowAuraButton,
-        candidateFilters = {
-            includeDispelTypes = dispelTypes or {},
-        },
         sortMethod = AuraContainerSortMethod.Expiration,
         sortDirection = AuraContainerSortDirection.Normal,
     })
@@ -233,10 +243,6 @@ function addon:RebuildManagedAuraGlowContainers()
         return false
     end
 
-    local dispelTypes = self.GetCombinedDispelTypes
-        and self:GetCombinedDispelTypes(self.activeDispels or {})
-        or {}
-
     -- Do not inspect or touch managed AuraButtons. Disable their containers and
     -- build fresh slots so Blizzard runs initializeFrame again with current style.
     for _, container in ipairs(self.glowAuraContainers or {}) do
@@ -246,14 +252,26 @@ function addon:RebuildManagedAuraGlowContainers()
 
     self.glowAuraContainers = {}
     for index, button in ipairs(self.unitButtons or {}) do
-        self.glowAuraContainers[index] = CreateManagedGlowContainer(button, dispelTypes)
+        self.glowAuraContainers[index] = CreateManagedGlowContainer(button)
     end
 
+    self.managedAuraGlowSettingsSignature = GetGlowSettingsSignature()
     self.pendingGlowRebuild = nil
     if self.ApplyAuraVisibility then
         self:ApplyAuraVisibility()
     end
     return true
+end
+
+function addon:CaptureManagedAuraGlowSettings()
+    self.managedAuraGlowSettingsSignature = GetGlowSettingsSignature()
+end
+
+function addon:RefreshManagedAuraGlowSettings()
+    if self.managedAuraGlowSettingsSignature == GetGlowSettingsSignature() then
+        return true
+    end
+    return self:RebuildManagedAuraGlowContainers()
 end
 
 function addon:RequestManagedAuraGlowRebuild(delay)

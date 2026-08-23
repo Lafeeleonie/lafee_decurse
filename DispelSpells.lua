@@ -39,7 +39,57 @@ local DISPEL_SPELLS = {
 }
 
 local function IsKnown(spellID)
-    return C_SpellBook.IsSpellKnown(spellID)
+    return C_SpellBook.IsSpellKnownOrInSpellBook(
+        spellID,
+        Enum.SpellBookSpellBank.Player,
+        true
+    )
+end
+
+local function GetDispelDefinition(spellID)
+    local _, class = UnitClass("player")
+    local definitions = class and DISPEL_SPELLS[class]
+    if not definitions then
+        return nil
+    end
+
+    -- Prefer an exact match. Some specialization dispels, notably the
+    -- shaman's Purify Spirit, can report a related base spell without being
+    -- an active override of that base spell.
+    for _, definition in ipairs(definitions) do
+        if definition.spellID == spellID then
+            return definition
+        end
+    end
+
+    -- Saved profiles may still contain an override identifier. Resolve its
+    -- base only when no supported definition matched directly.
+    local baseSpellID = C_SpellBook.FindBaseSpellByID(spellID) or spellID
+    for _, definition in ipairs(definitions) do
+        if definition.spellID == baseSpellID then
+            return definition
+        end
+    end
+
+    return nil
+end
+
+function addon:GetKnownFriendlyDispelSpellID(spellID)
+    local definition = GetDispelDefinition(spellID)
+    if not definition then
+        return nil
+    end
+
+    local activeSpellID = C_SpellBook.FindSpellOverrideByID(definition.spellID) or definition.spellID
+    if IsKnown(activeSpellID) or IsKnown(definition.spellID) then
+        return activeSpellID
+    end
+
+    return nil
+end
+
+function addon:IsKnownFriendlyDispelSpell(spellID)
+    return self:GetKnownFriendlyDispelSpellID(spellID) ~= nil
 end
 
 local function CopyTypes(definition)
@@ -65,12 +115,13 @@ function addon:DetectDispelSpells()
     local dispels = {}
     local knownNames = {}
     for _, definition in ipairs(definitions) do
-        if IsKnown(definition.spellID) then
-            local spellName = C_Spell.GetSpellName(definition.spellID)
+        local activeSpellID = self:GetKnownFriendlyDispelSpellID(definition.spellID)
+        if activeSpellID then
+            local spellName = C_Spell.GetSpellName(activeSpellID)
             if spellName and not knownNames[spellName] then
                 knownNames[spellName] = true
                 table.insert(dispels, {
-                    spellID = definition.spellID,
+                    spellID = activeSpellID,
                     spellName = spellName,
                     dispelTypes = CopyTypes(definition),
                 })

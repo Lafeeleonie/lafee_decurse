@@ -120,7 +120,9 @@ function addon:ApplyClickSpells(spells)
             local spell = spells and spells[clickIndex]
             if spell then
                 button:SetAttribute("type" .. clickIndex, "spell")
-                button:SetAttribute("spell" .. clickIndex, spell.spellID)
+                -- Names let the secure cast path resolve specialization
+                -- replacements such as Purify Spirit and Naturalize.
+                button:SetAttribute("spell" .. clickIndex, spell.spellName)
             else
                 button:SetAttribute("type" .. clickIndex, nil)
                 button:SetAttribute("spell" .. clickIndex, nil)
