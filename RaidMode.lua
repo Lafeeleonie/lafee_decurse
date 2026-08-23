@@ -5,6 +5,11 @@ local BUTTON_GAP = 2
 local GROUP_GAP = 6
 local MAX_RAID_MEMBERS = 40
 local MAX_GROUPS = 8
+local GROUP_NUMBER_WIDTH = 18
+local GROUP_NUMBER_GAP = 4
+
+addon.RAID_GROUP_NUMBER_LEFT = "LEFT"
+addon.RAID_GROUP_NUMBER_RIGHT = "RIGHT"
 
 local ROLE_ATLASES = {
     TANK = "roleicon-tiny-tank",
@@ -20,7 +25,32 @@ local ROLE_ORDER = {
 }
 
 addon.raidUnitButtons = addon.raidUnitButtons or {}
+addon.raidGroupLabels = addon.raidGroupLabels or {}
 addon.raidModeActive = false
+
+function addon:GetRaidGroupNumberSide()
+    local side = self.db and self.db.raidGroupNumberSide
+    return side == self.RAID_GROUP_NUMBER_RIGHT
+        and self.RAID_GROUP_NUMBER_RIGHT
+        or self.RAID_GROUP_NUMBER_LEFT
+end
+
+function addon:SetRaidGroupNumberSide(side)
+    if InCombatLockdown() then
+        self:Print(self.L.DISPLAY_COMBAT)
+        return false
+    end
+    if side ~= self.RAID_GROUP_NUMBER_LEFT and side ~= self.RAID_GROUP_NUMBER_RIGHT then
+        return false
+    end
+
+    local profile = self.db or self:ActivateCurrentProfile()
+    if not profile then
+        return false
+    end
+    profile.raidGroupNumberSide = side
+    return self:ApplyDisplaySettings()
+end
 
 local function CreateBorder(frame)
     local color = { 0.28, 0.30, 0.34, 1 }
@@ -83,6 +113,16 @@ local function CreateRaidButtons(parent)
 
     for index = 1, MAX_RAID_MEMBERS do
         addon.raidUnitButtons[index] = CreateRaidButton(parent, index)
+    end
+
+    for groupIndex = 1, MAX_GROUPS do
+        local label = parent:CreateFontString(nil, "OVERLAY", "GameFontNormalSmall")
+        label:SetWidth(GROUP_NUMBER_WIDTH)
+        label:SetJustifyH("CENTER")
+        label:SetText(tostring(groupIndex))
+        label:SetTextColor(0.55, 0.90, 1)
+        label:Hide()
+        addon.raidGroupLabels[groupIndex] = label
     end
 end
 
@@ -165,6 +205,9 @@ local function HideRaidButtons()
     for _, button in ipairs(addon.raidUnitButtons or {}) do
         button:Hide()
     end
+    for _, label in ipairs(addon.raidGroupLabels or {}) do
+        label:Hide()
+    end
 end
 
 local function LayoutRaidButtons()
@@ -179,12 +222,17 @@ local function LayoutRaidButtons()
     local titleOffset = db.showTitle == false and 5 or 20
     local visibleRows = 0
     local maxVisibleMembers = 0
+    local numberSide = addon:GetRaidGroupNumberSide()
+    local numberInset = GROUP_NUMBER_WIDTH + GROUP_NUMBER_GAP
+    local buttonsStartX = numberSide == addon.RAID_GROUP_NUMBER_LEFT and (5 + numberInset) or 5
 
     for groupIndex = 1, MAX_GROUPS do
         local group = groups[groupIndex]
         if #group > 0 then
             visibleRows = visibleRows + 1
             maxVisibleMembers = math.max(maxVisibleMembers, #group)
+            local rowY = -titleOffset - ((visibleRows - 1) * (BUTTON_SIZE + GROUP_GAP))
+
             for position, button in ipairs(group) do
                 UpdateRaidButtonVisual(button)
                 button:ClearAllPoints()
@@ -192,19 +240,31 @@ local function LayoutRaidButtons()
                     "TOPLEFT",
                     mainFrame,
                     "TOPLEFT",
-                    5 + ((position - 1) * (BUTTON_SIZE + BUTTON_GAP)),
-                    -titleOffset - ((visibleRows - 1) * (BUTTON_SIZE + GROUP_GAP))
+                    buttonsStartX + ((position - 1) * (BUTTON_SIZE + BUTTON_GAP)),
+                    rowY
                 )
                 button:Show()
+            end
+
+            local label = addon.raidGroupLabels[groupIndex]
+            if label then
+                label:ClearAllPoints()
+                if numberSide == addon.RAID_GROUP_NUMBER_RIGHT then
+                    label:SetPoint("LEFT", group[#group], "RIGHT", GROUP_NUMBER_GAP, 0)
+                else
+                    label:SetPoint("RIGHT", group[1], "LEFT", -GROUP_NUMBER_GAP, 0)
+                end
+                label:Show()
             end
         end
     end
 
     -- Size the raid frame to the most populated visible subgroup instead of
-    -- reserving five columns unconditionally. A group of three members is
-    -- therefore exactly three contiguous buttons wide, with no blank cells.
+    -- reserving five columns unconditionally. The group-number column follows
+    -- the chosen side and is included without creating any placeholder cells.
     local columns = math.max(1, maxVisibleMembers)
-    local width = 10 + (columns * BUTTON_SIZE) + ((columns - 1) * BUTTON_GAP)
+    local buttonsWidth = (columns * BUTTON_SIZE) + ((columns - 1) * BUTTON_GAP)
+    local width = 10 + buttonsWidth + numberInset
     local rowsHeight = visibleRows > 0
         and (visibleRows * BUTTON_SIZE) + ((visibleRows - 1) * GROUP_GAP)
         or 0
