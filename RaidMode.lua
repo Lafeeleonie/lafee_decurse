@@ -5,7 +5,6 @@ local BUTTON_GAP = 2
 local GROUP_GAP = 6
 local MAX_RAID_MEMBERS = 40
 local MAX_GROUPS = 8
-local MEMBERS_PER_GROUP = 5
 
 local ROLE_ATLASES = {
     TANK = "roleicon-tiny-tank",
@@ -133,8 +132,11 @@ local function BuildRaidGroups()
     end
 
     for index, button in ipairs(addon.raidUnitButtons or {}) do
-        local _, _, subgroup = GetRaidRosterInfo(index)
-        if subgroup and groups[subgroup] then
+        local name, _, subgroup = GetRaidRosterInfo(index)
+        -- raid1..raid40 are permanent secure buttons, but only actual roster
+        -- members participate in the visual layout. Empty secure slots stay
+        -- hidden and therefore never create blank cells inside a subgroup row.
+        if name and subgroup and groups[subgroup] and UnitExists(button.fixedUnit) then
             groups[subgroup][#groups[subgroup] + 1] = button
         end
     end
@@ -176,11 +178,13 @@ local function LayoutRaidButtons()
     local db = addon.db or {}
     local titleOffset = db.showTitle == false and 5 or 20
     local visibleRows = 0
+    local maxVisibleMembers = 0
 
     for groupIndex = 1, MAX_GROUPS do
         local group = groups[groupIndex]
         if #group > 0 then
             visibleRows = visibleRows + 1
+            maxVisibleMembers = math.max(maxVisibleMembers, #group)
             for position, button in ipairs(group) do
                 UpdateRaidButtonVisual(button)
                 button:ClearAllPoints()
@@ -196,7 +200,11 @@ local function LayoutRaidButtons()
         end
     end
 
-    local width = 10 + (MEMBERS_PER_GROUP * BUTTON_SIZE) + ((MEMBERS_PER_GROUP - 1) * BUTTON_GAP)
+    -- Size the raid frame to the most populated visible subgroup instead of
+    -- reserving five columns unconditionally. A group of three members is
+    -- therefore exactly three contiguous buttons wide, with no blank cells.
+    local columns = math.max(1, maxVisibleMembers)
+    local width = 10 + (columns * BUTTON_SIZE) + ((columns - 1) * BUTTON_GAP)
     local rowsHeight = visibleRows > 0
         and (visibleRows * BUTTON_SIZE) + ((visibleRows - 1) * GROUP_GAP)
         or 0
