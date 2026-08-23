@@ -7,14 +7,17 @@ local MAX_GROUPS = 8
 local GROUP_NUMBER_WIDTH = 18
 local GROUP_NUMBER_GAP = 4
 
--- Deliberately irregular roster: this exercises full, partial and completely
--- empty subgroups in one glance without requiring a real raid.
+-- Deliberately irregular roster: this exercises full, partial and single-member
+-- subgroups in one glance without requiring a real raid.
 local TEST_GROUP_SIZES = {
     [1] = 5,
     [2] = 3,
     [3] = 4,
+    [4] = 1,
     [5] = 2,
-    [8] = 1,
+    [6] = 1,
+    [7] = 1,
+    [8] = 5,
 }
 
 local TEST_CLASSES = {
