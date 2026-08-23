@@ -35,3 +35,4 @@ Minimap.lua
 Core.lua
 CompactDefaults.lua
 RaidMode.lua
+RaidModeConfig.lua
