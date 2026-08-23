@@ -8,7 +8,8 @@ local GROUP_NUMBER_WIDTH = 18
 local GROUP_NUMBER_GAP = 4
 
 -- Deliberately irregular roster: this exercises full, partial and single-member
--- subgroups in one glance without requiring a real raid.
+-- subgroups in one glance without requiring a real raid. Every Blizzard raid
+-- subgroup is represented so the vertical stacking and group labels are visible.
 local TEST_GROUP_SIZES = {
     [1] = 5,
     [2] = 3,
