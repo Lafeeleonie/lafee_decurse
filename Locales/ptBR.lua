@@ -26,6 +26,7 @@ addon.Locales.ptBR = {
     GLOW_COLOR = "Cor", GLOW_SPEED = "Velocidade", GLOW_THICKNESS = "Espessura da borda",
     SECTION_GROUP_ORDER = "Ordem das funções", GROUP_ORDER_DESC = "Ordena automaticamente os cinco quadros do grupo por função. Escolha a prioridade das funções; jogadores com a mesma função mantêm uma ordem estável.",
     GROUP_ORDER_POSITION = "Prioridade %d", GROUP_ORDER_RESET = "Redefinir ordem das funções",
+    SECTION_RAID = "Raide", RAID_GROUP_NUMBER_SIDE = "Número do grupo de raide",
     ACTION_ASSIGNMENTS = "Ações de clique", ACTION_NOTE = "Cada clique pode lançar um feitiço conhecido da especialização atual. As alterações só são aplicadas fora de combate.",
     ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Recarga",
 }
