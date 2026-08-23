@@ -34,3 +34,4 @@ VisibilitySettingsFix.lua
 Minimap.lua
 Core.lua
 CompactDefaults.lua
+RaidMode.lua
