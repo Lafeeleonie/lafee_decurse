@@ -9,7 +9,7 @@ local function CreateRaidSettingsCard(content, panel)
     local card = CreateFrame("Frame", nil, content, "BackdropTemplate")
     card:SetPoint("TOPLEFT", content, "TOPLEFT", 24, -904)
     card:SetPoint("TOPRIGHT", content, "TOPRIGHT", -24, -904)
-    card:SetHeight(76)
+    card:SetHeight(112)
     card:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -52,8 +52,21 @@ local function CreateRaidSettingsCard(content, panel)
         end
     end)
 
+    local testCheckbox = CreateFrame("CheckButton", nil, card, "UICheckButtonTemplate")
+    testCheckbox:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -72)
+    testCheckbox:SetScript("OnClick", function(self)
+        if not addon:SetRaidTestMode(self:GetChecked() == true) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+
+    local testLabel = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    testLabel:SetPoint("LEFT", testCheckbox, "RIGHT", 4, 0)
+    testLabel:SetText(L.RAID_TEST_MODE or "Raid test mode")
+
     panel.RaidSettingsCard = card
     panel.RaidGroupNumberSideDropdown = dropdown
+    panel.RaidTestCheckbox = testCheckbox
 end
 
 local function FindSettingsContent(panel)
@@ -75,6 +88,7 @@ function addon:CreateConfigurationPanel(...)
     if panel then
         local content = FindSettingsContent(panel)
         if content then
+            content:SetHeight(math.max(content:GetHeight(), 1020))
             CreateRaidSettingsCard(content, panel)
             self:RefreshConfigurationPanel()
         end
@@ -86,9 +100,19 @@ local BaseRefreshConfigurationPanel = addon.RefreshConfigurationPanel
 function addon:RefreshConfigurationPanel(...)
     local result = BaseRefreshConfigurationPanel(self, ...)
     local panel = self.configurationPanel
-    local dropdown = panel and panel.RaidGroupNumberSideDropdown
+    if not panel then
+        return result
+    end
+
+    local dropdown = panel.RaidGroupNumberSideDropdown
     if dropdown and dropdown.GenerateMenu then
         dropdown:GenerateMenu()
     end
+
+    if panel.RaidTestCheckbox then
+        panel.RaidTestCheckbox:SetChecked(self:IsRaidTestModeEnabled())
+        panel.RaidTestCheckbox:SetEnabled(not IsInRaid() and not InCombatLockdown())
+    end
+
     return result
 end
