@@ -24,7 +24,7 @@ A new character/specialization profile is initialized with the same friendly dis
 
 Target compatibility is classified outside combat. Lafee Decurse ignores the actual in-range/out-of-range result and only uses whether Blizzard supports a unit range check for the spell. Dead-player resurrection spells are kept as explicit friendly-target exceptions because probing them against a living unit can be invalid.
 
-The aura display remains independent from these configurable click actions. Blizzard-managed `CustomAuraContainerTemplate` frames determine which `HARMFUL|RAID_PLAYER_DISPELLABLE` auras are visible using only the dispel types the character can actually remove. The addon's Lua code never reads active aura data.
+The aura display remains independent from these configurable click actions. Blizzard-managed `CustomAuraContainerTemplate` frames determine which `HARMFUL|RAID` auras the current character can actually dispel. The addon's Lua code never reads active aura data.
 
 Aura count is configurable from one to five, and aura size always matches the unit-button height. Vertical party layouts can grow auras left or right; horizontal layouts can grow them up or down.
 
