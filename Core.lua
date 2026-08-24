@@ -35,7 +35,7 @@ local function InitializeSavedVariables()
             or addon.BACKGROUND_MODE_FULL
     end
     if db.useClassColors == nil then db.useClassColors = false end
-    if db.horizontal == nil then db.horizontal = false end
+    if db.horizontal == nil then db.horizontal = true end
     if db.testMode == nil then db.testMode = false end
 
     local default = addon.DEFAULT_BACKGROUND_COLOR

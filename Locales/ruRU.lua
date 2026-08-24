@@ -26,6 +26,7 @@ addon.Locales.ruRU = {
     GLOW_COLOR = "Цвет", GLOW_SPEED = "Скорость", GLOW_THICKNESS = "Толщина рамки",
     SECTION_GROUP_ORDER = "Порядок ролей", GROUP_ORDER_DESC = "Автоматически сортирует пять рамок группы по ролям. Выберите приоритет ролей; игроки с одинаковой ролью сохраняют стабильный порядок.",
     GROUP_ORDER_POSITION = "Приоритет %d", GROUP_ORDER_RESET = "Сбросить порядок ролей",
+    SECTION_RAID = "Рейд", RAID_GROUP_NUMBER_SIDE = "Номер группы рейда", RAID_GROUP_NUMBER_NONE = "Нет",
     ACTION_ASSIGNMENTS = "Действия мыши", ACTION_NOTE = "Каждой кнопке можно назначить известное заклинание текущей специализации. Изменения применяются только вне боя.",
     ACTION_COMBAT = "Действия мыши нельзя менять в бою.", COOLDOWN_BAR = "Перезарядка",
 }

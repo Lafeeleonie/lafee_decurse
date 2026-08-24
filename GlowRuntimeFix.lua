@@ -268,6 +268,11 @@ function addon:CaptureManagedAuraGlowSettings()
 end
 
 function addon:RefreshManagedAuraGlowSettings()
+    -- Test glows are created during initial addon setup, which can happen while
+    -- specialization data still resolves to the temporary profile 0. Restyle
+    -- these safe addon-owned visuals after the real profile is activated.
+    ApplyTestGlowSettings()
+
     if self.managedAuraGlowSettingsSignature == GetGlowSettingsSignature() then
         return true
     end
