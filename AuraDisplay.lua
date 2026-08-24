@@ -22,6 +22,7 @@ local GLOW_SLOT_KEY = "dispellable-glow"
 local AURA_SPACING = 2
 local MAX_HORIZONTAL_ANTS = 24
 local MAX_VERTICAL_ANTS = 8
+local glowRebuildSerial = 0
 
 local function Clamp(value, minimum, maximum)
     return math.max(minimum, math.min(maximum, value))
@@ -64,6 +65,19 @@ function addon:GetAuraGlowThickness()
         or self.DEFAULT_AURA_GLOW_THICKNESS
     thickness = math.floor(thickness + 0.5)
     return Clamp(thickness, self.MIN_AURA_GLOW_THICKNESS, self.MAX_AURA_GLOW_THICKNESS)
+end
+
+local function GetGlowSettingsSignature()
+    local color = addon:GetAuraGlowColor()
+    return string.format(
+        "%s:%.4f:%.4f:%.4f:%.4f:%d",
+        addon:GetAuraGlowStyle(),
+        color.r,
+        color.g,
+        color.b,
+        addon:GetAuraGlowSpeed(),
+        addon:GetAuraGlowThickness()
+    )
 end
 
 local function GetGroupLayout()
@@ -238,7 +252,7 @@ local function ApplyGlowVisualSettings(glow)
     end
 end
 
-local function CreateGlowVisual(parent)
+local function CreateGlowVisual(parent, managed)
     local glow = CreateFrame("Frame", nil, parent)
     glow.GlowParent = parent
     glow:EnableMouse(false)
@@ -283,14 +297,18 @@ local function CreateGlowVisual(parent)
     glow.AntAnimationA, glow.AntAlphaA = CreateAlphaAnimation(antA, 1.00, 0.15)
     glow.AntAnimationB, glow.AntAlphaB = CreateAlphaAnimation(antB, 0.15, 1.00)
 
-    addon.glowVisuals[#addon.glowVisuals + 1] = glow
+    -- Managed AuraButtons can become forbidden after initialization. Only
+    -- addon-owned test glows remain in the list that can be restyled in place.
+    if not managed then
+        addon.glowVisuals[#addon.glowVisuals + 1] = glow
+    end
     ApplyGlowVisualSettings(glow)
     return glow
 end
 
 function addon:ApplyAuraGlowSettings()
     if InCombatLockdown() then
-        self.pendingDisplayRefresh = true
+        self.pendingGlowRebuild = true
         return false
     end
 
@@ -311,6 +329,7 @@ function addon:SetAuraGlowStyle(style)
 
     LafeeDecurseDB.auraGlowStyle = style
     self:ApplyAuraGlowSettings()
+    self:RequestManagedAuraGlowRebuild(0)
     self:RefreshConfigurationPanel()
     return true
 end
@@ -327,6 +346,7 @@ function addon:SetAuraGlowColor(r, g, b)
         b = Clamp(tonumber(b) or self.DEFAULT_AURA_GLOW_COLOR.b, 0, 1),
     }
     self:ApplyAuraGlowSettings()
+    self:RequestManagedAuraGlowRebuild(0)
     self:RefreshConfigurationPanel()
     return true
 end
@@ -343,6 +363,7 @@ function addon:SetAuraGlowSpeed(speed)
         self.MAX_AURA_GLOW_SPEED
     )
     self:ApplyAuraGlowSettings()
+    self:RequestManagedAuraGlowRebuild(0.15)
     self:RefreshConfigurationPanel()
     return true
 end
@@ -360,6 +381,7 @@ function addon:SetAuraGlowThickness(thickness)
         self.MAX_AURA_GLOW_THICKNESS
     )
     self:ApplyAuraGlowSettings()
+    self:RequestManagedAuraGlowRebuild(0.15)
     self:RefreshConfigurationPanel()
     return true
 end
@@ -370,7 +392,7 @@ local function InitializeGlowAuraButton(auraButton)
     auraButton:SetAllPoints()
     auraButton:EnableMouse(false)
 
-    local glow = CreateGlowVisual(auraButton)
+    local glow = CreateGlowVisual(auraButton, true)
     auraButton.GlowFrame = glow
 end
 
@@ -416,6 +438,81 @@ local function CreateGlowAuraContainer(button, index)
     container:SetEnabled(true)
     container:Show()
     return container
+end
+
+local function CreateReplacementGlowAuraContainer(button)
+    local container = CreateFrame("AuraContainer", nil, button, "CustomAuraContainerTemplate")
+    container:SetAllPoints(button)
+    container:SetUnit(button.fixedUnit)
+    container:AddAuraSlot(GLOW_SLOT_KEY, AURA_FILTER, {
+        initializeFrame = InitializeGlowAuraButton,
+        sortMethod = AuraContainerSortMethod.Expiration,
+        sortDirection = AuraContainerSortDirection.Normal,
+    })
+    container:SetEnabled(true)
+    container:Show()
+    return container
+end
+
+function addon:RebuildManagedAuraGlowContainers()
+    if InCombatLockdown() then
+        self.pendingGlowRebuild = true
+        return false
+    end
+
+    -- Do not inspect managed AuraButtons. Disable their containers and build
+    -- fresh slots so Blizzard runs the initializer with the current settings.
+    for _, container in ipairs(self.glowAuraContainers or {}) do
+        container:SetEnabled(false)
+        container:Hide()
+    end
+
+    self.glowAuraContainers = {}
+    for index, button in ipairs(self.unitButtons or {}) do
+        self.glowAuraContainers[index] = CreateReplacementGlowAuraContainer(button)
+    end
+
+    self.managedAuraGlowSettingsSignature = GetGlowSettingsSignature()
+    self.pendingGlowRebuild = nil
+    if self.ApplyAuraVisibility then
+        self:ApplyAuraVisibility()
+    end
+    return true
+end
+
+function addon:CaptureManagedAuraGlowSettings()
+    self.managedAuraGlowSettingsSignature = GetGlowSettingsSignature()
+end
+
+function addon:RefreshManagedAuraGlowSettings()
+    -- Test glows may be created while specialization data still selects the
+    -- temporary profile 0, so always restyle them after profile activation.
+    self:ApplyAuraGlowSettings()
+
+    if self.managedAuraGlowSettingsSignature == GetGlowSettingsSignature() then
+        return true
+    end
+    return self:RebuildManagedAuraGlowContainers()
+end
+
+function addon:RequestManagedAuraGlowRebuild(delay)
+    glowRebuildSerial = glowRebuildSerial + 1
+    local serial = glowRebuildSerial
+
+    local function Rebuild()
+        if serial ~= glowRebuildSerial then return end
+        if InCombatLockdown() then
+            addon.pendingGlowRebuild = true
+            return
+        end
+        addon:RebuildManagedAuraGlowContainers()
+    end
+
+    if C_Timer and type(C_Timer.After) == "function" then
+        C_Timer.After(math.max(0, tonumber(delay) or 0), Rebuild)
+    else
+        Rebuild()
+    end
 end
 
 function addon:ApplyAuraVisibility()
