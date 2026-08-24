@@ -183,7 +183,9 @@ local function LayoutRaidTest()
     local db = addon.db or {}
     local titleOffset = db.showTitle == false and 5 or 20
     local numberSide = addon:GetRaidGroupNumberSide()
-    local numberInset = GROUP_NUMBER_WIDTH + GROUP_NUMBER_GAP
+    local numberInset = numberSide == addon.RAID_GROUP_NUMBER_NONE
+        and 0
+        or (GROUP_NUMBER_WIDTH + GROUP_NUMBER_GAP)
     local buttonsStartX = numberSide == addon.RAID_GROUP_NUMBER_LEFT and (5 + numberInset) or 5
     local visibleRows = 0
     local maxVisibleMembers = 0
@@ -216,7 +218,9 @@ local function LayoutRaidTest()
             end
 
             local label = addon.raidTestGroupLabels[groupIndex]
-            if label and firstButton and lastButton then
+            if label and firstButton and lastButton
+                and numberSide ~= addon.RAID_GROUP_NUMBER_NONE
+            then
                 label:ClearAllPoints()
                 if numberSide == addon.RAID_GROUP_NUMBER_RIGHT then
                     label:SetPoint("LEFT", lastButton, "RIGHT", GROUP_NUMBER_GAP, 0)
@@ -224,6 +228,8 @@ local function LayoutRaidTest()
                     label:SetPoint("RIGHT", firstButton, "LEFT", -GROUP_NUMBER_GAP, 0)
                 end
                 label:Show()
+            elseif label then
+                label:Hide()
             end
         end
     end

@@ -70,7 +70,7 @@ addon.Locales.enUS = {
     GROUP_ORDER_POSITION = "Priority %d",
     GROUP_ORDER_RESET = "Reset role order",
     SECTION_RAID = "Raid",
-    RAID_GROUP_NUMBER_SIDE = "Raid group number",
+    RAID_GROUP_NUMBER_SIDE = "Raid group number", RAID_GROUP_NUMBER_NONE = "None",
     RAID_TEST_MODE = "Show raid test layout",
     RAID_TEST_IN_RAID = "Raid test mode is unavailable while in a real raid.",
     ACTION_ASSIGNMENTS = "Click actions",

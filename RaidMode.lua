@@ -10,6 +10,7 @@ local GROUP_NUMBER_GAP = 4
 
 addon.RAID_GROUP_NUMBER_LEFT = "LEFT"
 addon.RAID_GROUP_NUMBER_RIGHT = "RIGHT"
+addon.RAID_GROUP_NUMBER_NONE = "NONE"
 
 local ROLE_ATLASES = {
     TANK = "roleicon-tiny-tank",
@@ -30,9 +31,12 @@ addon.raidModeActive = false
 
 function addon:GetRaidGroupNumberSide()
     local side = self.db and self.db.raidGroupNumberSide
-    return side == self.RAID_GROUP_NUMBER_RIGHT
-        and self.RAID_GROUP_NUMBER_RIGHT
-        or self.RAID_GROUP_NUMBER_LEFT
+    if side == self.RAID_GROUP_NUMBER_RIGHT then
+        return self.RAID_GROUP_NUMBER_RIGHT
+    elseif side == self.RAID_GROUP_NUMBER_NONE then
+        return self.RAID_GROUP_NUMBER_NONE
+    end
+    return self.RAID_GROUP_NUMBER_LEFT
 end
 
 function addon:SetRaidGroupNumberSide(side)
@@ -40,7 +44,10 @@ function addon:SetRaidGroupNumberSide(side)
         self:Print(self.L.DISPLAY_COMBAT)
         return false
     end
-    if side ~= self.RAID_GROUP_NUMBER_LEFT and side ~= self.RAID_GROUP_NUMBER_RIGHT then
+    if side ~= self.RAID_GROUP_NUMBER_LEFT
+        and side ~= self.RAID_GROUP_NUMBER_RIGHT
+        and side ~= self.RAID_GROUP_NUMBER_NONE
+    then
         return false
     end
 
@@ -223,7 +230,9 @@ local function LayoutRaidButtons()
     local visibleRows = 0
     local maxVisibleMembers = 0
     local numberSide = addon:GetRaidGroupNumberSide()
-    local numberInset = GROUP_NUMBER_WIDTH + GROUP_NUMBER_GAP
+    local numberInset = numberSide == addon.RAID_GROUP_NUMBER_NONE
+        and 0
+        or (GROUP_NUMBER_WIDTH + GROUP_NUMBER_GAP)
     local buttonsStartX = numberSide == addon.RAID_GROUP_NUMBER_LEFT and (5 + numberInset) or 5
 
     for groupIndex = 1, MAX_GROUPS do
@@ -247,7 +256,7 @@ local function LayoutRaidButtons()
             end
 
             local label = addon.raidGroupLabels[groupIndex]
-            if label then
+            if label and numberSide ~= addon.RAID_GROUP_NUMBER_NONE then
                 label:ClearAllPoints()
                 if numberSide == addon.RAID_GROUP_NUMBER_RIGHT then
                     label:SetPoint("LEFT", group[#group], "RIGHT", GROUP_NUMBER_GAP, 0)
@@ -255,6 +264,8 @@ local function LayoutRaidButtons()
                     label:SetPoint("RIGHT", group[1], "LEFT", -GROUP_NUMBER_GAP, 0)
                 end
                 label:Show()
+            elseif label then
+                label:Hide()
             end
         end
     end

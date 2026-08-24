@@ -26,7 +26,7 @@ addon.Locales.zhTW = {
     GLOW_COLOR = "顏色", GLOW_SPEED = "速度", GLOW_THICKNESS = "邊框粗細",
     SECTION_GROUP_ORDER = "角色順序", GROUP_ORDER_DESC = "依角色自動排列五個隊伍框架。選擇角色優先順序；相同角色的玩家會維持穩定順序。",
     GROUP_ORDER_POSITION = "優先順序 %d", GROUP_ORDER_RESET = "重設角色順序",
-    SECTION_RAID = "團隊", RAID_GROUP_NUMBER_SIDE = "團隊小隊編號",
+    SECTION_RAID = "團隊", RAID_GROUP_NUMBER_SIDE = "團隊小隊編號", RAID_GROUP_NUMBER_NONE = "無",
     ACTION_ASSIGNMENTS = "點擊動作", ACTION_NOTE = "每個點擊都可以施放目前專精已學會的法術。變更僅會在非戰鬥狀態下套用。",
     ACTION_COMBAT = "戰鬥中無法變更點擊動作。", COOLDOWN_BAR = "充能",
 }

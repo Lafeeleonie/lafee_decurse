@@ -39,6 +39,7 @@ local function CreateRaidSettingsCard(content, panel)
     dropdown:SetDefaultText(L.RAID_GROUP_NUMBER_SIDE or "Raid group number")
     dropdown:SetupMenu(function(_, rootDescription)
         local options = {
+            { value = addon.RAID_GROUP_NUMBER_NONE, text = L.RAID_GROUP_NUMBER_NONE or "None" },
             { value = addon.RAID_GROUP_NUMBER_LEFT, text = L.GROWTH_LEFT or "Left" },
             { value = addon.RAID_GROUP_NUMBER_RIGHT, text = L.GROWTH_RIGHT or "Right" },
         }

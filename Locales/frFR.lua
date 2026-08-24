@@ -70,7 +70,7 @@ addon.Locales.frFR = {
     GROUP_ORDER_POSITION = "Priorité %d",
     GROUP_ORDER_RESET = "Réinitialiser l’ordre des rôles",
     SECTION_RAID = "Raid",
-    RAID_GROUP_NUMBER_SIDE = "Numéro du groupe en raid",
+    RAID_GROUP_NUMBER_SIDE = "Numéro du groupe en raid", RAID_GROUP_NUMBER_NONE = "Aucun",
     RAID_TEST_MODE = "Afficher la disposition de test du raid",
     RAID_TEST_IN_RAID = "Le mode test raid n’est pas disponible dans un vrai raid.",
     ACTION_ASSIGNMENTS = "Actions des clics",

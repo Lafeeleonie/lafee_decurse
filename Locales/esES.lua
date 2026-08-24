@@ -26,7 +26,7 @@ addon.Locales.esES = {
     GLOW_COLOR = "Color", GLOW_SPEED = "Velocidad", GLOW_THICKNESS = "Grosor del borde",
     SECTION_GROUP_ORDER = "Orden de roles", GROUP_ORDER_DESC = "Ordena automáticamente los cinco marcos del grupo por rol. Elige la prioridad de los roles; los jugadores con el mismo rol mantienen un orden estable.",
     GROUP_ORDER_POSITION = "Prioridad %d", GROUP_ORDER_RESET = "Restablecer orden de roles",
-    SECTION_RAID = "Banda", RAID_GROUP_NUMBER_SIDE = "Número del grupo de banda",
+    SECTION_RAID = "Banda", RAID_GROUP_NUMBER_SIDE = "Número del grupo de banda", RAID_GROUP_NUMBER_NONE = "Ninguno",
     ACTION_ASSIGNMENTS = "Acciones de clic", ACTION_NOTE = "Cada clic puede lanzar un hechizo conocido de la especialización actual. Los cambios solo se aplican fuera de combate.",
     ACTION_COMBAT = "Las acciones de clic no se pueden cambiar en combate.", COOLDOWN_BAR = "Recarga",
 }
