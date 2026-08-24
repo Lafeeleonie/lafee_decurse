@@ -21,6 +21,10 @@ local DEAD_FRIENDLY_TARGET_SPELLS = {
 local FRIENDLY_PROBE_UNITS = { "party1", "party2", "party3", "party4", "player" }
 local friendlyTargetCache = {}
 
+local function IsKnown(spellID)
+    return C_SpellBook.IsSpellKnownOrInSpellBook(spellID, PLAYER_SPELL_BANK, true)
+end
+
 function addon:GetCurrentActionProfile(defaultDispels)
     local profile = self:GetCurrentProfile() or self:ActivateCurrentProfile()
     if not profile then
@@ -48,6 +52,7 @@ local function BuildSpellEntry(spellID)
         return nil
     end
 
+    spellID = addon:GetKnownFriendlyDispelSpellID(spellID) or spellID
     local spellName = C_Spell.GetSpellName(spellID)
     if not spellName then
         return nil
@@ -57,11 +62,18 @@ local function BuildSpellEntry(spellID)
         spellID = spellID,
         spellName = spellName,
         iconID = C_Spell.GetSpellTexture(spellID),
-        isKnown = C_SpellBook.IsSpellKnown(spellID) == true,
+        isKnown = IsKnown(spellID) == true,
     }
 end
 
 local function CanTargetFriendlyPlayer(spellID)
+    -- Friendly dispels are already identified from the current class spellbook.
+    -- Range probing them against an unaffected unit can return nil even though
+    -- they are valid friendly unit actions.
+    if addon:IsKnownFriendlyDispelSpell(spellID) then
+        return true
+    end
+
     if DEAD_FRIENDLY_TARGET_SPELLS[spellID] then
         return true
     end
@@ -144,8 +156,9 @@ function addon:GetConfiguredSpells(defaultDispels)
     for clickIndex = 1, 3 do
         local spellID = profile.clickSpells[clickIndex]
         local entry = BuildSpellEntry(spellID)
-        if entry and entry.isKnown and IsAssignableSpell(spellID) then
+        if entry and entry.isKnown and IsAssignableSpell(entry.spellID) then
             spells[clickIndex] = entry
+            profile.clickSpells[clickIndex] = entry.spellID
         elseif spellID then
             -- Remove stale selections that are no longer valid click actions,
             -- including self-only and ground-target abilities saved by alphas.
@@ -163,11 +176,11 @@ function addon:GetConfiguredSpellForDisplay(clickIndex, defaultDispels)
         return nil
     end
 
-    local spellID = profile.clickSpells[clickIndex]
-    if not IsAssignableSpell(spellID) then
+    local entry = BuildSpellEntry(profile.clickSpells[clickIndex])
+    if not entry or not IsAssignableSpell(entry.spellID) then
         return nil
     end
-    return BuildSpellEntry(spellID)
+    return entry
 end
 
 function addon:SetConfiguredSpell(clickIndex, spellID)
@@ -182,8 +195,11 @@ function addon:SetConfiguredSpell(clickIndex, spellID)
 
     if spellID == 0 then
         spellID = nil
-    elseif not IsAssignableSpell(spellID) then
-        return false
+    else
+        spellID = self:GetKnownFriendlyDispelSpellID(spellID) or spellID
+        if not IsAssignableSpell(spellID) then
+            return false
+        end
     end
 
     local profile = self:GetCurrentActionProfile(self.activeDispels or self:DetectDispelSpells())

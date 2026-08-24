@@ -16,7 +16,7 @@ addon.DEFAULT_AURA_GLOW_THICKNESS = 2
 addon.MIN_AURA_GLOW_THICKNESS = 1
 addon.MAX_AURA_GLOW_THICKNESS = 4
 
-local AURA_FILTER = "HARMFUL|RAID_PLAYER_DISPELLABLE"
+local AURA_FILTER = "HARMFUL|RAID"
 local GROUP_KEY = "dispellable"
 local GLOW_SLOT_KEY = "dispellable-glow"
 local AURA_SPACING = 2
@@ -374,7 +374,7 @@ local function InitializeGlowAuraButton(auraButton)
     auraButton.GlowFrame = glow
 end
 
-local function CreateAuraContainer(button, index, dispelTypes)
+local function CreateAuraContainer(button, index)
     local size = GetAuraSize()
     local maxAuras = GetAuraCount()
     local container = CreateFrame(
@@ -389,9 +389,6 @@ local function CreateAuraContainer(button, index, dispelTypes)
     container:AddAuraGroup(GROUP_KEY, AURA_FILTER, {
         initializeFrame = InitializeAuraButton,
         maxFrameCount = maxAuras,
-        candidateFilters = {
-            includeDispelTypes = dispelTypes or {},
-        },
         sortMethod = AuraContainerSortMethod.Expiration,
         sortDirection = AuraContainerSortDirection.Normal,
         layout = GetGroupLayout(),
@@ -401,7 +398,7 @@ local function CreateAuraContainer(button, index, dispelTypes)
     return container
 end
 
-local function CreateGlowAuraContainer(button, index, dispelTypes)
+local function CreateGlowAuraContainer(button, index)
     local container = CreateFrame(
         "AuraContainer",
         "LafeeDecurseGlowAuraContainer" .. index,
@@ -413,9 +410,6 @@ local function CreateGlowAuraContainer(button, index, dispelTypes)
 
     container:AddAuraSlot(GLOW_SLOT_KEY, AURA_FILTER, {
         initializeFrame = InitializeGlowAuraButton,
-        candidateFilters = {
-            includeDispelTypes = dispelTypes or {},
-        },
         sortMethod = AuraContainerSortMethod.Expiration,
         sortDirection = AuraContainerSortDirection.Normal,
     })
@@ -539,7 +533,7 @@ function addon:UpdateAuraDisplayLayout()
     return true
 end
 
-function addon:CreateAuraDisplays(dispelTypes)
+function addon:CreateAuraDisplays()
     if InCombatLockdown() then
         self.pendingInitialization = true
         return false
@@ -554,8 +548,8 @@ function addon:CreateAuraDisplays(dispelTypes)
     end
 
     for index, button in ipairs(self.unitButtons) do
-        self.auraContainers[index] = CreateAuraContainer(button, index, dispelTypes)
-        self.glowAuraContainers[index] = CreateGlowAuraContainer(button, index, dispelTypes)
+        self.auraContainers[index] = CreateAuraContainer(button, index)
+        self.glowAuraContainers[index] = CreateGlowAuraContainer(button, index)
 
         -- Managed glow is disabled during visual test mode, so each fixed unit
         -- also gets a harmless visual-only copy for /ldec test.
@@ -568,31 +562,28 @@ function addon:CreateAuraDisplays(dispelTypes)
     self:UpdateAuraDisplayLayout()
     self:ApplyAuraGlowSettings()
     self:ApplyAuraVisibility()
+    if self.CaptureManagedAuraGlowSettings then
+        self:CaptureManagedAuraGlowSettings()
+    end
 
     return true
 end
 
-function addon:ApplyAuraDispelTypes(dispelTypes)
+function addon:RefreshAuraDispelDisplay()
     if InCombatLockdown() then
         self.pendingDispelRefresh = true
         return false
     end
 
     for _, container in ipairs(self.auraContainers) do
-        -- Blizzard evaluates the aura's dispel type inside its managed
-        -- container. Addon Lua receives no active aura data.
-        container:SetAuraGroupCandidateFilters(GROUP_KEY, {
-            includeDispelTypes = dispelTypes or {},
-        })
+        -- HARMFUL|RAID is evaluated by Blizzard against the current player's
+        -- dispel capabilities. Refresh after spell or talent changes without
+        -- exposing active aura data to addon Lua.
+        container:UpdateAllAuras()
     end
 
     for _, container in ipairs(self.glowAuraContainers) do
-        -- The glow slot is another Blizzard-managed view of the same filter.
-        -- Its aura frame is shown/hidden by the container itself; addon Lua
-        -- never inspects that state.
-        container:SetAuraSlotCandidateFilters(GLOW_SLOT_KEY, {
-            includeDispelTypes = dispelTypes or {},
-        })
+        container:UpdateAllAuras()
     end
 
     return true

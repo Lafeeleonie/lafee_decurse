@@ -260,14 +260,13 @@ function addon:RefreshDispelConfiguration()
     end
 
     local dispels = self:DetectDispelSpells()
-    local combinedTypes = self:GetCombinedDispelTypes(dispels)
 
     self.activeDispels = dispels
     self.currentActionProfile = nil
     local clickSpells = self:GetConfiguredSpells(dispels)
 
     self:ApplyClickSpells(clickSpells)
-    self:ApplyAuraDispelTypes(combinedTypes)
+    self:RefreshAuraDispelDisplay()
     self.pendingDispelRefresh = nil
 
     local signature = BuildClickSignature(clickSpells)
@@ -298,6 +297,9 @@ local function ActivateAndApplyCurrentProfile()
     -- detected dispels.
     addon:RefreshDispelConfiguration()
     ApplySavedConfiguration()
+    if addon.RefreshManagedAuraGlowSettings then
+        addon:RefreshManagedAuraGlowSettings()
+    end
     addon.pendingProfileRefresh = nil
     return true
 end
@@ -322,10 +324,9 @@ local function InitializeAddon()
     addon.activeDispels = dispels
     addon.currentActionProfile = nil
     local clickSpells = addon:GetConfiguredSpells(dispels)
-    local combinedTypes = addon:GetCombinedDispelTypes(dispels)
 
     addon:ApplyClickSpells(clickSpells)
-    if not addon:CreateAuraDisplays(combinedTypes) then
+    if not addon:CreateAuraDisplays() then
         addon:Print(L.AURA_DISPLAY_FAILED)
     end
 
