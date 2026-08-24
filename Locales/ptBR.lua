@@ -10,7 +10,7 @@ addon.Locales.ptBR = {
     MINIMAP_TOGGLE = "Clique esquerdo: mostrar/ocultar", MINIMAP_CONFIG = "Clique direito: configurações", MINIMAP_DRAG = "Arrastar: mover",
     LOCK_COMBAT = "O bloqueio não pode ser alterado em combate.", FRAME_LOCKED = "Quadro bloqueado.", FRAME_UNLOCKED = "Quadro desbloqueado.",
     POSITION_COMBAT = "A posição não pode ser alterada em combate.", POSITION_RESET = "Posição redefinida.",
-    VISIBILITY_COMBAT = "O quadro não pode ser mostrado ou ocultado em combate.", NO_DISPEL = "Nenhum feitiço aliado de dissipação compatível é conhecido.",
+    VISIBILITY_COMBAT = "O quadro não pode ser mostrado ou ocultado em combate.", NO_DISPEL = "Nenhum feitiço de dissipação compatível para aliados é conhecido.",
     NO_ACTION = "Nenhum feitiço está configurado nas ações de clique.",
     AURA_CONTAINER_FAILED = "Não foi possível carregar Blizzard_AuraContainer: %s", AURA_DISPLAY_FAILED = "Os botões estão disponíveis, mas a exibição de auras não pôde ser criada.",
     INIT_DEFERRED = "Inicialização adiada até o fim do combate.", TEST_ENABLED = "Teste visual ativado.", TEST_DISABLED = "Teste visual desativado.",
@@ -27,6 +27,8 @@ addon.Locales.ptBR = {
     SECTION_GROUP_ORDER = "Ordem das funções", GROUP_ORDER_DESC = "Ordena automaticamente os cinco quadros do grupo por função. Escolha a prioridade das funções; jogadores com a mesma função mantêm uma ordem estável.",
     GROUP_ORDER_POSITION = "Prioridade %d", GROUP_ORDER_RESET = "Redefinir ordem das funções",
     SECTION_RAID = "Raide", RAID_GROUP_NUMBER_SIDE = "Número do grupo de raide", RAID_GROUP_NUMBER_NONE = "Nenhum",
+    RAID_TEST_MODE = "Mostrar layout de teste de raide",
+    RAID_TEST_IN_RAID = "O modo de teste de raide não está disponível durante um raide ativo.",
     ACTION_ASSIGNMENTS = "Ações de clique", ACTION_NOTE = "Cada clique pode lançar um feitiço conhecido da especialização atual. As alterações só são aplicadas fora de combate.",
-    ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Recarga",
+    ACTION_COMBAT = "As ações de clique não podem ser alteradas em combate.", COOLDOWN_BAR = "Tempo de recarga",
 }

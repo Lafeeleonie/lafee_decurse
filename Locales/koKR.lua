@@ -4,7 +4,7 @@ addon.Locales = addon.Locales or {}
 addon.Locales.koKR = {
     CLICK_LEFT = "왼쪽 클릭", CLICK_RIGHT = "오른쪽 클릭", CLICK_MIDDLE = "가운데 클릭",
     CLICK_SHORT_LEFT = "좌", CLICK_SHORT_RIGHT = "우", CLICK_SHORT_MIDDLE = "중",
-    CONFIG_SUBTITLE = "보안 해제 및 유틸리티 파티 프레임 설정",
+    CONFIG_SUBTITLE = "해제 및 유틸리티 파티 프레임 설정",
     SECTION_INTERFACE = "인터페이스", LOCK_FRAME = "프레임 잠금", SHOW_MINIMAP = "미니맵 아이콘 표시", RESET_POSITION = "위치 초기화",
     UNASSIGNED = "지정되지 않음",
     MINIMAP_TOGGLE = "왼쪽 클릭: 표시/숨기기", MINIMAP_CONFIG = "오른쪽 클릭: 설정", MINIMAP_DRAG = "드래그: 이동",
@@ -27,6 +27,8 @@ addon.Locales.koKR = {
     SECTION_GROUP_ORDER = "역할 순서", GROUP_ORDER_DESC = "파티 프레임 5개를 역할에 따라 자동으로 정렬합니다. 역할 우선순위를 선택하세요. 같은 역할의 플레이어는 안정적인 순서를 유지합니다.",
     GROUP_ORDER_POSITION = "우선순위 %d", GROUP_ORDER_RESET = "역할 순서 초기화",
     SECTION_RAID = "공격대", RAID_GROUP_NUMBER_SIDE = "공격대 그룹 번호", RAID_GROUP_NUMBER_NONE = "없음",
+    RAID_TEST_MODE = "공격대 테스트 배치 표시",
+    RAID_TEST_IN_RAID = "실제 공격대에 속해 있는 동안에는 공격대 테스트 모드를 사용할 수 없습니다.",
     ACTION_ASSIGNMENTS = "클릭 동작", ACTION_NOTE = "각 클릭에 현재 전문화의 알려진 주문을 지정할 수 있습니다. 변경 사항은 전투 중이 아닐 때만 적용됩니다.",
     ACTION_COMBAT = "전투 중에는 클릭 동작을 변경할 수 없습니다.", COOLDOWN_BAR = "재사용 대기",
 }
