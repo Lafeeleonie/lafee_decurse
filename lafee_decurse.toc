@@ -35,4 +35,5 @@ Core.lua
 CompactDefaults.lua
 RaidMode.lua
 RaidTestMode.lua
+PositionModes.lua
 RaidModeConfig.lua
