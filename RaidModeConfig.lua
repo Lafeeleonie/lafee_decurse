@@ -7,8 +7,14 @@ local function CreateRaidSettingsCard(content, panel)
     end
 
     local card = CreateFrame("Frame", nil, content, "BackdropTemplate")
-    card:SetPoint("TOPLEFT", content, "TOPLEFT", 24, -904)
-    card:SetPoint("TOPRIGHT", content, "TOPRIGHT", -24, -904)
+    local previousCard = panel.GroupOrderCard or panel.GlowSettingsCard
+    if previousCard then
+        card:SetPoint("TOPLEFT", previousCard, "BOTTOMLEFT", 0, -16)
+        card:SetPoint("TOPRIGHT", previousCard, "BOTTOMRIGHT", 0, -16)
+    else
+        card:SetPoint("TOPLEFT", content, "TOPLEFT", 24, -904)
+        card:SetPoint("TOPRIGHT", content, "TOPRIGHT", -24, -904)
+    end
     card:SetHeight(112)
     card:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
@@ -88,7 +94,7 @@ function addon:CreateConfigurationPanel(...)
     if panel then
         local content = FindSettingsContent(panel)
         if content then
-            content:SetHeight(math.max(content:GetHeight(), 1020))
+            content:SetHeight(math.max(content:GetHeight(), 1602))
             CreateRaidSettingsCard(content, panel)
             self:RefreshConfigurationPanel()
         end
