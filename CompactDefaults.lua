@@ -74,8 +74,28 @@ local function UpdateDeathIndicator(button)
     button.DeathIcon:SetShown(UnitIsDeadOrGhost(button.fixedUnit) == true)
 end
 
+function addon:InitializeDeathIndicator(button)
+    if not button then
+        return
+    end
+
+    if not button.DeathIcon then
+        local deathIcon = button:CreateTexture(nil, "OVERLAY", nil, 7)
+        deathIcon:SetTexture(DEATH_ICON_TEXTURE)
+        deathIcon:SetSize(18, 18)
+        deathIcon:SetPoint("CENTER", button, "CENTER", 0, 0)
+        deathIcon:Hide()
+        button.DeathIcon = deathIcon
+    end
+
+    UpdateDeathIndicator(button)
+end
+
 local function UpdateAllDeathIndicators()
     for _, button in ipairs(addon.unitButtons or {}) do
+        UpdateDeathIndicator(button)
+    end
+    for _, button in ipairs(addon.raidUnitButtons or {}) do
         UpdateDeathIndicator(button)
     end
 end
@@ -88,15 +108,7 @@ function addon:CreateSecureUnitButtons(parent)
     end
 
     for _, button in ipairs(self.unitButtons or {}) do
-        if not button.DeathIcon then
-            local deathIcon = button:CreateTexture(nil, "OVERLAY", nil, 7)
-            deathIcon:SetTexture(DEATH_ICON_TEXTURE)
-            deathIcon:SetSize(18, 18)
-            deathIcon:SetPoint("CENTER", button, "CENTER", 0, 0)
-            deathIcon:Hide()
-            button.DeathIcon = deathIcon
-        end
-        UpdateDeathIndicator(button)
+        self:InitializeDeathIndicator(button)
     end
 
     return created
@@ -113,6 +125,12 @@ deathEventFrame:RegisterEvent("PLAYER_UNGHOST")
 deathEventFrame:SetScript("OnEvent", function(_, event, unit)
     if event == "UNIT_HEALTH" or event == "UNIT_FLAGS" then
         for _, button in ipairs(addon.unitButtons or {}) do
+            if button.fixedUnit == unit then
+                UpdateDeathIndicator(button)
+                return
+            end
+        end
+        for _, button in ipairs(addon.raidUnitButtons or {}) do
             if button.fixedUnit == unit then
                 UpdateDeathIndicator(button)
                 return

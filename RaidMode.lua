@@ -109,6 +109,9 @@ local function CreateRaidButton(parent, index)
 
     button.fixedUnit = unit
     button.raidIndex = index
+    if addon.InitializeDeathIndicator then
+        addon:InitializeDeathIndicator(button)
+    end
     button:Hide()
     return button
 end
