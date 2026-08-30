@@ -59,6 +59,18 @@ local function InitializeSavedVariables()
     end
     if db.showAuras == nil then db.showAuras = true end
     if db.auraGlow == nil then db.auraGlow = true end
+    if db.showPartyRoleIcons == nil then db.showPartyRoleIcons = true end
+    if db.showRaidRoleIcons == nil then db.showRaidRoleIcons = true end
+
+    local minPartyScale = addon.MIN_PARTY_FRAME_SCALE or 0.50
+    local maxPartyScale = addon.MAX_PARTY_FRAME_SCALE or 2.00
+    local partyScale = tonumber(db.partyFrameScale) or addon.DEFAULT_PARTY_FRAME_SCALE or 1.00
+    db.partyFrameScale = math.max(minPartyScale, math.min(maxPartyScale, partyScale))
+
+    local minRaidScale = addon.MIN_RAID_FRAME_SCALE or 0.50
+    local maxRaidScale = addon.MAX_RAID_FRAME_SCALE or 2.00
+    local raidScale = tonumber(db.raidFrameScale) or addon.DEFAULT_RAID_FRAME_SCALE or 1.00
+    db.raidFrameScale = math.max(minRaidScale, math.min(maxRaidScale, raidScale))
 
     if db.auraGlowStyle ~= addon.GLOW_STYLE_PULSE
         and db.auraGlowStyle ~= addon.GLOW_STYLE_ANTS

@@ -162,7 +162,7 @@ local function ApplyTestButtonVisual(button, testIndex, position)
 
     local role = TEST_ROLES[((position - 1) % #TEST_ROLES) + 1]
     local atlas = ROLE_ATLASES[role]
-    if atlas then
+    if atlas and addon:AreRaidRoleIconsShown() then
         button.RoleIcon:SetAtlas(atlas)
         button.RoleIcon:Show()
     else
@@ -177,6 +177,7 @@ local function LayoutRaidTest()
     end
 
     EnsureTestFrames()
+    mainFrame:SetScale(addon:GetRaidFrameScale())
     HideRaidTestFrames()
     HideLiveUnitFrames()
 

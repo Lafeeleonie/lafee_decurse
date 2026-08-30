@@ -4,6 +4,9 @@ addon.UNITS = { "player", "party1", "party2", "party3", "party4" }
 addon.unitButtons = {}
 addon.UNIT_BUTTON_HEIGHT = 30
 addon.MAX_AURA_COUNT = 5
+addon.MIN_PARTY_FRAME_SCALE = 0.50
+addon.MAX_PARTY_FRAME_SCALE = 2.00
+addon.DEFAULT_PARTY_FRAME_SCALE = 1.00
 
 local BUTTON_HEIGHT = addon.UNIT_BUTTON_HEIGHT
 local BUTTON_WIDTH_WITH_NAME = 120
@@ -177,6 +180,47 @@ function addon:SetAuraGrowth(growth)
     return self:ApplyDisplaySettings()
 end
 
+function addon:GetPartyFrameScale()
+    local scale = tonumber(self.db and self.db.partyFrameScale) or self.DEFAULT_PARTY_FRAME_SCALE
+    return math.max(self.MIN_PARTY_FRAME_SCALE, math.min(self.MAX_PARTY_FRAME_SCALE, scale))
+end
+
+function addon:SetPartyFrameScale(scale)
+    if InCombatLockdown() then
+        self:Print(self.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    scale = math.floor(((tonumber(scale) or self.DEFAULT_PARTY_FRAME_SCALE) * 10) + 0.5) / 10
+    local profile = self.db or self:ActivateCurrentProfile()
+    if not profile then
+        return false
+    end
+    profile.partyFrameScale = math.max(
+        self.MIN_PARTY_FRAME_SCALE,
+        math.min(self.MAX_PARTY_FRAME_SCALE, scale)
+    )
+    return self:ApplyDisplaySettings()
+end
+
+function addon:ArePartyRoleIconsShown()
+    return not self.db or self.db.showPartyRoleIcons ~= false
+end
+
+function addon:SetPartyRoleIconsVisible(visible)
+    if InCombatLockdown() then
+        self:Print(self.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    local profile = self.db or self:ActivateCurrentProfile()
+    if not profile then
+        return false
+    end
+    profile.showPartyRoleIcons = visible == true
+    return self:ApplyDisplaySettings()
+end
+
 local function GetDisplayedRole(unit)
     local role = UnitGroupRolesAssigned(unit)
     if role == "NONE" and unit == "player" then
@@ -222,7 +266,8 @@ end
 local function LayoutTestAuras(button)
     local growth = addon:GetAuraGrowth()
     local count = addon:GetAuraCount()
-    local showAuraIcons = LafeeDecurseDB.showAuras ~= false
+    local profile = addon.db or LafeeDecurseDB
+    local showAuraIcons = not profile or profile.showAuras ~= false
 
     for index, icon in ipairs(button.TestAuraIcons) do
         icon:ClearAllPoints()
@@ -245,16 +290,18 @@ function addon:ApplyDisplaySettings()
         return false
     end
 
+    local profile = self.db or LafeeDecurseDB
     local buttonWidth = GetButtonWidth()
-    local titleOffset = LafeeDecurseDB.showTitle and 20 or 5
+    local titleOffset = profile.showTitle and 20 or 5
     local auraCount = self:GetAuraCount()
-    local showAuraIcons = LafeeDecurseDB.showAuras ~= false
+    local showAuraIcons = profile.showAuras ~= false
     local auraExtent = showAuraIcons and ((BUTTON_HEIGHT * auraCount) + (AURA_SPACING * (auraCount - 1))) or 0
     local auraGap = showAuraIcons and 3 or 0
     local growth = self:GetAuraGrowth()
     local orderedButtons = self.GetOrderedUnitButtons and self:GetOrderedUnitButtons() or self.unitButtons
 
-    self.mainFrame.TitleText:SetShown(LafeeDecurseDB.showTitle)
+    self.mainFrame:SetScale(self:GetPartyFrameScale())
+    self.mainFrame.TitleText:SetShown(profile.showTitle)
     UpdateMainFrameBackground()
 
     local leftPadding = (not LafeeDecurseDB.horizontal and growth == "LEFT") and (auraExtent + auraGap) or 0
@@ -374,7 +421,7 @@ function addon:UpdateUnitNames()
         local roleAtlas = ROLE_ATLASES[GetDisplayedRole(button.fixedUnit)]
         button.NameText:SetShown(LafeeDecurseDB.showNames)
         button.NameText:ClearAllPoints()
-        if roleAtlas then
+        if roleAtlas and self:ArePartyRoleIconsShown() then
             button.RoleIcon:SetAtlas(roleAtlas)
             button.RoleIcon:Show()
             if LafeeDecurseDB.showNames then

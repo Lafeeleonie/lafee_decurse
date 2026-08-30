@@ -21,7 +21,9 @@ The addon uses fixed secure unit buttons, configurable mouse-click actions, Bliz
 - Configurable dispel glow with multiple styles.
 - Optional cooldown/recharge displays for assigned click spells.
 - Class-colored player frames.
-- Role icons.
+- Independently configurable party and raid role icons.
+- Independent party and raid frame scales from 50% to 200%.
+- Shared configurable anchor for the party and raid frame.
 - Automatic party sorting by role.
 - Automatic raid mode with Blizzard subgroup rows.
 - Optional raid group numbers on the left, right, or hidden.
@@ -78,7 +80,7 @@ The priority can be changed in the addon settings. Players sharing the same role
 
 ## Compact role-only display
 
-Player names can be hidden completely. In that mode, each player becomes a compact square showing the role icon and, when enabled, the class color.
+Player names can be hidden completely. In that mode, each player becomes a compact square showing the role icon when enabled, along with the class color. Party role icons and the complete party-frame scale are configured independently from raid mode.
 
 ## Death indicator
 
@@ -136,7 +138,8 @@ Raid mode intentionally stays compact:
 - player names are hidden;
 - aura icons are hidden;
 - class colors are used;
-- role icons are centered;
+- role icons are centered and can be hidden;
+- the complete raid frame can be scaled from 50% to 200%;
 - the dispel glow remains active;
 - cooldown bars are not displayed in the raid layout.
 
@@ -279,6 +282,7 @@ Lafee Decurse stores a complete profile for each **character and specialization*
 Changing specialization can therefore switch the entire addon configuration, including:
 
 - frame position;
+- shared party and raid frame anchor;
 - minimap-button visibility and position;
 - party layout;
 - role sorting;
@@ -350,7 +354,7 @@ The player always decides whom to click and which configured mouse action to use
 
 The addon uses the native World of Warcraft Settings interface.
 
-The configuration includes controls for:
+The configuration is organized as General, Spell configuration, Group, Raid, Role, and Dispel glow. It includes controls for:
 
 - locking and positioning;
 - minimap launcher visibility;
@@ -365,9 +369,11 @@ The configuration includes controls for:
 - dispel glow enable/disable;
 - glow style, color, speed, and thickness;
 - role priority;
+- party role-icon visibility and frame scale;
 - left/right/middle click spell assignments;
 - cooldown display per click action;
 - raid group-number position;
+- raid role-icon visibility and frame scale;
 - raid visual test mode.
 
 ---

@@ -81,9 +81,7 @@ function addon:CreateConfigurationPanel()
         return
     end
 
-    content:SetHeight(math.max(content:GetHeight(), 1475))
-
-    local card = CreateCard(content, -1190, 260, L.SECTION_GROUP_ORDER)
+    local card = CreateCard(content, 0, 260, L.SECTION_ROLE or L.SECTION_GROUP_ORDER)
     panel.GroupOrderCard = card
 
     local description = card:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
@@ -139,5 +137,6 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
+    self:LayoutConfigurationCards()
     self:RefreshGroupOrderConfigurationPanel()
 end

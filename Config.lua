@@ -172,6 +172,43 @@ local function RefreshDropdown(dropdown)
     end
 end
 
+function addon:LayoutConfigurationCards()
+    local panel = self.configurationPanel
+    local content = panel and panel.SettingsContent
+    if not content then
+        return
+    end
+
+    local cards = {
+        panel.GeneralSettingsCard,
+        panel.SpellSettingsCard,
+        panel.PartySettingsCard,
+        panel.RaidSettingsCard,
+        panel.GroupOrderCard,
+        panel.GlowSettingsCard,
+    }
+    local previousCard
+    local totalHeight = 0
+    for index = 1, 6 do
+        local card = cards[index]
+        if card then
+            card:ClearAllPoints()
+            if previousCard then
+                card:SetPoint("TOPLEFT", previousCard, "BOTTOMLEFT", 0, -16)
+                card:SetPoint("TOPRIGHT", previousCard, "BOTTOMRIGHT", 0, -16)
+                totalHeight = totalHeight + 16
+            else
+                card:SetPoint("TOPLEFT", content, "TOPLEFT", 24, 0)
+                card:SetPoint("TOPRIGHT", content, "TOPRIGHT", -24, 0)
+            end
+            totalHeight = totalHeight + card:GetHeight()
+            previousCard = card
+        end
+    end
+
+    content:SetHeight(math.max(620, totalHeight + 24))
+end
+
 function addon:RefreshConfigurationPanel()
     local panel = self.configurationPanel
     if not panel or not LafeeDecurseDB then
@@ -183,11 +220,15 @@ function addon:RefreshConfigurationPanel()
     panel.TestCheckbox:SetChecked(LafeeDecurseDB.testMode == true)
     panel.TitleCheckbox:SetChecked(LafeeDecurseDB.showTitle == true)
     panel.NamesCheckbox:SetChecked(LafeeDecurseDB.showNames == true)
+    panel.PartyRoleIconsCheckbox:SetChecked(addon:ArePartyRoleIconsShown())
     panel.ClassColorCheckbox:SetChecked(LafeeDecurseDB.useClassColors == true)
     panel.HorizontalCheckbox:SetChecked(LafeeDecurseDB.horizontal == true)
     panel.ShowAurasCheckbox:SetChecked(LafeeDecurseDB.showAuras ~= false)
-    panel.AuraGlowCheckbox:SetChecked(LafeeDecurseDB.auraGlow ~= false)
+    if panel.AuraGlowCheckbox then
+        panel.AuraGlowCheckbox:SetChecked(LafeeDecurseDB.auraGlow ~= false)
+    end
 
+    RefreshDropdown(panel.FrameAnchorDropdown)
     RefreshDropdown(panel.BackgroundModeDropdown)
     RefreshDropdown(panel.AuraGrowthDropdown)
 
@@ -199,6 +240,12 @@ function addon:RefreshConfigurationPanel()
         panel.AuraCountSlider.ignoreValueChanged = true
         panel.AuraCountSlider:SetValue(addon:GetAuraCount())
         panel.AuraCountSlider.ignoreValueChanged = nil
+    end
+
+    if panel.PartyScaleSlider then
+        panel.PartyScaleSlider.ignoreValueChanged = true
+        panel.PartyScaleSlider:SetValue(addon:GetPartyFrameScale())
+        panel.PartyScaleSlider.ignoreValueChanged = nil
     end
 
     for index, row in ipairs(panel.ClickRows) do
@@ -239,10 +286,10 @@ function addon:CreateConfigurationPanel()
     scrollFrame:SetPoint("BOTTOMRIGHT", panel, "BOTTOMRIGHT", -28, 10)
 
     local content = CreateFrame("Frame", nil, scrollFrame)
-    content:SetSize(600, 980)
+    content:SetSize(600, 620)
     scrollFrame:SetScrollChild(content)
 
-    local generalCard = CreateCard(content, 0, 142, L.SECTION_INTERFACE)
+    local generalCard = CreateCard(content, 0, 340, L.SECTION_GENERAL)
     panel.LockCheckbox = CreateCheckbox(generalCard, -42, L.LOCK_FRAME, function(checked)
         if not addon:SetLocked(checked) then
             addon:RefreshConfigurationPanel()
@@ -251,31 +298,15 @@ function addon:CreateConfigurationPanel()
     panel.MinimapCheckbox = CreateCheckbox(generalCard, -78, L.SHOW_MINIMAP, function(checked)
         addon:SetMinimapVisible(checked)
     end)
-    panel.TestCheckbox = CreateCheckbox(generalCard, -110, L.TEST_MODE, function(checked)
-        if not addon:SetTestMode(checked) then
-            addon:Print(L.TEST_COMBAT)
-            addon:RefreshConfigurationPanel()
-        end
-    end)
-
-    local resetButton = CreateFrame("Button", nil, generalCard, "UIPanelButtonTemplate")
-    resetButton:SetSize(150, 24)
-    resetButton:SetPoint("BOTTOMRIGHT", generalCard, "BOTTOMRIGHT", -14, 14)
-    resetButton:SetText(L.RESET_POSITION)
-    resetButton:SetScript("OnClick", function()
-        addon:ResetMainFramePosition()
-    end)
-
-    local appearanceCard = CreateCard(content, -158, 430, L.SECTION_APPEARANCE)
-    panel.TitleCheckbox = CreateCheckbox(appearanceCard, -42, L.SHOW_TITLE, function(checked)
+    panel.TitleCheckbox = CreateCheckbox(generalCard, -110, L.SHOW_TITLE, function(checked)
         if not addon:SetDisplayOption("showTitle", checked) then addon:RefreshConfigurationPanel() end
     end)
-    panel.NamesCheckbox = CreateCheckbox(appearanceCard, -76, L.SHOW_NAMES, function(checked)
-        if not addon:SetDisplayOption("showNames", checked) then addon:RefreshConfigurationPanel() end
+    panel.ClassColorCheckbox = CreateCheckbox(generalCard, -144, L.CLASS_COLORS, function(checked)
+        if not addon:SetDisplayOption("useClassColors", checked) then addon:RefreshConfigurationPanel() end
     end)
 
-    CreateFieldLabel(appearanceCard, 16, -121, L.BACKGROUND_MODE)
-    panel.BackgroundModeDropdown = CreateDropdown(appearanceCard, 245, -104, 285, L.BACKGROUND_MODE)
+    CreateFieldLabel(generalCard, 16, -187, L.BACKGROUND_MODE)
+    panel.BackgroundModeDropdown = CreateDropdown(generalCard, 245, -170, 285, L.BACKGROUND_MODE)
     panel.BackgroundModeDropdown:SetupMenu(function(_, rootDescription)
         local options = {
             { value = addon.BACKGROUND_MODE_FULL, text = L.BACKGROUND_MODE_FULL },
@@ -295,18 +326,11 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    panel.ClassColorCheckbox = CreateCheckbox(appearanceCard, -144, L.CLASS_COLORS, function(checked)
-        if not addon:SetDisplayOption("useClassColors", checked) then addon:RefreshConfigurationPanel() end
-    end)
-    panel.HorizontalCheckbox = CreateCheckbox(appearanceCard, -178, L.HORIZONTAL_LAYOUT, function(checked)
-        if not addon:SetDisplayOption("horizontal", checked) then addon:RefreshConfigurationPanel() end
-    end)
-
-    panel.ColorButton = CreateColorButton(appearanceCard, -218, L.BACKGROUND_COLOR, function(r, g, b, a)
+    panel.ColorButton = CreateColorButton(generalCard, -218, L.BACKGROUND_COLOR, function(r, g, b, a)
         addon:SetBackgroundColor(r, g, b, a)
     end)
 
-    local resetColorButton = CreateFrame("Button", nil, appearanceCard, "UIPanelButtonTemplate")
+    local resetColorButton = CreateFrame("Button", nil, generalCard, "UIPanelButtonTemplate")
     resetColorButton:SetSize(150, 26)
     resetColorButton:SetPoint("LEFT", panel.ColorButton, "RIGHT", 12, 0)
     resetColorButton:SetText(L.RESET_COLOR)
@@ -314,10 +338,93 @@ function addon:CreateConfigurationPanel()
         addon:ResetBackgroundColor()
     end)
 
-    CreateFieldLabel(appearanceCard, 16, -261, L.AURA_COUNT)
-    panel.AuraCountSlider = CreateFrame("Frame", nil, appearanceCard, "MinimalSliderWithSteppersTemplate")
+    CreateFieldLabel(generalCard, 16, -267, L.FRAME_ANCHOR)
+    panel.FrameAnchorDropdown = CreateDropdown(generalCard, 245, -250, 285, L.FRAME_ANCHOR)
+    panel.FrameAnchorDropdown:SetupMenu(function(_, rootDescription)
+        local labels = {
+            TOPLEFT = L.ANCHOR_TOPLEFT,
+            TOP = L.ANCHOR_TOP,
+            TOPRIGHT = L.ANCHOR_TOPRIGHT,
+            LEFT = L.ANCHOR_LEFT,
+            CENTER = L.ANCHOR_CENTER,
+            RIGHT = L.ANCHOR_RIGHT,
+            BOTTOMLEFT = L.ANCHOR_BOTTOMLEFT,
+            BOTTOM = L.ANCHOR_BOTTOM,
+            BOTTOMRIGHT = L.ANCHOR_BOTTOMRIGHT,
+        }
+        local function IsSelected(anchor)
+            return addon:GetMainFrameAnchor() == anchor
+        end
+        local function SetSelected(anchor)
+            if not addon:SetMainFrameAnchor(anchor) then
+                addon:RefreshConfigurationPanel()
+            end
+        end
+        for _, anchor in ipairs(addon.FRAME_ANCHORS) do
+            rootDescription:CreateRadio(labels[anchor] or anchor, IsSelected, SetSelected, anchor)
+        end
+    end)
+
+    local resetButton = CreateFrame("Button", nil, generalCard, "UIPanelButtonTemplate")
+    resetButton:SetSize(150, 24)
+    resetButton:SetPoint("BOTTOMRIGHT", generalCard, "BOTTOMRIGHT", -14, 14)
+    resetButton:SetText(L.RESET_POSITION)
+    resetButton:SetScript("OnClick", function()
+        addon:ResetMainFramePosition()
+    end)
+
+    local partyCard = CreateCard(content, -656, 350, L.SECTION_PARTY)
+    panel.TestCheckbox = CreateCheckbox(partyCard, -42, L.TEST_MODE, function(checked)
+        if not addon:SetTestMode(checked) then
+            addon:Print(L.TEST_COMBAT)
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+    panel.NamesCheckbox = CreateCheckbox(partyCard, -76, L.SHOW_NAMES, function(checked)
+        if not addon:SetDisplayOption("showNames", checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.PartyRoleIconsCheckbox = CreateCheckbox(partyCard, -110, L.SHOW_PARTY_ROLE_ICONS, function(checked)
+        if not addon:SetPartyRoleIconsVisible(checked) then addon:RefreshConfigurationPanel() end
+    end)
+    panel.HorizontalCheckbox = CreateCheckbox(partyCard, -144, L.HORIZONTAL_LAYOUT, function(checked)
+        if not addon:SetDisplayOption("horizontal", checked) then addon:RefreshConfigurationPanel() end
+    end)
+
+    CreateFieldLabel(partyCard, 16, -187, L.PARTY_FRAME_SCALE)
+    panel.PartyScaleSlider = CreateFrame("Frame", nil, partyCard, "MinimalSliderWithSteppersTemplate")
+    panel.PartyScaleSlider:SetSize(250, 40)
+    panel.PartyScaleSlider:SetPoint("TOPLEFT", partyCard, "TOPLEFT", 260, -168)
+    panel.PartyScaleSlider:Init(
+        addon:GetPartyFrameScale(),
+        addon.MIN_PARTY_FRAME_SCALE,
+        addon.MAX_PARTY_FRAME_SCALE,
+        15,
+        {
+            [MinimalSliderWithSteppersMixin.Label.Right] = function(value)
+                return string.format("%d%%", math.floor((value * 100) + 0.5))
+            end,
+            [MinimalSliderWithSteppersMixin.Label.Min] = function()
+                return "50%"
+            end,
+            [MinimalSliderWithSteppersMixin.Label.Max] = function()
+                return "200%"
+            end,
+        }
+    )
+    panel.PartyScaleSlider.Slider:HookScript("OnValueChanged", function(_, value)
+        if panel.PartyScaleSlider.ignoreValueChanged then
+            return
+        end
+        local scale = math.floor((value * 10) + 0.5) / 10
+        if math.abs(scale - addon:GetPartyFrameScale()) > 0.001 then
+            addon:SetPartyFrameScale(scale)
+        end
+    end)
+
+    CreateFieldLabel(partyCard, 16, -230, L.AURA_COUNT)
+    panel.AuraCountSlider = CreateFrame("Frame", nil, partyCard, "MinimalSliderWithSteppersTemplate")
     panel.AuraCountSlider:SetSize(250, 40)
-    panel.AuraCountSlider:SetPoint("TOPLEFT", appearanceCard, "TOPLEFT", 260, -242)
+    panel.AuraCountSlider:SetPoint("TOPLEFT", partyCard, "TOPLEFT", 260, -211)
     local sliderFormatters = {
         [MinimalSliderWithSteppersMixin.Label.Right] = function(value)
             return tostring(math.floor(value + 0.5))
@@ -347,8 +454,8 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    CreateFieldLabel(appearanceCard, 16, -304, L.AURA_GROWTH)
-    panel.AuraGrowthDropdown = CreateDropdown(appearanceCard, 245, -287, 285, L.AURA_GROWTH)
+    CreateFieldLabel(partyCard, 16, -273, L.AURA_GROWTH)
+    panel.AuraGrowthDropdown = CreateDropdown(partyCard, 245, -256, 285, L.AURA_GROWTH)
     panel.AuraGrowthDropdown:SetupMenu(function(_, rootDescription)
         local options
         if LafeeDecurseDB.horizontal then
@@ -376,14 +483,11 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    panel.ShowAurasCheckbox = CreateCheckbox(appearanceCard, -342, L.SHOW_AURAS, function(checked)
+    panel.ShowAurasCheckbox = CreateCheckbox(partyCard, -310, L.SHOW_AURAS, function(checked)
         if not addon:SetAuraIconsVisible(checked) then addon:RefreshConfigurationPanel() end
     end)
-    panel.AuraGlowCheckbox = CreateCheckbox(appearanceCard, -376, L.AURA_GLOW, function(checked)
-        if not addon:SetAuraGlowEnabled(checked) then addon:RefreshConfigurationPanel() end
-    end)
 
-    local clickCard = CreateCard(content, -604, 284, L.ACTION_ASSIGNMENTS)
+    local clickCard = CreateCard(content, -356, 284, L.SECTION_SPELLS)
     panel.ClickRows = {}
     for index = 1, 3 do
         panel.ClickRows[index] = CreateClickRow(clickCard, index)
@@ -405,7 +509,12 @@ function addon:CreateConfigurationPanel()
     Settings.RegisterAddOnCategory(category)
 
     self.configurationPanel = panel
+    panel.SettingsContent = content
+    panel.GeneralSettingsCard = generalCard
+    panel.SpellSettingsCard = clickCard
+    panel.PartySettingsCard = partyCard
     self.settingsCategoryID = category:GetID()
+    self:LayoutConfigurationCards()
     self:RefreshConfigurationPanel()
 end
 

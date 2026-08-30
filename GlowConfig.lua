@@ -128,6 +128,10 @@ function addon:RefreshGlowConfigurationPanel()
 
     RefreshDropdown(panel.GlowStyleDropdown)
 
+    if panel.AuraGlowCheckbox then
+        panel.AuraGlowCheckbox:SetChecked(not self.db or self.db.auraGlow ~= false)
+    end
+
     local color = self:GetAuraGlowColor()
     panel.GlowColorButton.Swatch:SetColorTexture(color.r, color.g, color.b, 1)
 
@@ -160,13 +164,24 @@ function addon:CreateConfigurationPanel()
         return
     end
 
-    content:SetHeight(math.max(content:GetHeight(), 1210))
-
-    local card = CreateCard(content, -904, 270, L.SECTION_GLOW or L.AURA_GLOW)
+    local card = CreateCard(content, 0, 304, L.SECTION_GLOW or L.AURA_GLOW)
     panel.GlowSettingsCard = card
 
-    CreateFieldLabel(card, 16, -61, L.GLOW_STYLE)
-    panel.GlowStyleDropdown = CreateDropdown(card, 245, -44, 285, L.GLOW_STYLE)
+    local glowCheckbox = CreateFrame("CheckButton", nil, card, "UICheckButtonTemplate")
+    glowCheckbox:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -42)
+    glowCheckbox:SetScript("OnClick", function(self)
+        if not addon:SetAuraGlowEnabled(self:GetChecked() == true) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+
+    local glowLabel = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    glowLabel:SetPoint("LEFT", glowCheckbox, "RIGHT", 4, 0)
+    glowLabel:SetText(L.AURA_GLOW)
+    panel.AuraGlowCheckbox = glowCheckbox
+
+    CreateFieldLabel(card, 16, -95, L.GLOW_STYLE)
+    panel.GlowStyleDropdown = CreateDropdown(card, 245, -78, 285, L.GLOW_STYLE)
     panel.GlowStyleDropdown:SetupMenu(function(_, rootDescription)
         local options = {
             { value = addon.GLOW_STYLE_PULSE, text = L.GLOW_STYLE_PULSE },
@@ -186,12 +201,12 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    panel.GlowColorButton = CreateGlowColorButton(card, -94)
+    panel.GlowColorButton = CreateGlowColorButton(card, -128)
 
-    CreateFieldLabel(card, 16, -145, L.GLOW_SPEED)
+    CreateFieldLabel(card, 16, -179, L.GLOW_SPEED)
     panel.GlowSpeedSlider = CreateFrame("Frame", nil, card, "MinimalSliderWithSteppersTemplate")
     panel.GlowSpeedSlider:SetSize(250, 40)
-    panel.GlowSpeedSlider:SetPoint("TOPLEFT", card, "TOPLEFT", 260, -126)
+    panel.GlowSpeedSlider:SetPoint("TOPLEFT", card, "TOPLEFT", 260, -160)
     panel.GlowSpeedSlider:Init(
         addon:GetAuraGlowSpeed(),
         addon.MIN_AURA_GLOW_SPEED,
@@ -219,10 +234,10 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
-    CreateFieldLabel(card, 16, -204, L.GLOW_THICKNESS)
+    CreateFieldLabel(card, 16, -238, L.GLOW_THICKNESS)
     panel.GlowThicknessSlider = CreateFrame("Frame", nil, card, "MinimalSliderWithSteppersTemplate")
     panel.GlowThicknessSlider:SetSize(250, 40)
-    panel.GlowThicknessSlider:SetPoint("TOPLEFT", card, "TOPLEFT", 260, -185)
+    panel.GlowThicknessSlider:SetPoint("TOPLEFT", card, "TOPLEFT", 260, -219)
     panel.GlowThicknessSlider:Init(
         addon:GetAuraGlowThickness(),
         addon.MIN_AURA_GLOW_THICKNESS,
@@ -250,5 +265,6 @@ function addon:CreateConfigurationPanel()
         end
     end)
 
+    self:LayoutConfigurationCards()
     self:RefreshGlowConfigurationPanel()
 end

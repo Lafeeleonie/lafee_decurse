@@ -7,15 +7,7 @@ local function CreateRaidSettingsCard(content, panel)
     end
 
     local card = CreateFrame("Frame", nil, content, "BackdropTemplate")
-    local previousCard = panel.GroupOrderCard or panel.GlowSettingsCard
-    if previousCard then
-        card:SetPoint("TOPLEFT", previousCard, "BOTTOMLEFT", 0, -16)
-        card:SetPoint("TOPRIGHT", previousCard, "BOTTOMRIGHT", 0, -16)
-    else
-        card:SetPoint("TOPLEFT", content, "TOPLEFT", 24, -904)
-        card:SetPoint("TOPRIGHT", content, "TOPRIGHT", -24, -904)
-    end
-    card:SetHeight(112)
+    card:SetHeight(196)
     card:SetBackdrop({
         bgFile = "Interface\\Buttons\\WHITE8X8",
         edgeFile = "Interface\\Buttons\\WHITE8X8",
@@ -59,8 +51,54 @@ local function CreateRaidSettingsCard(content, panel)
         end
     end)
 
+    local roleIconsCheckbox = CreateFrame("CheckButton", nil, card, "UICheckButtonTemplate")
+    roleIconsCheckbox:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -72)
+    roleIconsCheckbox:SetScript("OnClick", function(self)
+        if not addon:SetRaidRoleIconsVisible(self:GetChecked() == true) then
+            addon:RefreshConfigurationPanel()
+        end
+    end)
+
+    local roleIconsLabel = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    roleIconsLabel:SetPoint("LEFT", roleIconsCheckbox, "RIGHT", 4, 0)
+    roleIconsLabel:SetText(L.SHOW_RAID_ROLE_ICONS or "Show raid role icons")
+
+    local scaleLabel = card:CreateFontString(nil, "OVERLAY", "GameFontHighlight")
+    scaleLabel:SetPoint("LEFT", card, "TOPLEFT", 16, -121)
+    scaleLabel:SetText(L.RAID_FRAME_SCALE or "Raid frame scale")
+
+    local scaleSlider = CreateFrame("Frame", nil, card, "MinimalSliderWithSteppersTemplate")
+    scaleSlider:SetSize(250, 40)
+    scaleSlider:SetPoint("TOPLEFT", card, "TOPLEFT", 260, -102)
+    scaleSlider:Init(
+        addon:GetRaidFrameScale(),
+        addon.MIN_RAID_FRAME_SCALE,
+        addon.MAX_RAID_FRAME_SCALE,
+        15,
+        {
+            [MinimalSliderWithSteppersMixin.Label.Right] = function(value)
+                return string.format("%d%%", math.floor((value * 100) + 0.5))
+            end,
+            [MinimalSliderWithSteppersMixin.Label.Min] = function()
+                return "50%"
+            end,
+            [MinimalSliderWithSteppersMixin.Label.Max] = function()
+                return "200%"
+            end,
+        }
+    )
+    scaleSlider.Slider:HookScript("OnValueChanged", function(_, value)
+        if scaleSlider.ignoreValueChanged then
+            return
+        end
+        local scale = math.floor((value * 10) + 0.5) / 10
+        if math.abs(scale - addon:GetRaidFrameScale()) > 0.001 then
+            addon:SetRaidFrameScale(scale)
+        end
+    end)
+
     local testCheckbox = CreateFrame("CheckButton", nil, card, "UICheckButtonTemplate")
-    testCheckbox:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -72)
+    testCheckbox:SetPoint("TOPLEFT", card, "TOPLEFT", 14, -154)
     testCheckbox:SetScript("OnClick", function(self)
         if not addon:SetRaidTestMode(self:GetChecked() == true) then
             addon:RefreshConfigurationPanel()
@@ -73,7 +111,10 @@ local function CreateRaidSettingsCard(content, panel)
 
     panel.RaidSettingsCard = card
     panel.RaidGroupNumberSideDropdown = dropdown
+    panel.RaidRoleIconsCheckbox = roleIconsCheckbox
+    panel.RaidScaleSlider = scaleSlider
     panel.RaidTestCheckbox = testCheckbox
+    addon:LayoutConfigurationCards()
 end
 
 local function FindSettingsContent(panel)
@@ -95,7 +136,6 @@ function addon:CreateConfigurationPanel(...)
     if panel then
         local content = FindSettingsContent(panel)
         if content then
-            content:SetHeight(math.max(content:GetHeight(), 1602))
             CreateRaidSettingsCard(content, panel)
             self:RefreshConfigurationPanel()
         end
@@ -119,6 +159,17 @@ function addon:RefreshConfigurationPanel(...)
     if panel.RaidTestCheckbox then
         panel.RaidTestCheckbox:SetChecked(self:IsRaidTestModeEnabled())
         panel.RaidTestCheckbox:SetEnabled(not IsInRaid() and not InCombatLockdown())
+    end
+
+    if panel.RaidRoleIconsCheckbox then
+        panel.RaidRoleIconsCheckbox:SetChecked(self:AreRaidRoleIconsShown())
+        panel.RaidRoleIconsCheckbox:SetEnabled(not InCombatLockdown())
+    end
+
+    if panel.RaidScaleSlider then
+        panel.RaidScaleSlider.ignoreValueChanged = true
+        panel.RaidScaleSlider:SetValue(self:GetRaidFrameScale())
+        panel.RaidScaleSlider.ignoreValueChanged = nil
     end
 
     return result

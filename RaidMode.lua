@@ -11,6 +11,9 @@ local GROUP_NUMBER_GAP = 4
 addon.RAID_GROUP_NUMBER_LEFT = "LEFT"
 addon.RAID_GROUP_NUMBER_RIGHT = "RIGHT"
 addon.RAID_GROUP_NUMBER_NONE = "NONE"
+addon.MIN_RAID_FRAME_SCALE = 0.50
+addon.MAX_RAID_FRAME_SCALE = 2.00
+addon.DEFAULT_RAID_FRAME_SCALE = 1.00
 
 local ROLE_ATLASES = {
     TANK = "roleicon-tiny-tank",
@@ -56,6 +59,47 @@ function addon:SetRaidGroupNumberSide(side)
         return false
     end
     profile.raidGroupNumberSide = side
+    return self:ApplyDisplaySettings()
+end
+
+function addon:GetRaidFrameScale()
+    local scale = tonumber(self.db and self.db.raidFrameScale) or self.DEFAULT_RAID_FRAME_SCALE
+    return math.max(self.MIN_RAID_FRAME_SCALE, math.min(self.MAX_RAID_FRAME_SCALE, scale))
+end
+
+function addon:SetRaidFrameScale(scale)
+    if InCombatLockdown() then
+        self:Print(self.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    scale = math.floor(((tonumber(scale) or self.DEFAULT_RAID_FRAME_SCALE) * 10) + 0.5) / 10
+    local profile = self.db or self:ActivateCurrentProfile()
+    if not profile then
+        return false
+    end
+    profile.raidFrameScale = math.max(
+        self.MIN_RAID_FRAME_SCALE,
+        math.min(self.MAX_RAID_FRAME_SCALE, scale)
+    )
+    return self:ApplyDisplaySettings()
+end
+
+function addon:AreRaidRoleIconsShown()
+    return not self.db or self.db.showRaidRoleIcons ~= false
+end
+
+function addon:SetRaidRoleIconsVisible(visible)
+    if InCombatLockdown() then
+        self:Print(self.L.DISPLAY_COMBAT)
+        return false
+    end
+
+    local profile = self.db or self:ActivateCurrentProfile()
+    if not profile then
+        return false
+    end
+    profile.showRaidRoleIcons = visible == true
     return self:ApplyDisplaySettings()
 end
 
@@ -163,7 +207,7 @@ local function UpdateRaidButtonVisual(button)
 
     local role = UnitGroupRolesAssigned(unit)
     local atlas = ROLE_ATLASES[role]
-    if atlas then
+    if atlas and addon:AreRaidRoleIconsShown() then
         button.RoleIcon:SetAtlas(atlas)
         button.RoleIcon:Show()
     else
@@ -226,6 +270,7 @@ local function LayoutRaidButtons()
         return
     end
 
+    mainFrame:SetScale(addon:GetRaidFrameScale())
     HideRaidButtons()
     local groups = BuildRaidGroups()
     local db = addon.db or {}
